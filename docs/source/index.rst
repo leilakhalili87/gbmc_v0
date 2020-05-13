@@ -7,9 +7,9 @@ gbmc_v0 Documentation
 =====================
 
 .. toctree::
-   :maxdepth: 2
 
    installation
    usage
    release-history
    min_versions
+   Tutorials/index
