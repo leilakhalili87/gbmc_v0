@@ -4,7 +4,8 @@ python:
 cache:
   directories:
     - $HOME/.cache/pip
-    - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
+    - $HOME/.ccache  
+
 
 env:
   global:
