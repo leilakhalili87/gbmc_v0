@@ -2,3 +2,4 @@
 nbsphinx
 jupyter-client
 pandoc
+nbconvert
