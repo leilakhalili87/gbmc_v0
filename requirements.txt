@@ -1,5 +1,5 @@
 # List required packages in this file, one per line.
 nbsphinx
 jupyter-client
-pandoc
 nbconvert
+pandoc

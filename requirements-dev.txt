@@ -4,8 +4,8 @@ codecov
 coverage
 flake8
 pytest
-pandoc
 nbconvert
+pandoc
 sphinx
 # These are dependencies of various sphinx extensions for documentation.
 ipython
