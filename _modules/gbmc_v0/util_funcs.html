@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>gbmc_v0.util_funcs &mdash; gbmc_v0 0.post26+gc309ae7 documentation</title>
+  <title>gbmc_v0.util_funcs &mdash; gbmc_v0 0.post27+gf57a0ff documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.post26+gc309ae7
+                0.post27+gf57a0ff
               </div>
             
           
@@ -156,8 +156,6 @@
             
   <h1>Source code for gbmc_v0.util_funcs</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">ovito.io</span> <span class="k">as</span> <span class="nn">oio</span><span class="p">;</span>
 <span class="kn">import</span> <span class="nn">ovito.modifiers</span> <span class="k">as</span> <span class="nn">ovm</span><span class="p">;</span>
 <span class="kn">from</span> <span class="nn">ovito.io</span> <span class="kn">import</span> <span class="n">import_file</span><span class="p">,</span> <span class="n">export_file</span>
@@ -178,10 +176,10 @@
 <span class="sd">	data : class</span>
 <span class="sd">		all the attributes of data</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">pipeline</span> <span class="o">=</span>  <span class="n">oio</span><span class="o">.</span><span class="n">import_file</span><span class="p">(</span><span class="n">filename0</span><span class="p">,</span><span class="n">sort_particles</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
-    <span class="n">dmod</span> <span class="o">=</span> <span class="n">ovm</span><span class="o">.</span><span class="n">PolyhedralTemplateMatchingModifier</span><span class="p">(</span><span class="n">rmsd_cutoff</span><span class="o">=.</span><span class="mi">1</span><span class="p">);</span>
-    <span class="n">pipeline</span><span class="o">.</span><span class="n">modifiers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dmod</span><span class="p">);</span>
-    <span class="k">return</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">compute</span><span class="p">();</span>
+    <span class="n">pipeline</span> <span class="o">=</span>  <span class="n">oio</span><span class="o">.</span><span class="n">import_file</span><span class="p">(</span><span class="n">filename0</span><span class="p">,</span><span class="n">sort_particles</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">dmod</span> <span class="o">=</span> <span class="n">ovm</span><span class="o">.</span><span class="n">PolyhedralTemplateMatchingModifier</span><span class="p">(</span><span class="n">rmsd_cutoff</span><span class="o">=.</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">pipeline</span><span class="o">.</span><span class="n">modifiers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dmod</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="RemProb"><a class="viewcode-back" href="../../usage.html#gbmc_v0.util_funcs.RemProb">[docs]</a><span class="k">def</span> <span class="nf">RemProb</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">CohEng</span><span class="p">,</span> <span class="n">GbIndex</span> <span class="p">):</span>
@@ -203,11 +201,11 @@
 <span class="sd">	&quot;&quot;&quot;</span>
 
 	<span class="n">GbAtomicEng</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">particle_properties</span><span class="p">[</span><span class="s1">&#39;c_eng&#39;</span><span class="p">][</span><span class="n">GbIndex</span><span class="p">]</span>
-	<span class="n">Excess_Eng</span> <span class="o">=</span> <span class="p">(</span><span class="n">GbAtomicEng</span> <span class="o">-</span> <span class="n">CohEng</span><span class="p">);</span>
-	<span class="n">Excess_Eng</span><span class="p">[</span><span class="n">Excess_Eng</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-	<span class="n">Excess_Eng_Tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Excess_Eng</span><span class="p">);</span>
+	<span class="n">Excess_Eng</span> <span class="o">=</span> <span class="p">(</span><span class="n">GbAtomicEng</span> <span class="o">-</span> <span class="n">CohEng</span><span class="p">)</span>
+	<span class="n">Excess_Eng</span><span class="p">[</span><span class="n">Excess_Eng</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+	<span class="n">Excess_Eng_Tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Excess_Eng</span><span class="p">)</span>
 
-	<span class="k">return</span> <span class="n">Excess_Eng</span><span class="o">/</span><span class="n">Excess_Eng_Tot</span><span class="p">;</span></div>
+	<span class="k">return</span> <span class="n">Excess_Eng</span><span class="o">/</span><span class="n">Excess_Eng_Tot</span></div>
 
 </pre></div>
 
