@@ -7,5 +7,6 @@ Start by importing gbmc_v0.
 .. code-block:: python
 
     import gbmc_v0
+.. autofunction:: gbmc_v0.util_funcs.compute_ovito_data
 
 .. autofunction:: gbmc_v0.util_funcs.RemProb
