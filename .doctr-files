@@ -2,6 +2,7 @@
 ./_sources/installation.rst.txt
 ./_sources/min_versions.rst.txt
 ./_sources/release-history.rst.txt
+./_sources/tot.ipynb.txt
 ./_sources/usage.rst.txt
 ./_static/basic.css
 ./_static/clipboard.min.js
@@ -68,4 +69,6 @@
 ./release-history.html
 ./search.html
 ./searchindex.js
+./tot.html
+./tot.ipynb
 ./usage.html
