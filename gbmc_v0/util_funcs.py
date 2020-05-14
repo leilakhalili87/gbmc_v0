@@ -1,6 +1,4 @@
 import numpy as np
-import os
-import sys
 import ovito.io as oio;
 import ovito.modifiers as ovm;
 from ovito.io import import_file, export_file
@@ -21,10 +19,10 @@ def compute_ovito_data(filename0):
 	data : class
 		all the attributes of data
     """
-    pipeline =  oio.import_file(filename0,sort_particles=True);
-    dmod = ovm.PolyhedralTemplateMatchingModifier(rmsd_cutoff=.1);
-    pipeline.modifiers.append(dmod);
-    return pipeline.compute();
+    pipeline =  oio.import_file(filename0,sort_particles=True)
+    dmod = ovm.PolyhedralTemplateMatchingModifier(rmsd_cutoff=.1)
+    pipeline.modifiers.append(dmod)
+    return pipeline.compute()
 
 
 def RemProb(data, CohEng, GbIndex ):
@@ -46,9 +44,9 @@ def RemProb(data, CohEng, GbIndex ):
 	"""
 
 	GbAtomicEng = data.particle_properties['c_eng'][GbIndex]
-	Excess_Eng = (GbAtomicEng - CohEng);
-	Excess_Eng[Excess_Eng < 0] = 0;
-	Excess_Eng_Tot = np.sum(Excess_Eng);
+	Excess_Eng = (GbAtomicEng - CohEng)
+	Excess_Eng[Excess_Eng < 0] = 0
+	Excess_Eng_Tot = np.sum(Excess_Eng)
 
-	return Excess_Eng/Excess_Eng_Tot;
+	return Excess_Eng/Excess_Eng_Tot
 
