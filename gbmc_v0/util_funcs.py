@@ -1,7 +1,6 @@
 import numpy as np
 import ovito.io as oio
 import ovito.modifiers as ovm
-# from ovito.io import import_file, export_file
 
 
 def compute_ovito_data(filename0):
