@@ -63,7 +63,7 @@ templates_path = ['_templates']
 #
 # source_suffix = ['.rst', '.md']
 # source_suffix = '.rst'
-source_suffix = ['.rst', 'ipynb']
+source_suffix = ['.rst', '.ipynb']
 
 # The master toctree document.
 master_doc = 'index'

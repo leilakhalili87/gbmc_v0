@@ -12,5 +12,4 @@ gbmc_v0 Documentation
    usage
    release-history
    min_versions
-   #Tutorials/index
    tot
