@@ -20,7 +20,9 @@ def compute_ovito_data(filename0):
     pipeline = oio.import_file(filename0, sort_particles=True)
     dmod = ovm.PolyhedralTemplateMatchingModifier(rmsd_cutoff=.1)
     pipeline.modifiers.append(dmod)
-    return pipeline.compute()
+    data = pipeline.compute()
+    num_particles = data.particles.count
+    return num_particles
 
 
 def RemProb(data, CohEng, GbIndex):
