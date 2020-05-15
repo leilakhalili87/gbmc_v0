@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>gbmc_v0.util_funcs &mdash; gbmc_v0 0.post40+g7344429 documentation</title>
+  <title>gbmc_v0.util_funcs &mdash; gbmc_v0 0.post41+g03ffed5 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.post40+g7344429
+                0.post41+g03ffed5
               </div>
             
           
@@ -177,7 +177,9 @@
     <span class="n">pipeline</span> <span class="o">=</span> <span class="n">oio</span><span class="o">.</span><span class="n">import_file</span><span class="p">(</span><span class="n">filename0</span><span class="p">,</span> <span class="n">sort_particles</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">dmod</span> <span class="o">=</span> <span class="n">ovm</span><span class="o">.</span><span class="n">PolyhedralTemplateMatchingModifier</span><span class="p">(</span><span class="n">rmsd_cutoff</span><span class="o">=.</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">pipeline</span><span class="o">.</span><span class="n">modifiers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dmod</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span></div>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+    <span class="n">num_particles</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">particles</span><span class="o">.</span><span class="n">count</span>
+    <span class="k">return</span> <span class="n">num_particles</span></div>
 
 
 <div class="viewcode-block" id="RemProb"><a class="viewcode-back" href="../../usage.html#gbmc_v0.util_funcs.RemProb">[docs]</a><span class="k">def</span> <span class="nf">RemProb</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">CohEng</span><span class="p">,</span> <span class="n">GbIndex</span><span class="p">):</span>
