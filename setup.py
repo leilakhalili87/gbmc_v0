@@ -55,7 +55,7 @@ setup(
             # When adding files here, remember to update MANIFEST.in as well,
             # or else they will not be included in the distribution on PyPI!
             # 'path/to/data_file',
-            'data/dump_*'
+            'gbmc_v0/tests/data/dump_1'
         ]
     },
     install_requires=requirements,
