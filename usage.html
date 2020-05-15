@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Usage &mdash; gbmc_v0 0.post35+g26209e5 documentation</title>
+  <title>Usage &mdash; gbmc_v0 0.post39+g7633448 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.post35+g26209e5
+                0.post39+g7633448
               </div>
             
           
@@ -445,6 +445,58 @@ and add padding to the GB atoms  within rCut in Y direction.</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py function">
+<dt id="gbmc_v0.vv_props.Circum_O_R">
+<code class="sig-prename descclassname">gbmc_v0.vv_props.</code><code class="sig-name descname">Circum_O_R</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vertex_pos</span></em>, <em class="sig-param"><span class="n">tol</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gbmc_v0/vv_props.html#Circum_O_R"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gbmc_v0.vv_props.Circum_O_R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function finds the center and the radius of the circumsphere of the every tetrahedron.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>vertex_pos :</strong></dt><dd><p>The position of vertices of a tetrahedron</p>
+</dd>
+<dt><strong>tol :</strong></dt><dd><p>Tolerance defined  to identify co-planar tetrahedrons</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>circum_center :</dt><dd><p>The center of the circum-sphere</p>
+</dd>
+<dt>circum_rad :</dt><dd><p>The radius of the circum-sphere</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="gbmc_v0.vv_props.triang_inds">
+<code class="sig-prename descclassname">gbmc_v0.vv_props.</code><code class="sig-name descname">triang_inds</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pts_w_imgs</span></em>, <em class="sig-param"><span class="n">gb1_inds</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gbmc_v0/vv_props.html#triang_inds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gbmc_v0.vv_props.triang_inds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function finds the indices of atoms making tetrahedrons</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>pts_w_imgs :</strong></dt><dd><p>The position of atoms which are inside the main  box and within rCut to the main box (change name!)</p>
+</dd>
+<dt><strong>gb1_inds :</strong></dt><dd><p>Indices of the GB atoms</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>tri_vertices :</dt><dd></dd>
+<dt>gb_tri_inds :</dt><dd><p>Tetrahedrons including at least one</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="gbmc_v0.vv_props.vv_props">
+<code class="sig-prename descclassname">gbmc_v0.vv_props.</code><code class="sig-name descname">vv_props</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pts_w_imgs</span></em>, <em class="sig-param"><span class="n">tri_vertices</span></em>, <em class="sig-param"><span class="n">gb_tri</span></em>, <em class="sig-param"><span class="n">lat_par</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gbmc_v0/vv_props.html#vv_props"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gbmc_v0.vv_props.vv_props" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 

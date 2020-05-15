@@ -27,3 +27,9 @@ Start by importing gbmc_v0.
 
 .. autofunction:: gbmc_v0.pad_dump_file.inds_to_keep
 
+.. autofunction:: gbmc_v0.vv_props.Circum_O_R
+
+.. autofunction:: gbmc_v0.vv_props.triang_inds
+
+.. autofunction:: gbmc_v0.vv_props.vv_props
+
