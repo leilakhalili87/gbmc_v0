@@ -55,7 +55,7 @@ setup(
             # When adding files here, remember to update MANIFEST.in as well,
             # or else they will not be included in the distribution on PyPI!
             # 'path/to/data_file',
-            '/home/leila/Leila_sndhard/codes/gbmc_python/gbmc_v0/gbmc_v0/gbmc_v0/tests/data/dump_*'
+            'data/dump_*'
         ]
     },
     install_requires=requirements,
