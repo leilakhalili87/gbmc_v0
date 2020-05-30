@@ -1,0 +1,75 @@
+# Minimization Parameters -------------------------
+
+variable Etol equal 1e-25
+variable Ftol equal 1e-25
+variable MaxIter equal 5000
+variable MaxEval equal 10000
+variable Infn equal -10000000000
+variable Inf equal 10000000000
+# ------------------------------------------------
+
+variable LatParam equal 4.05
+# ------------------------------------------------
+
+variable GBname index in.minimize0
+variable cnt equal 1
+# ------------------------------------------------
+
+variable OverLap equal 1.43
+
+# -----------Initializing the Simulation-----------
+
+clear
+units metal
+dimension 3
+boundary p p f 
+atom_style atomic
+
+# ---------Creating the Atomistic Structure--------
+
+lattice fcc ${LatParam}
+region whole prism -1.618649574625987e-15 29.7002514892482 0.0 22.366856059804192 -101.25 101.25 7.333395429443997 -1.618649574625987e-15 1.0892505522088474e-15
+create_box 2 whole
+region lower prism -1.618649574625987e-15 29.7002514892482 0.0 22.366856059804192 0 101.25 7.333395429443997 -1.618649574625987e-15 1.0892505522088474e-15
+region upper prism -1.618649574625987e-15 29.7002514892482 0.0 22.366856059804192 -101.25 0 7.333395429443997 -1.618649574625987e-15 1.0892505522088474e-15
+group lower type 2
+group upper type 1
+
+read_dump ./tests/data/dump_1 0 x y z box yes add yes 
+
+# -------Defining the potential functions----------
+
+pair_style eam/alloy
+pair_coeff * * ./lammps_dump/Al99.eam.alloy Al Al
+delete_atoms overlap ${OverLap}  upper lower
+neighbor 2 bin
+neigh_modify delay 10 check yes
+
+# ---------Computing Simulation Parameters---------
+
+compute csym all centro/atom fcc
+compute eng all pe/atom
+compute eatoms all reduce sum c_eng
+compute MinAtomEnergy all reduce min c_eng
+
+# ------1st Minimization:Relaxing the bi-crystal------
+
+reset_timestep 0
+thermo 10
+thermo_style custom step pe lx ly lz xy xz yz xlo xhi ylo yhi zlo zhi press pxx pyy pzz c_eatoms c_MinAtomEnergy
+thermo_modify lost ignore
+dump 1 all custom 10 ./lammps_dump/dump_befor.${cnt} id type x y z c_csym c_eng
+min_style cg
+minimize ${Etol} ${Ftol} ${MaxIter} ${MaxEval}
+undump 1
+
+# -----------------Dumping Outputs-----------------
+
+reset_timestep 0
+timestep 0.001
+thermo 10
+thermo_style custom step pe lx ly lz press pxx pyy pzz c_eatoms
+thermo_modify lost ignore
+dump 1 all custom 10 ./lammps_dump/dump_after.${cnt} id type x y z c_csym c_eng
+run 0
+undump 1
