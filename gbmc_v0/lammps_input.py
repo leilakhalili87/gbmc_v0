@@ -109,6 +109,155 @@ def write_lammps(filename0, box_bound, dump_lamp):
         for line in mat:
             np.savetxt(f, line, fmt='%d %d %.10f %.10f %.10f')
 
+def write_lammps_dump(filename0, box_bound, dump_lamp):
+    """
+    Function writes the lammps dump file.
 
-box_bound, dump_lamp = lammps_box('gb_attr.pkl')
-write_lammps("my_dump.txt", box_bound, dump_lamp)
+    Parameters
+    ------------
+    filename0 :
+        Name of the lammps dump file
+    box_bound :
+        The box bound needed to write lammps dump file which is 9 parameters: xlo, xhi, ylo, yhi,
+        zlo, zhi, xy, xz, yz
+    dump_lamp :
+        A numpy nd.array having atom ID, atom type( 1 for upper grain and 2 for lower grain), x, y, z
+
+    Returns
+    ----------
+    """
+    num_atoms = np.shape(dump_lamp)[0]
+    file = open(filename0, "w")
+    file.write("ITEM: TIMESTEP\n")
+    file.write("0\n")
+    file.write("ITEM: NUMBER OF ATOMS\n")
+    file.write(str(num_atoms) + "\n")
+    file.write("ITEM: BOX BOUNDS xy xz yz pp ff pp\n")
+    file.write(' '.join(map(str, box_bound[0])) + "\n")
+    file.write(' '.join(map(str, box_bound[1])) + "\n")
+    file.write(' '.join(map(str, box_bound[2])) + "\n")
+    file.write("ITEM: ATOMS id type x y z\n")
+    file.close()
+    mat = np.matrix(dump_lamp)
+    with open(filename0, 'a') as f:
+        for line in mat:
+            np.savetxt(f, line, fmt='%d %d %.10f %.10f %.10f')
+
+def write_lammps_script(dump_name, path, script_name,  box_bound):
+    fiw = open(str(path) + str(script_name), 'w')
+    line = []
+    line.append('# Minimization Parameters -------------------------\n')
+    line.append('\n')
+    line.append('variable Etol equal 1e-25\n')
+    line.append('variable Ftol equal 1e-25\n')
+    line.append('variable MaxIter equal 5000\n')
+    line.append('variable MaxEval equal 10000\n')
+    line.append('variable Infn equal -10000000000\n')
+    line.append('variable Inf equal 10000000000\n')
+    line.append('# ------------------------------------------------\n')
+    line.append('\n')
+    line.append('variable LatParam equal 4.05\n')
+    line.append('# ------------------------------------------------\n')
+    line.append('\n')
+    line.append('variable GBname index in.minimize0\n')
+    line.append('variable cnt equal 1\n')
+    line.append('# ------------------------------------------------\n')
+    line.append('\n')
+    line.append('variable OverLap equal 1.43\n')
+    line.append('\n')
+    line.append('# -----------Initializing the Simulation-----------\n')
+    line.append('\n')
+    line.append('clear\n')
+    line.append('units metal\n')
+    line.append('dimension 3\n')
+    # line.append('boundary '+bcon[0]+' '+bcon[1]+' '+bcon[2]+'\n')
+    line.append('boundary p p f \n')
+    line.append('atom_style atomic\n')
+    line.append('\n')
+    line.append('# ---------Creating the Atomistic Structure--------\n')
+    line.append('\n')
+    line.append('lattice fcc ${LatParam}\n')
+
+    line.append('region whole prism ' + str(box_bound[0][0]) + ' ' +
+    str(box_bound[0][1]) + ' ' + str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' ' +
+    str(box_bound[2][0]) + ' ' + str(box_bound[2][1]) + ' ' + str(box_bound[0][2])
+    + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + '\n')
+
+    line.append('create_box 2 whole\n')
+    
+    line.append('region lower prism ' + str(box_bound[0][0]) + ' ' + str(box_bound[0][1]) + ' ' +
+    str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' 0 ' + str(box_bound[2][1]) + ' ' +
+    str(box_bound[0][2]) + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + '\n')
+
+    line.append('region upper prism ' + str(box_bound[0][0]) + ' ' + str(box_bound[0][1]) + ' ' +
+    str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' ' + str(box_bound[2][0]) + ' 0 ' +
+    str(box_bound[0][2]) + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + '\n')
+
+    # line.append('region lower prism ' + str(box_bound[0][0]) + ' ' + str(box_bound[0][1]) + ' '
+    # + str(box_bound[1][0]) +  ' 0. ' +
+    # str(box_bound[2][0]) + ' ' + str(box_bound[2][1]) + ' ' +
+    # str(box_bound[0][2]) + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + '\n')
+
+    # line.append('region upper prism ' + str(box_bound[0][0]) + ' ' + str(box_bound[0][1])
+    # + ' 0. ' + str(box_bound[1][1]) + ' ' +
+    # str(box_bound[2][0]) + ' ' + str(box_bound[2][1]) + ' ' +
+    # str(box_bound[0][2]) + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + '\n')
+
+    line.append('group lower type 2\n')
+    line.append('group upper type 1\n')
+    line.append('\n')
+    line.append('read_dump ' + str(dump_name) + ' 0 x y z box yes add yes \n')
+    line.append('\n')
+    line.append('# -------Defining the potential functions----------\n')
+    line.append('\n')
+    line.append('pair_style eam/alloy\n')
+    line.append('pair_coeff * * ' + str(path) + 'Al99.eam.alloy Al Al\n')
+    line.append('delete_atoms overlap ${OverLap}  upper lower\n')
+    line.append('neighbor 2 bin\n')
+    line.append('neigh_modify delay 10 check yes\n')
+    line.append('\n')
+    line.append('# ---------Computing Simulation Parameters---------\n')
+    line.append('\n')
+    line.append('compute csym all centro/atom fcc\n')
+    line.append('compute eng all pe/atom\n')
+    line.append('compute eatoms all reduce sum c_eng\n')
+    line.append('compute MinAtomEnergy all reduce min c_eng\n')
+    line.append('\n')
+    line.append('# ------1st Minimization:Relaxing the bi-crystal------\n')
+    line.append('\n')
+    line.append('reset_timestep 0\n')
+    line.append('thermo 10\n')
+    line.append('thermo_style custom step pe lx ly lz xy xz yz xlo xhi ylo yhi zlo zhi press pxx pyy pzz c_eatoms c_MinAtomEnergy\n')
+    line.append('thermo_modify lost ignore\n')
+    line.append('dump 1 all custom 10 ' + str(path) + 'dump_befor.${cnt} id type x y z c_csym c_eng\n')   
+    line.append('min_style cg\n')
+    line.append('minimize ${Etol} ${Ftol} ${MaxIter} ${MaxEval}\n')   
+    line.append('undump 1\n')
+    line.append('\n')
+    line.append('# -----------------Dumping Outputs-----------------\n')
+    line.append('\n') 
+    line.append('reset_timestep 0\n')
+    line.append('timestep 0.001\n')   
+    line.append('thermo 10\n')
+    line.append('thermo_style custom step pe lx ly lz press pxx pyy pzz c_eatoms\n')   
+    line.append('thermo_modify lost ignore\n')
+    line.append('dump 1 all custom 10 ' + str(path) + 'dump_after.${cnt} id type x y z c_csym c_eng\n')   
+    line.append('run 0\n')
+    line.append('undump 1\n')  
+    for i in line:
+        fiw.write(i)
+    fiw.close()
+    return True
+
+
+
+# pkl_dump('dump.1')     
+box_bound, dump_lamp = lammps_box('./tests/data/gb_attr.pkl')
+write_lammps_dump("./tests/data/dump_1", box_bound, dump_lamp)
+write_lammps_script('./tests/data/dump_1', './lammps_dump/', 'in.minimize0', box_bound)
+lammps_exe_path = '/home/leila/Downloads/lammps-stable/lammps-7Aug19/src/lmp_mpi'
+import os
+os.system(str(lammps_exe_path) + '< ./lammps_dump/' + 'in.minimize0')
+
+# box_bound, dump_lamp = lammps_box('./tests/data/gb_attr.pkl')
+# write_lammps("./tests/data/dump_1", box_bound, dump_lamp)
