@@ -1,6 +1,7 @@
 import numpy as np
 import pickle as pkl
 from numpy import linalg as LA
+import os
 
 
 def lammps_box(pkl_name):
@@ -109,6 +110,7 @@ def write_lammps(filename0, box_bound, dump_lamp):
         for line in mat:
             np.savetxt(f, line, fmt='%d %d %.10f %.10f %.10f')
 
+
 def write_lammps_dump(filename0, box_bound, dump_lamp):
     """
     Function writes the lammps dump file.
@@ -142,6 +144,7 @@ def write_lammps_dump(filename0, box_bound, dump_lamp):
     with open(filename0, 'a') as f:
         for line in mat:
             np.savetxt(f, line, fmt='%d %d %.10f %.10f %.10f')
+
 
 def write_lammps_script(dump_name, path, script_name,  box_bound):
     fiw = open(str(path) + str(script_name), 'w')
@@ -179,29 +182,18 @@ def write_lammps_script(dump_name, path, script_name,  box_bound):
     line.append('lattice fcc ${LatParam}\n')
 
     line.append('region whole prism ' + str(box_bound[0][0]) + ' ' +
-    str(box_bound[0][1]) + ' ' + str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' ' +
-    str(box_bound[2][0]) + ' ' + str(box_bound[2][1]) + ' ' + str(box_bound[0][2])
-    + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + '\n')
+                str(box_bound[0][1]) + ' ' + str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' ' +
+                str(box_bound[2][0]) + ' ' + str(box_bound[2][1]) + ' ' + str(box_bound[0][2])
+                + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + '\n')
 
     line.append('create_box 2 whole\n')
-    
     line.append('region lower prism ' + str(box_bound[0][0]) + ' ' + str(box_bound[0][1]) + ' ' +
-    str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' 0 ' + str(box_bound[2][1]) + ' ' +
-    str(box_bound[0][2]) + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + '\n')
+                str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' 0 ' + str(box_bound[2][1]) + ' ' +
+                str(box_bound[0][2]) + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + '\n')
 
     line.append('region upper prism ' + str(box_bound[0][0]) + ' ' + str(box_bound[0][1]) + ' ' +
-    str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' ' + str(box_bound[2][0]) + ' 0 ' +
-    str(box_bound[0][2]) + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + '\n')
-
-    # line.append('region lower prism ' + str(box_bound[0][0]) + ' ' + str(box_bound[0][1]) + ' '
-    # + str(box_bound[1][0]) +  ' 0. ' +
-    # str(box_bound[2][0]) + ' ' + str(box_bound[2][1]) + ' ' +
-    # str(box_bound[0][2]) + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + '\n')
-
-    # line.append('region upper prism ' + str(box_bound[0][0]) + ' ' + str(box_bound[0][1])
-    # + ' 0. ' + str(box_bound[1][1]) + ' ' +
-    # str(box_bound[2][0]) + ' ' + str(box_bound[2][1]) + ' ' +
-    # str(box_bound[0][2]) + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + '\n')
+                str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' ' + str(box_bound[2][0]) + ' 0 ' +
+                str(box_bound[0][2]) + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + '\n')
 
     line.append('group lower type 2\n')
     line.append('group upper type 1\n')
@@ -227,36 +219,34 @@ def write_lammps_script(dump_name, path, script_name,  box_bound):
     line.append('\n')
     line.append('reset_timestep 0\n')
     line.append('thermo 10\n')
-    line.append('thermo_style custom step pe lx ly lz xy xz yz xlo xhi ylo yhi zlo zhi press pxx pyy pzz c_eatoms c_MinAtomEnergy\n')
+    line.append('thermo_style custom step pe lx ly lz xy xz yz xlo xhi ylo yhi zlo zhi' +
+                'press pxx pyy pzz c_eatoms c_MinAtomEnergy\n')
     line.append('thermo_modify lost ignore\n')
-    line.append('dump 1 all custom 10 ' + str(path) + 'dump_befor.${cnt} id type x y z c_csym c_eng\n')   
+    line.append('dump 1 all custom 10 ' + str(path) + 'dump_befor.${cnt} id type x y z c_csym c_eng\n')
     line.append('min_style cg\n')
-    line.append('minimize ${Etol} ${Ftol} ${MaxIter} ${MaxEval}\n')   
+    line.append('minimize ${Etol} ${Ftol} ${MaxIter} ${MaxEval}\n')
     line.append('undump 1\n')
     line.append('\n')
     line.append('# -----------------Dumping Outputs-----------------\n')
-    line.append('\n') 
+    line.append('\n')
     line.append('reset_timestep 0\n')
-    line.append('timestep 0.001\n')   
+    line.append('timestep 0.001\n')
     line.append('thermo 10\n')
-    line.append('thermo_style custom step pe lx ly lz press pxx pyy pzz c_eatoms\n')   
+    line.append('thermo_style custom step pe lx ly lz press pxx pyy pzz c_eatoms\n')
     line.append('thermo_modify lost ignore\n')
-    line.append('dump 1 all custom 10 ' + str(path) + 'dump_after.${cnt} id type x y z c_csym c_eng\n')   
+    line.append('dump 1 all custom 10 ' + str(path) + 'dump_after.${cnt} id type x y z c_csym c_eng\n')
     line.append('run 0\n')
-    line.append('undump 1\n')  
+    line.append('undump 1\n')
     for i in line:
         fiw.write(i)
     fiw.close()
     return True
 
 
-
-# pkl_dump('dump.1')     
 box_bound, dump_lamp = lammps_box('./tests/data/gb_attr.pkl')
 write_lammps_dump("./tests/data/dump_1", box_bound, dump_lamp)
 write_lammps_script('./tests/data/dump_1', './lammps_dump/', 'in.minimize0', box_bound)
 lammps_exe_path = '/home/leila/Downloads/lammps-stable/lammps-7Aug19/src/lmp_mpi'
-import os
 os.system(str(lammps_exe_path) + '< ./lammps_dump/' + 'in.minimize0')
 
 # box_bound, dump_lamp = lammps_box('./tests/data/gb_attr.pkl')
