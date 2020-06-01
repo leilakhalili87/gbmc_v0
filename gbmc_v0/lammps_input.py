@@ -6,7 +6,7 @@ import os
 
 def lammps_box(pkl_name):
     """
-    Function calculates the box bound and the atom coordinates of the GB.
+    Function calculates the box bound and the atom coordinates of the GB simulation.
 
     Parameters
     ------------
@@ -76,41 +76,6 @@ def lammps_box(pkl_name):
     return box_bound, dump_lamp
 
 
-def write_lammps(filename0, box_bound, dump_lamp):
-    """
-    Function writes the lammps dump file.
-
-    Parameters
-    ------------
-    filename0 :
-        Name of the lammps dump file
-    box_bound :
-        The box bound needed to write lammps dump file which is 9 parameters: xlo, xhi, ylo, yhi,
-        zlo, zhi, xy, xz, yz
-    dump_lamp :
-        A numpy nd.array having atom ID, atom type( 1 for upper grain and 2 for lower grain), x, y, z
-
-    Returns
-    ----------
-    """
-    num_atoms = np.shape(dump_lamp)[0]
-    file = open(filename0, "w")
-    file.write("ITEM: TIMESTEP\n")
-    file.write("0\n")
-    file.write("ITEM: NUMBER OF ATOMS\n")
-    file.write(str(num_atoms) + "\n")
-    file.write("ITEM: BOX BOUNDS xy xz yz pp pp ff\n")
-    file.write(' '.join(map(str, box_bound[0])) + "\n")
-    file.write(' '.join(map(str, box_bound[1])) + "\n")
-    file.write(' '.join(map(str, box_bound[2])) + "\n")
-    file.write("ITEM: ATOMS id type x y z\n")
-    file.close()
-    mat = np.matrix(dump_lamp)
-    with open(filename0, 'a') as f:
-        for line in mat:
-            np.savetxt(f, line, fmt='%d %d %.10f %.10f %.10f')
-
-
 def write_lammps_dump(filename0, box_bound, dump_lamp):
     """
     Function writes the lammps dump file.
@@ -147,6 +112,25 @@ def write_lammps_dump(filename0, box_bound, dump_lamp):
 
 
 def write_lammps_script(dump_name, path, script_name,  box_bound):
+    """
+    Function writes the lammps script to minimize the simulation box.
+
+    Parameters
+    ------------
+    dump_name :
+        Name of the lammps dump file.
+    path :
+        The path that the lammps dump files will be saved.
+    script_name :
+        The name of the lammps script created for minimization.
+    box_bound :
+        The box bound needed to write lammps dump file which is 9 parameters: xlo, xhi, ylo, yhi,
+        zlo, zhi, xy, xz, yz
+
+
+    Returns
+    ----------
+    """
     fiw = open(str(path) + str(script_name), 'w')
     line = []
     line.append('# Minimization Parameters -------------------------\n')
