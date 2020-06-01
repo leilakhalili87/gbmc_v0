@@ -234,6 +234,7 @@ def write_lammps_script(dump_name, path, script_name,  box_bound):
                 'press pxx pyy pzz c_eatoms c_MinAtomEnergy\n')
     line.append('thermo_modify lost ignore\n')
     line.append('dump 1 all custom 10 ' + str(path) + 'dump_befor.${cnt} id type x y z c_csym c_eng\n')
+    line.append('fix 1 all box/relax x 0 y 0 xy 0\n')
     line.append('min_style cg\n')
     line.append('minimize ${Etol} ${Ftol} ${MaxIter} ${MaxEval}\n')
     line.append('undump 1\n')
@@ -257,8 +258,8 @@ def write_lammps_script(dump_name, path, script_name,  box_bound):
 box_bound, dump_lamp = lammps_box('./tests/data/gb_attr.pkl')
 write_lammps_dump("./tests/data/dump_1", box_bound, dump_lamp)
 write_lammps_script('./tests/data/dump_1', './lammps_dump/', 'in.minimize0', box_bound)
-# lammps_exe_path = '/home/leila/Downloads/lammps-stable/lammps-7Aug19/src/lmp_mpi'
-# os.system(str(lammps_exe_path) + '< ./lammps_dump/' + 'in.minimize0')
+lammps_exe_path = '/home/leila/Downloads/lammps-stable/lammps-7Aug19/src/lmp_mpi'
+os.system(str(lammps_exe_path) + '< ./lammps_dump/' + 'in.minimize0')
 
 # box_bound, dump_lamp = lammps_box('./tests/data/gb_attr.pkl')
 # write_lammps("./tests/data/dump_1", box_bound, dump_lamp)
