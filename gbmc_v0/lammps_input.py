@@ -62,7 +62,7 @@ def lammps_box(pkl_name):
     yz = sim_cell[1, 2]
     zhi = sim_cell[2, 2] + zlo
 
-    if xy or xz or yz  != 0:
+    if xy or xz or yz != 0:
         box_type = "prism"
     else:
         box_type = "block"
@@ -78,7 +78,6 @@ def lammps_box(pkl_name):
         box_bound = np.array([[xlo_bound, xhi_bound], [ylo_bound, yhi_bound], [zlo_bound, zhi_bound]])
     else:
         box_bound = np.array([[xlo_bound, xhi_bound, xy], [ylo_bound, yhi_bound,  xz], [zlo_bound, zhi_bound, yz]])
-
 
     return box_bound, dump_lamp, box_type
 
@@ -184,7 +183,7 @@ def write_lammps_script(dump_name, path, script_name,  box_bound, box_type):
     else:
         line.append('region whole block ' + str(box_bound[0][0]) + ' ' +
                     str(box_bound[0][1]) + ' ' + str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' ' +
-                    str(box_bound[2][0]) + ' ' + str(box_bound[2][1]) + ' ' + '\n')        
+                    str(box_bound[2][0]) + ' ' + str(box_bound[2][1]) + ' ' + '\n')
 
     line.append('create_box 2 whole\n')
     line.append('read_dump ' + str(dump_name) + ' 0 x y z box yes add yes \n')
