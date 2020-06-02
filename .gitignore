@@ -80,3 +80,6 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+#lammps_dumps
+gbmc_v0/lammps_dump/
