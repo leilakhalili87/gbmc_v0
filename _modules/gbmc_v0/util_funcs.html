@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>gbmc_v0.util_funcs &mdash; gbmc_v0 1.0.1.post18+g47ca2d4 documentation</title>
+  <title>gbmc_v0.util_funcs &mdash; gbmc_v0 1.0.1.post17+g8823360 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.0.1.post18+g47ca2d4
+                1.0.1.post17+g8823360
               </div>
             
           
@@ -178,7 +178,8 @@
     <span class="n">dmod</span> <span class="o">=</span> <span class="n">ovm</span><span class="o">.</span><span class="n">PolyhedralTemplateMatchingModifier</span><span class="p">(</span><span class="n">rmsd_cutoff</span><span class="o">=.</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">pipeline</span><span class="o">.</span><span class="n">modifiers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dmod</span><span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">data</span></div>
+    <span class="n">num_particles</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">particles</span><span class="o">.</span><span class="n">count</span>
+    <span class="k">return</span> <span class="n">num_particles</span></div>
 
 
 <div class="viewcode-block" id="RemProb"><a class="viewcode-back" href="../../usage.html#gbmc_v0.util_funcs.RemProb">[docs]</a><span class="k">def</span> <span class="nf">RemProb</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">CohEng</span><span class="p">,</span> <span class="n">GbIndex</span><span class="p">):</span>
