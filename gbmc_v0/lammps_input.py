@@ -1,12 +1,12 @@
 import numpy as np
 import pickle as pkl
-from numpy import linalg as LA
 import os
 
 
 def lammps_box(pkl_name):
     """
     Function calculates the box bound and the atom coordinates of the GB simulation.
+    Ref: https://lammps.sandia.gov/doc/Howto_triclinic.html
 
     Parameters
     ------------
@@ -22,10 +22,13 @@ def lammps_box(pkl_name):
         yhi, zlo, zhi, xy, xz, yz
     dump_lamp :
         A numpy nd.array having atom ID, atom type( 1 for upper grain and 2 for lower grain), x, y, z
+    box_type :
+        The type of simulation box which is eaither "prism" or "block"
     """
-    
-    jar = open(pkl_name, 'rb'); gb_attr = pkl.load(jar); jar.close();
-    
+
+    jar = open(pkl_name, 'rb')
+    gb_attr = pkl.load(jar)
+    jar.close()
 
     u_pts = gb_attr['upts']
     len_u = np.shape(u_pts)[0]
@@ -42,53 +45,27 @@ def lammps_box(pkl_name):
     ID = np.arange(num_atoms).reshape(num_atoms, 1) + 1
     dump_lamp = np.concatenate((ID, all_atoms), axis=1)
 
-    sim_cell = gb_attr['cell'];
-    # origin_o = np.array([np.min(sim_cell[0, 0:3]), np.min(sim_cell[1, 0:3]), np.min(sim_cell[2, 0:3])])
-    origin_o = sim_cell[:,3];
+    sim_cell = gb_attr['cell']
+    origin_o = sim_cell[:, 3]
 
-    cell = sim_cell[:, 0:3] + sim_cell[:, 3].reshape(3, 1)
-
-    xlo1, xhi1 = np.min(cell[0]) - origin_o[0], np.max(cell[0])
-    ylo1, yhi1 = np.min(cell[1]) - origin_o[1], np.max(cell[1])
-    zlo1, zhi1 = np.min(cell[2]) - origin_o[2], np.max(cell[2])
-    
-
-    vec_a = sim_cell[:, 0]
-    vec_b = sim_cell[:, 1]
-    vec_c = sim_cell[:, 2]
-
-    len_b = LA.norm(vec_b)
-    len_c = LA.norm(vec_c)
-
-    cos_gamma = np.dot(vec_a, vec_b) / LA.norm(vec_b) / LA.norm(vec_a)
-    cos_beta = np.dot(vec_a, vec_c) / LA.norm(vec_a) / LA.norm(vec_c)
-    cos_alpha = np.dot(vec_b, vec_c) / LA.norm(vec_b) / LA.norm(vec_c)
-
-    xz1 = cos_beta * len_c
-    xy1 = cos_gamma * len_b
-    yz1 = (len_b * len_c * cos_alpha - xy1 * xz1) / (len_b * len_b - xy1 * xy1)
-
-    ####
     # “origin” at (xlo,ylo,zlo)
-    xlo = origin_o[0]; ylo = origin_o[1]; zlo = origin_o[2];
+    xlo = origin_o[0]
+    ylo = origin_o[1]
+    zlo = origin_o[2]
     # a = (xhi-xlo,0,0);
-    xhi = sim_cell[0,0] + xlo;
+    xhi = sim_cell[0, 0] + xlo
     # b = (xy,yhi-ylo,0);
-    xy = sim_cell[0,1]; yhi = sim_cell[1,1]+ylo;
+    xy = sim_cell[0, 1]
+    yhi = sim_cell[1, 1] + ylo
     # c = (xz,yz,zhi-zlo)
-    xz = sim_cell[0,2]; yz = sim_cell[1,2]; zhi = sim_cell[2,2]+zlo;
+    xz = sim_cell[0, 2]
+    yz = sim_cell[1, 2]
+    zhi = sim_cell[2, 2] + zlo
 
-    print("------------------------")
-    print("xlo diff: "+str(xlo-xlo1))
-    print("ylo diff: "+str(ylo-ylo1))
-    print("zlo diff: "+str(zlo-zlo1))
-    print("xhi diff: "+str(xhi-xhi1))
-    print("yhi diff: "+str(yhi-yhi1))
-    print("zhi diff: "+str(zhi-zhi1))
-    print("xy diff: "+str(xy-xy1))
-    print("xz diff: "+str(xz-xz1))
-    print("yz diff: "+str(yz-yz1))
-    print("------------------------")
+    if xy or xz or yz  != 0:
+        box_type = "prism"
+    else:
+        box_type = "block"
 
     xlo_bound = xlo + np.min(np.array([0, xy, xz, xy + xz]))
     xhi_bound = xhi + np.max(np.array([0, xy, xz, xy + xz]))
@@ -97,11 +74,16 @@ def lammps_box(pkl_name):
     zlo_bound = zlo
     zhi_bound = zhi
 
-    box_bound = np.array([[xlo_bound, xhi_bound, xy], [ylo_bound, yhi_bound,  xz], [zlo_bound, zhi_bound, yz]])
-    return box_bound, dump_lamp
+    if box_type == "block":
+        box_bound = np.array([[xlo_bound, xhi_bound], [ylo_bound, yhi_bound], [zlo_bound, zhi_bound]])
+    else:
+        box_bound = np.array([[xlo_bound, xhi_bound, xy], [ylo_bound, yhi_bound,  xz], [zlo_bound, zhi_bound, yz]])
 
 
-def write_lammps_dump(filename0, box_bound, dump_lamp):
+    return box_bound, dump_lamp, box_type
+
+
+def write_lammps_dump(filename0, box_bound, dump_lamp, box_type):
     """
     Function writes the lammps dump file.
 
@@ -125,7 +107,10 @@ def write_lammps_dump(filename0, box_bound, dump_lamp):
     file.write("ITEM: NUMBER OF ATOMS\n")
     file.write(str(num_atoms) + "\n")
     # file.write("ITEM: BOX BOUNDS xy xz yz pp ff pp\n")
-    file.write("ITEM: BOX BOUNDS xy xz yz pp pp ff\n")
+    if box_type == "prism":
+        file.write("ITEM: BOX BOUNDS xy xz yz pp pp ff\n")
+    else:
+        file.write("ITEM: BOX BOUNDS pp pp ff\n")
     file.write(' '.join(map(str, box_bound[0])) + "\n")
     file.write(' '.join(map(str, box_bound[1])) + "\n")
     file.write(' '.join(map(str, box_bound[2])) + "\n")
@@ -137,7 +122,7 @@ def write_lammps_dump(filename0, box_bound, dump_lamp):
             np.savetxt(f, line, fmt='%d %d %.10f %.10f %.10f')
 
 
-def write_lammps_script(dump_name, path, script_name,  box_bound):
+def write_lammps_script(dump_name, path, script_name,  box_bound, box_type):
     """
     Function writes the lammps script to minimize the simulation box.
 
@@ -152,7 +137,8 @@ def write_lammps_script(dump_name, path, script_name,  box_bound):
     box_bound :
         The box bound needed to write lammps dump file which is 9 parameters: xlo, xhi, ylo, yhi,
         zlo, zhi, xy, xz, yz
-
+    box_type :
+        The type of simulation box which is eaither "prism" or "block"
 
     Returns
     ----------
@@ -190,11 +176,15 @@ def write_lammps_script(dump_name, path, script_name,  box_bound):
     line.append('# ---------Creating the Atomistic Structure--------\n')
     line.append('\n')
     line.append('lattice fcc ${LatParam}\n')
-
-    line.append('region whole prism ' + str(box_bound[0][0]) + ' ' +
-                str(box_bound[0][1]) + ' ' + str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' ' +
-                str(box_bound[2][0]) + ' ' + str(box_bound[2][1]) + ' ' + str(box_bound[0][2])
-                + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + '\n')
+    if box_type == "prism":
+        line.append('region whole prism ' + str(box_bound[0][0]) + ' ' +
+                    str(box_bound[0][1]) + ' ' + str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' ' +
+                    str(box_bound[2][0]) + ' ' + str(box_bound[2][1]) + ' ' + str(box_bound[0][2])
+                    + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + '\n')
+    else:
+        line.append('region whole block ' + str(box_bound[0][0]) + ' ' +
+                    str(box_bound[0][1]) + ' ' + str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' ' +
+                    str(box_bound[2][0]) + ' ' + str(box_bound[2][1]) + ' ' + '\n')        
 
     line.append('create_box 2 whole\n')
     line.append('read_dump ' + str(dump_name) + ' 0 x y z box yes add yes \n')
@@ -234,7 +224,10 @@ def write_lammps_script(dump_name, path, script_name,  box_bound):
                 'press pxx pyy pzz c_eatoms c_MinAtomEnergy\n')
     line.append('thermo_modify lost ignore\n')
     line.append('dump 1 all custom 10 ' + str(path) + 'dump_befor.${cnt} id type x y z c_csym c_eng\n')
-    line.append('fix 1 all box/relax x 0 y 0 xy 0\n')
+    if box_type == "prism":
+        line.append('fix 1 all box/relax x 0 y 0 xy 0\n')
+    else:
+        line.append('fix 1 all box/relax x 0 y 0\n')
     line.append('min_style cg\n')
     line.append('minimize ${Etol} ${Ftol} ${MaxIter} ${MaxEval}\n')
     line.append('undump 1\n')
@@ -255,9 +248,9 @@ def write_lammps_script(dump_name, path, script_name,  box_bound):
     return True
 
 
-box_bound, dump_lamp = lammps_box('./tests/data/gb_attr.pkl')
-write_lammps_dump("./tests/data/dump_1", box_bound, dump_lamp)
-write_lammps_script('./tests/data/dump_1', './lammps_dump/', 'in.minimize0', box_bound)
+box_bound, dump_lamp, box_type = lammps_box('./tests/data/gb_attr.pkl')
+write_lammps_dump("./tests/data/dump", box_bound, dump_lamp, box_type)
+write_lammps_script('./tests/data/dump', './lammps_dump/', 'in.minimize0', box_bound, box_type)
 lammps_exe_path = '/home/leila/Downloads/lammps-stable/lammps-7Aug19/src/lmp_mpi'
 os.system(str(lammps_exe_path) + '< ./lammps_dump/' + 'in.minimize0')
 
