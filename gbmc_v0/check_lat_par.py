@@ -7,7 +7,7 @@ cut_off = 10  # in Ang.
 num_neighbors = 12
 non_p_dir = 2   # which direction is non-periodic. In our case is 2, in previous simulations it was 1 (y direction)
 
-data = uf.compute_ovito_data('./lammps_dump/dump_befor.1')
+data = uf.compute_ovito_data('./lammps_dump/dump_after.1')
 
 ptm_struct = data.particles['Structure Type'][...]
 position = data.particles['Position'][...]
@@ -29,3 +29,17 @@ for index in area:
 
 cal_lat_par = np.sqrt(2) * np.mean(distances) / num_neighbors
 print("The calculate larrice parameter is = ", cal_lat_par)
+
+
+#fix 1 all box/relax x 0 y 0 xy 0
+#after 4.082276353539422
+# before 4.2087855388507665
+
+# fix 1 all box/relax y 0 vmax .001
+#after 4.098166185982243
+
+#fix 1 all box/relax x 0 vmax .001
+# after 4.1392775812697
+
+#fix 1 all box/relax x 0 y 0 xy 0 vmax .001
+#after 4.082850088022755
