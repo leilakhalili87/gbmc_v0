@@ -2,4 +2,7 @@ from ..util_funcs import compute_ovito_data
 
 
 def test_compute_ovito_data():
-    assert 1 + 1 == 2
+    filename0 = "gbmc_v0/tests/data/dump_1"
+    actual = 5447
+    expected = data.particles.count
+    assert actual == expected
