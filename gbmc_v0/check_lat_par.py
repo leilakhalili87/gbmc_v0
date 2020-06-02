@@ -30,16 +30,15 @@ for index in area:
 cal_lat_par = np.sqrt(2) * np.mean(distances) / num_neighbors
 print("The calculate larrice parameter is = ", cal_lat_par)
 
-
-#fix 1 all box/relax x 0 y 0 xy 0
-#after 4.082276353539422
+# fix 1 all box/relax x 0 y 0 xy 0
+# after 4.082276353539422
 # before 4.2087855388507665
 
 # fix 1 all box/relax y 0 vmax .001
-#after 4.098166185982243
+# after 4.098166185982243
 
-#fix 1 all box/relax x 0 vmax .001
+# fix 1 all box/relax x 0 vmax .001
 # after 4.1392775812697
 
-#fix 1 all box/relax x 0 y 0 xy 0 vmax .001
-#after 4.082850088022755
+# fix 1 all box/relax x 0 y 0 xy 0 vmax .001
+# after 4.082850088022755
