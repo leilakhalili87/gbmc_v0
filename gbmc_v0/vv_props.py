@@ -3,11 +3,11 @@ from scipy.spatial.distance import pdist
 from pyhull import qdelaunay
 
 
-def Circum_O_R(vertex_pos, tol, method="method_1"):
+def Circum_O_R(vertex_pos, tol, method="method_2"):
     """
     Function finds the center and the radius of the circumsphere of the every tetrahedron.
     This function can use two different methods which can be defind as "method_1" or "method_2.
-    The default method is "method_1".
+    The default method is "method_2".
     Reference for method_1:
     Fiedler, Miroslav. Matrices and graphs in geometry. No. 139. Cambridge University Press, 2011.
     Reference for method_2:
