@@ -47,5 +47,5 @@ def test_circum_method1(test_num, tol, v_low, v_high):
             test_list_2[i] = 0
     test_2 = np.sum(test_list_2)
     test_1 = np.sum(test_list_1)
-    assert np.allclose(test_2, 0)
-    assert np.allclose(test_1, 0)
+    assert test_2 = 0
+    assert test_1 = 0
