@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Usage &mdash; gbmc_v0 1.0.1.post24+g57e5f8d documentation</title>
+  <title>Usage &mdash; gbmc_v0 1.0.1.post25+g79190b0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.0.1.post24+g57e5f8d
+                1.0.1.post25+g79190b0
               </div>
             
           
@@ -448,8 +448,14 @@ and add padding to the GB atoms  within rCut in Y direction.</p>
 
 <dl class="py function">
 <dt id="gbmc_v0.vv_props.Circum_O_R">
-<code class="sig-prename descclassname">gbmc_v0.vv_props.</code><code class="sig-name descname">Circum_O_R</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vertex_pos</span></em>, <em class="sig-param"><span class="n">tol</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gbmc_v0/vv_props.html#Circum_O_R"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gbmc_v0.vv_props.Circum_O_R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function finds the center and the radius of the circumsphere of the every tetrahedron.</p>
+<code class="sig-prename descclassname">gbmc_v0.vv_props.</code><code class="sig-name descname">Circum_O_R</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vertex_pos</span></em>, <em class="sig-param"><span class="n">tol</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'method_1'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gbmc_v0/vv_props.html#Circum_O_R"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gbmc_v0.vv_props.Circum_O_R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function finds the center and the radius of the circumsphere of the every tetrahedron.
+This function can use two different methods which can be defind as “method_1” or “method_2.
+The default method is “method_1”.
+Reference for method_1:
+Fiedler, Miroslav. Matrices and graphs in geometry. No. 139. Cambridge University Press, 2011.
+Reference for method_2:
+<a class="reference external" href="https://mathworld.wolfram.com/Circumsphere.html">https://mathworld.wolfram.com/Circumsphere.html</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
