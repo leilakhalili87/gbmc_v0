@@ -3,6 +3,7 @@ numpy
 scipy
 pyhull
 ovito
+ovitos
 nbsphinx
 jupyter-client
 nbconvert
