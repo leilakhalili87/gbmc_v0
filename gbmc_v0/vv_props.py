@@ -36,7 +36,7 @@ def Circum_O_R(vertex_pos, tol):
     else:
         M = -2*np.linalg.inv(MatrixC)
         circum_center = (M[0, 1]*vertex_pos[0, :] + M[0, 2]*vertex_pos[1, :] + M[0, 3]*vertex_pos[2, :] +
-                            M[0, 4] * vertex_pos[3, :]) / (M[0, 1] + M[0, 2] + M[0, 3] + M[0, 4])
+                         M[0, 4] * vertex_pos[3, :]) / (M[0, 1] + M[0, 2] + M[0, 3] + M[0, 4])
         circum_rad = np.sqrt(M[0, 0])/2
 
     return circum_center, circum_rad
@@ -87,6 +87,3 @@ def vv_props(pts_w_imgs, tri_vertices, gb_tri, lat_par):
         ct1 = ct1 + 1
 
     return cc_coors, cc_rad
-
-# points = np.array([[3, -3, 2], [1, 0, 1], [1, 1, 0], [0, 1, 1]])
-# print(Circum_O_R(points, 10e-5, method="method_2"))
