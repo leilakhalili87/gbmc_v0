@@ -14,4 +14,5 @@ include gbmc_v0/_version.py
 
 # If including data files in the package, add them like:
 # include path/to/data_file
-include gbmc_v0/tests/data/dump_1
+include data/dump_1
+include ../lammps_dump/*
