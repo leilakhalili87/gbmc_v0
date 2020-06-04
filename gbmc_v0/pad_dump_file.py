@@ -60,60 +60,58 @@ def GB_finder(data, lat_par):
     Returns
     -----------
     GbRegion:
-        The maximum and Minimum value of postion of atoms in Y direction  in the GB region.
+        The maximum and Minimum value of postion of atoms in Z direction  in the GB region.
     GbWidth :
         GbRegion[1] - GbRegion[0]
     GbIndex :
         The index of atoms in GB
-    w_left_SC :'
-        The width of the region on the left side of GB which have single crystal structure
-    w_right_SC :
-        The width of the region on the right side of GB which have single crystal structure
+    w_bottom_SC :'
+        The width of the region on the bottom side of GB which have single crystal structure
+    w_top_SC :
+        The width of the region on the top side of GB which have single crystal structure
     """
 
     # num_particles = data.particles.count
     ptm_struct = data.particles['Structure Type'][...]
-    position_Y = data.particles['Position'][...][:, 1]
-
-    # length_box = np.max(position_Y) - np.min(position_Y)
+    position_Z = data.particles['Position'][...][:, 2]
 
     NoSurfArea = []
     # Find the smallest single crystal range
     a = 1
-    pos_min = np.min(position_Y)
+    pos_min = np.min(position_Z)
 
     while a != 0:
         pos_max = pos_min + lat_par
-        a = len(np.where((ptm_struct == 0) & (position_Y < pos_max) & (position_Y > pos_min))[0])
+        a = len(np.where((ptm_struct == 0) & (position_Z < pos_max) & (position_Z > pos_min))[0])
         pos_min += lat_par
 
     NoSurfArea = NoSurfArea + [pos_min]
 
     # Find the largest single crystal range
     a = 1
-    pos_max = np.max(position_Y)
+    pos_max = np.max(position_Z)
     while a != 0:
         pos_min = pos_max - lat_par
-        a = len(np.where((ptm_struct == 0) & (position_Y < pos_max) & (position_Y > pos_min))[0])
+        a = len(np.where((ptm_struct == 0) & (position_Z < pos_max) & (position_Z > pos_min))[0])
         pos_max -= lat_par
 
     NoSurfArea = NoSurfArea + [pos_min + lat_par]
 
-    gb_index = np.where((ptm_struct == 0) & (position_Y < NoSurfArea[1]) & (position_Y > NoSurfArea[0]))[0]
-    gb_mean = np.mean(position_Y[gb_index])
-    gb_std = np.std(position_Y[gb_index])
+    gb_index = np.where((ptm_struct == 0) & (position_Z < NoSurfArea[1]) & (position_Z > NoSurfArea[0]))[0]
+    gb_mean = np.mean(position_Z[gb_index])
+    gb_std = np.std(position_Z[gb_index])
 
     # Delete the outliers of gb
-    var = position_Y[gb_index] - gb_mean
+    var = position_Z[gb_index] - gb_mean
     GbIndex = gb_index[np.where((var < 3*gb_std) & (var > -3*gb_std))[0]]
 
-    GbY = position_Y[GbIndex]
-    GbRegion = [np.min(GbY), np.max(GbY)]
+    GbZ = position_Z[GbIndex]
+    GbRegion = [np.min(GbZ), np.max(GbZ)]
     GbWidth = GbRegion[1] - GbRegion[0]
-    w_left_SC = GbRegion[0] - NoSurfArea[0]
-    w_right_SC = NoSurfArea[1] - GbRegion[1]
+    w_bottom_SC = GbRegion[0] - NoSurfArea[0]
+    w_top_SC = NoSurfArea[1] - GbRegion[1]
 
-    return GbRegion, GbIndex, GbWidth, w_left_SC, w_right_SC
+    return GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC
 
 
 def num_rep_2d(xvec, yvec, rCut):
