@@ -3,15 +3,11 @@ from scipy.spatial.distance import pdist
 from pyhull import qdelaunay
 
 
-def Circum_O_R(vertex_pos, tol, method="method_2"):
+def Circum_O_R(vertex_pos, tol):
     """
     Function finds the center and the radius of the circumsphere of the every tetrahedron.
-    This function can use two different methods which can be defind as "method_1" or "method_2.
-    The default method is "method_2".
-    Reference for method_1:
+    Reference:
     Fiedler, Miroslav. Matrices and graphs in geometry. No. 139. Cambridge University Press, 2011.
-    Reference for method_2:
-    https://mathworld.wolfram.com/Circumsphere.html
 
     Parameters
     -----------------
@@ -27,50 +23,21 @@ def Circum_O_R(vertex_pos, tol, method="method_2"):
     circum_rad :
         The radius of the circum-sphere
     """
-    if method == "method_1":
-        dis_ij = pdist(vertex_pos, 'euclidean')
-        sq_12, sq_13, sq_14, sq_23, sq_24, sq_34 = np.power(dis_ij, 2)
+    dis_ij = pdist(vertex_pos, 'euclidean')
+    sq_12, sq_13, sq_14, sq_23, sq_24, sq_34 = np.power(dis_ij, 2)
 
-        MatrixC = np.array([[0, 1, 1, 1, 1], [1, 0, sq_12, sq_13, sq_14], [1, sq_12, 0, sq_23, sq_24],
-                           [1, sq_13, sq_23, 0, sq_34], [1, sq_14, sq_24, sq_34, 0]])
+    MatrixC = np.array([[0, 1, 1, 1, 1], [1, 0, sq_12, sq_13, sq_14], [1, sq_12, 0, sq_23, sq_24],
+                        [1, sq_13, sq_23, 0, sq_34], [1, sq_14, sq_24, sq_34, 0]])
 
-        det_MC = (np.linalg.det(MatrixC))
+    det_MC = (np.linalg.det(MatrixC))
 
-        if (det_MC < tol):
-            return [0, 0, 0], 0
-        else:
-            M = -2*np.linalg.inv(MatrixC)
-            circum_center = (M[0, 1]*vertex_pos[0, :] + M[0, 2]*vertex_pos[1, :] + M[0, 3]*vertex_pos[2, :] +
-                             M[0, 4] * vertex_pos[3, :]) / (M[0, 1] + M[0, 2] + M[0, 3] + M[0, 4])
-            circum_rad = np.sqrt(M[0, 0])/2
-    if method == "method_2":
-        ones_col = np.ones((4, 1))
-        a = np.linalg.det(np.append(vertex_pos, ones_col, 1))
-        A = vertex_pos[0, :]
-        B = vertex_pos[1, :]
-        C = vertex_pos[2, :]
-        D = vertex_pos[3, :]
-        sq_p1 = np.dot(A, A)
-        sq_p2 = np.dot(B, B)
-        sq_p3 = np.dot(C, C)
-        sq_p4 = np.dot(D, D)
-        c_mat = np.array([[sq_p1, A[0], A[1], A[2]], [sq_p2, B[0], B[1], B[2]],
-                         [sq_p3, C[0], C[1], C[2]], [sq_p4, D[0], D[1], D[2]]])
-        c = np.linalg.det(c_mat)
-        dx = np.array([[sq_p1, A[1], A[2], 1], [sq_p2, B[1], B[2], 1],
-                      [sq_p3, C[1], C[2], 1], [sq_p4, D[1], D[2], 1]])
-        Dx = np.linalg.det(dx)
-
-        dy = np.array([[sq_p1, A[0], A[2], 1], [sq_p2, B[0], B[2], 1],
-                      [sq_p3, C[0], C[2], 1], [sq_p4, D[0], D[2], 1]])
-        Dy = -np.linalg.det(dy)
-
-        dz = np.array([[sq_p1, A[0], A[1], 1], [sq_p2, B[0], B[1], 1],
-                      [sq_p3, C[0], C[1], 1], [sq_p4, D[0], D[1], 1]])
-        Dz = np.linalg.det(dz)
-
-        circum_center = [Dx / (2 * a), Dy / (2 * a), Dz / (2 * a)]
-        circum_rad = np.sqrt(Dx * Dx + Dy * Dy + Dz * Dz - 4 * a * c) / 2 / np.abs(a)
+    if (det_MC < tol):
+        return [0, 0, 0], 0
+    else:
+        M = -2*np.linalg.inv(MatrixC)
+        circum_center = (M[0, 1]*vertex_pos[0, :] + M[0, 2]*vertex_pos[1, :] + M[0, 3]*vertex_pos[2, :] +
+                            M[0, 4] * vertex_pos[3, :]) / (M[0, 1] + M[0, 2] + M[0, 3] + M[0, 4])
+        circum_rad = np.sqrt(M[0, 0])/2
 
     return circum_center, circum_rad
 
@@ -120,3 +87,6 @@ def vv_props(pts_w_imgs, tri_vertices, gb_tri, lat_par):
         ct1 = ct1 + 1
 
     return cc_coors, cc_rad
+
+# points = np.array([[3, -3, 2], [1, 0, 1], [1, 1, 0], [0, 1, 1]])
+# print(Circum_O_R(points, 10e-5, method="method_2"))
