@@ -19,33 +19,21 @@ def point_gen(v_low, v_high):
 
 
 @pytest.mark.parametrize('test_num, tol, v_low, v_high',
-                         [(1000, 1e-6, -30, 30)])
-def test_circum_method1(test_num, tol, v_low, v_high):
-    # test_list_1 = [0]*test_num
-    test_list_2 = [0]*test_num
+                         [(1000, 1, -30, 30)])
+def test_circum(test_num, tol, v_low, v_high):
+    test_list_1 = [0]*test_num
 
-    # for i in range(test_num):
-    #     points = point_gen(v_low, v_high)
-    #     circum_center, circum_rad = Circum_O_R(points, tol, method="method_1")
-    #     val = points - circum_center
-    #     rad_val = np.linalg.norm(val, axis=1)
-    #     err = np.sum(np.abs(rad_val - circum_rad))
-    #     if err > 1e-6:
-    #         test_list_1[i] = 1
-    #     else:
-    #         test_list_1[i] = 0
     for i in range(test_num):
         points = point_gen(v_low, v_high)
-
-        circum_center, circum_rad = Circum_O_R(points, tol,  method="method_2")
+        circum_center, circum_rad = Circum_O_R(points, tol)
         val = points - circum_center
         rad_val = np.linalg.norm(val, axis=1)
         err = np.sum(np.abs(rad_val - circum_rad))
-        if err > 10e-6:
-            test_list_2[i] = 1
-        else:
-            test_list_2[i] = 0
-    test_2 = np.sum(test_list_2)
-    # test_1 = np.sum(test_list_1)
-    # assert test_1 == 0
-    assert test_2 == 0
+        if circum_rad != 0:
+            if err > 1e-1:
+                test_list_1[i] = 1
+            else:
+                test_list_1[i] = 0
+
+    test_1 = np.sum(test_list_1)
+    assert test_1 == 0
