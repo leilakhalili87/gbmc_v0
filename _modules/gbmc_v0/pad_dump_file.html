@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>gbmc_v0.pad_dump_file &mdash; gbmc_v0 1.0.1.post45+g1c3b2f1 documentation</title>
+  <title>gbmc_v0.pad_dump_file &mdash; gbmc_v0 1.0.1.post48+gc892c2f documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.0.1.post45+g1c3b2f1
+                1.0.1.post48+gc892c2f
               </div>
             
           
@@ -217,60 +217,58 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -----------</span>
 <span class="sd">    GbRegion:</span>
-<span class="sd">        The maximum and Minimum value of postion of atoms in Y direction  in the GB region.</span>
+<span class="sd">        The maximum and Minimum value of postion of atoms in Z direction  in the GB region.</span>
 <span class="sd">    GbWidth :</span>
 <span class="sd">        GbRegion[1] - GbRegion[0]</span>
 <span class="sd">    GbIndex :</span>
 <span class="sd">        The index of atoms in GB</span>
-<span class="sd">    w_left_SC :&#39;</span>
-<span class="sd">        The width of the region on the left side of GB which have single crystal structure</span>
-<span class="sd">    w_right_SC :</span>
-<span class="sd">        The width of the region on the right side of GB which have single crystal structure</span>
+<span class="sd">    w_bottom_SC :&#39;</span>
+<span class="sd">        The width of the region on the bottom side of GB which have single crystal structure</span>
+<span class="sd">    w_top_SC :</span>
+<span class="sd">        The width of the region on the top side of GB which have single crystal structure</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># num_particles = data.particles.count</span>
     <span class="n">ptm_struct</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">&#39;Structure Type&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span>
-    <span class="n">position_Y</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">&#39;Position&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">]</span>
-
-    <span class="c1"># length_box = np.max(position_Y) - np.min(position_Y)</span>
+    <span class="n">position_Z</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">&#39;Position&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][:,</span> <span class="mi">2</span><span class="p">]</span>
 
     <span class="n">NoSurfArea</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="c1"># Find the smallest single crystal range</span>
     <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">pos_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">position_Y</span><span class="p">)</span>
+    <span class="n">pos_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">position_Z</span><span class="p">)</span>
 
     <span class="k">while</span> <span class="n">a</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">pos_max</span> <span class="o">=</span> <span class="n">pos_min</span> <span class="o">+</span> <span class="n">lat_par</span>
-        <span class="n">a</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">ptm_struct</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_Y</span> <span class="o">&lt;</span> <span class="n">pos_max</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_Y</span> <span class="o">&gt;</span> <span class="n">pos_min</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">ptm_struct</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_Z</span> <span class="o">&lt;</span> <span class="n">pos_max</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_Z</span> <span class="o">&gt;</span> <span class="n">pos_min</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">pos_min</span> <span class="o">+=</span> <span class="n">lat_par</span>
 
     <span class="n">NoSurfArea</span> <span class="o">=</span> <span class="n">NoSurfArea</span> <span class="o">+</span> <span class="p">[</span><span class="n">pos_min</span><span class="p">]</span>
 
     <span class="c1"># Find the largest single crystal range</span>
     <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">pos_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">position_Y</span><span class="p">)</span>
+    <span class="n">pos_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">position_Z</span><span class="p">)</span>
     <span class="k">while</span> <span class="n">a</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">pos_min</span> <span class="o">=</span> <span class="n">pos_max</span> <span class="o">-</span> <span class="n">lat_par</span>
-        <span class="n">a</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">ptm_struct</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_Y</span> <span class="o">&lt;</span> <span class="n">pos_max</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_Y</span> <span class="o">&gt;</span> <span class="n">pos_min</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">ptm_struct</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_Z</span> <span class="o">&lt;</span> <span class="n">pos_max</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_Z</span> <span class="o">&gt;</span> <span class="n">pos_min</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">pos_max</span> <span class="o">-=</span> <span class="n">lat_par</span>
 
     <span class="n">NoSurfArea</span> <span class="o">=</span> <span class="n">NoSurfArea</span> <span class="o">+</span> <span class="p">[</span><span class="n">pos_min</span> <span class="o">+</span> <span class="n">lat_par</span><span class="p">]</span>
 
-    <span class="n">gb_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">ptm_struct</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_Y</span> <span class="o">&lt;</span> <span class="n">NoSurfArea</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_Y</span> <span class="o">&gt;</span> <span class="n">NoSurfArea</span><span class="p">[</span><span class="mi">0</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">gb_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">position_Y</span><span class="p">[</span><span class="n">gb_index</span><span class="p">])</span>
-    <span class="n">gb_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">position_Y</span><span class="p">[</span><span class="n">gb_index</span><span class="p">])</span>
+    <span class="n">gb_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">ptm_struct</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_Z</span> <span class="o">&lt;</span> <span class="n">NoSurfArea</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_Z</span> <span class="o">&gt;</span> <span class="n">NoSurfArea</span><span class="p">[</span><span class="mi">0</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">gb_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">position_Z</span><span class="p">[</span><span class="n">gb_index</span><span class="p">])</span>
+    <span class="n">gb_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">position_Z</span><span class="p">[</span><span class="n">gb_index</span><span class="p">])</span>
 
     <span class="c1"># Delete the outliers of gb</span>
-    <span class="n">var</span> <span class="o">=</span> <span class="n">position_Y</span><span class="p">[</span><span class="n">gb_index</span><span class="p">]</span> <span class="o">-</span> <span class="n">gb_mean</span>
+    <span class="n">var</span> <span class="o">=</span> <span class="n">position_Z</span><span class="p">[</span><span class="n">gb_index</span><span class="p">]</span> <span class="o">-</span> <span class="n">gb_mean</span>
     <span class="n">GbIndex</span> <span class="o">=</span> <span class="n">gb_index</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">var</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="o">*</span><span class="n">gb_std</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">var</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="n">gb_std</span><span class="p">))[</span><span class="mi">0</span><span class="p">]]</span>
 
-    <span class="n">GbY</span> <span class="o">=</span> <span class="n">position_Y</span><span class="p">[</span><span class="n">GbIndex</span><span class="p">]</span>
-    <span class="n">GbRegion</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">GbY</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">GbY</span><span class="p">)]</span>
+    <span class="n">GbZ</span> <span class="o">=</span> <span class="n">position_Z</span><span class="p">[</span><span class="n">GbIndex</span><span class="p">]</span>
+    <span class="n">GbRegion</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">GbZ</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">GbZ</span><span class="p">)]</span>
     <span class="n">GbWidth</span> <span class="o">=</span> <span class="n">GbRegion</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">GbRegion</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">w_left_SC</span> <span class="o">=</span> <span class="n">GbRegion</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">NoSurfArea</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">w_right_SC</span> <span class="o">=</span> <span class="n">NoSurfArea</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">GbRegion</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">w_bottom_SC</span> <span class="o">=</span> <span class="n">GbRegion</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">NoSurfArea</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">w_top_SC</span> <span class="o">=</span> <span class="n">NoSurfArea</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">GbRegion</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-    <span class="k">return</span> <span class="n">GbRegion</span><span class="p">,</span> <span class="n">GbIndex</span><span class="p">,</span> <span class="n">GbWidth</span><span class="p">,</span> <span class="n">w_left_SC</span><span class="p">,</span> <span class="n">w_right_SC</span></div>
+    <span class="k">return</span> <span class="n">GbRegion</span><span class="p">,</span> <span class="n">GbIndex</span><span class="p">,</span> <span class="n">GbWidth</span><span class="p">,</span> <span class="n">w_bottom_SC</span><span class="p">,</span> <span class="n">w_top_SC</span></div>
 
 
 <div class="viewcode-block" id="num_rep_2d"><a class="viewcode-back" href="../../usage.html#gbmc_v0.pad_dump_file.num_rep_2d">[docs]</a><span class="k">def</span> <span class="nf">num_rep_2d</span><span class="p">(</span><span class="n">xvec</span><span class="p">,</span> <span class="n">yvec</span><span class="p">,</span> <span class="n">rCut</span><span class="p">):</span>
