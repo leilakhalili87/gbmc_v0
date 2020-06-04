@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-import gbmc_v0.pad as pad
+import gbmc_v0.pad_dump_file as pad
 import gbmc_v0.util_funcs as uf
 
 
