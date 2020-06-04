@@ -35,5 +35,3 @@ def test_check_a(filename0, lat_par, cut_off, num_neighbors, non_p_dir):
         err = 0
 
     assert err == 0
-
-
