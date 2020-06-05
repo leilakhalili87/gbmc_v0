@@ -34,8 +34,8 @@ def pad_dump_file(data, lat_par, rCut):
     sim_cvec = np.array(sim_cell[:, 2])
     sim_orig = np.array(sim_cell[:, 3])
 
-    x1_vec = np.array([sim_avec[0], sim_avec[1]])
-    z1_vec = np.array([sim_cvec[0], sim_cvec[1]])
+    xvec = np.array([sim_avec[0], sim_avec[1]])
+    yvec = np.array([sim_bvec[0], sim_bvec[1]])
     [nx, ny] = num_rep_2d(x1_vec, y1_vec, rCut)
 
     pts1, gb1_inds = pad_gb_perp(data, GbRegion, GbIndex, rCut)
@@ -188,30 +188,30 @@ def pad_gb_perp(data, GbRegion, GbIndex, rCut):
     return pts1, gb1_inds
 
 
-def create_imgs(pts1, nx, nz, sim_avec, sim_cvec):
+def create_imgs(pts1, nx, ny, sim_avec, sim_bvec):
     """
-    Creates the replicates of the main cell in X and Z direction.
+    Creates the replicates of the main cell in X and Y direction.
 
     Parameters
     -------------
     pts1 :
-        Indices of the atoms which Y value is in range [GBRegion[0] - rCut, GBRegion[1] + rCut].
+        Indices of the atoms which Z value is in range [GBRegion[0] - rCut, GBRegion[1] + rCut].
     nx :
         Number of replications in x direction
-    nz :
-        Number of replications in z direction
+    ny :
+        Number of replications in y direction
     sim_avec :
         The simulation cell basis vector in a direction
-    sim_cvec :
-        The simulation cell basis vector in c direction
+    sim_bvec :
+        The simulation cell basis vector in b direction
 
     Returns
     ----------
     pts_w_imgs :
-        The position of atoms after replicating the box n_x and n_z times in X and Z direction.
+        The position of atoms after replicating the box n_x and n_y times in X and Y direction.
     """
     num1 = np.shape(pts1)[0]
-    pts_w_imgs = np.zeros((num1*(2*nx+1)*(2*nz+1), 3))
+    pts_w_imgs = np.zeros((num1*(2*nx+1)*(2*ny+1), 3))
 
     # The first set of atoms correspond to the main
     # cell.
@@ -223,21 +223,21 @@ def create_imgs(pts1, nx, nz, sim_avec, sim_cvec):
 
     # Array for translating the main cell
     nx_val = np.linspace(-nx, nx, 2*nx+1)
-    nz_val = np.linspace(-nz, nz, 2*nz+1)
-    mval = np.meshgrid(nx_val, nz_val)
+    ny_val = np.linspace(-ny, ny, 2*ny+1)
+    mval = np.meshgrid(nx_val, ny_val)
     mx = np.ndarray.flatten(mval[0])
-    mz = np.ndarray.flatten(mval[1])
-    i1 = np.where((mx == 0) & (mz == 0))[0][0]
+    my = np.ndarray.flatten(mval[1])
+    i1 = np.where((mx == 0) & (my == 0))[0][0]
     mx = np.delete(mx, i1)
-    mz = np.delete(mz, i1)
+    my = np.delete(my, i1)
     x_trans = np.tile(sim_avec, (num1, 1))
-    z_trans = np.tile(sim_cvec, (num1, 1))
+    y_trans = np.tile(sim_bvec, (num1, 1))
 
     # Creating the images
     for ct2 in range(np.size(mx)):
         mx1 = mx[ct2]
-        mz1 = mz[ct2]
-        pts_trans = pts1 + mx1*x_trans + mz1*z_trans
+        my1 = my[ct2]
+        pts_trans = pts1 + mx1*x_trans + my1*y_trans
         # xs = pts_trans[:, 0]
         # ys = pts_trans[:, 1]
         # zs = pts_trans[:, 2]
