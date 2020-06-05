@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>gbmc_v0.pad_dump_file &mdash; gbmc_v0 1.0.1.post50+g85e4514 documentation</title>
+  <title>gbmc_v0.pad_dump_file &mdash; gbmc_v0 0.post51+gb159629 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.0.1.post50+g85e4514
+                0.post51+gb159629
               </div>
             
           
@@ -183,7 +183,7 @@
 <span class="sd">        Indices of the GB atoms</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">GbRegion</span><span class="p">,</span> <span class="n">GbIndex</span><span class="p">,</span> <span class="n">GbWidth</span><span class="p">,</span> <span class="n">w_left_SC</span><span class="p">,</span> <span class="n">w_right_SC</span> <span class="o">=</span> <span class="n">GB_finder</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">lat_par</span><span class="p">)</span>
+    <span class="n">GbRegion</span><span class="p">,</span> <span class="n">GbIndex</span><span class="p">,</span> <span class="n">GbWidth</span><span class="p">,</span> <span class="n">w_bottom_SC</span><span class="p">,</span> <span class="n">w_top_SC</span> <span class="o">=</span> <span class="n">GB_finder</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">lat_par</span><span class="p">)</span>
 
     <span class="n">sim_cell</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">cell</span><span class="p">[</span><span class="o">...</span><span class="p">]</span>
     <span class="n">sim_avec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sim_cell</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
@@ -304,7 +304,7 @@
 <div class="viewcode-block" id="pad_gb_perp"><a class="viewcode-back" href="../../usage.html#gbmc_v0.pad_dump_file.pad_gb_perp">[docs]</a><span class="k">def</span> <span class="nf">pad_gb_perp</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">GbRegion</span><span class="p">,</span> <span class="n">GbIndex</span><span class="p">,</span> <span class="n">rCut</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Function to take as input the dump data (from OVITO), find the GB atoms</span>
-<span class="sd">    and add padding to the GB atoms  within rCut in Y direction.</span>
+<span class="sd">    and add padding to the GB atoms  within rCut in Z direction.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    -------------</span>
@@ -320,7 +320,7 @@
 <span class="sd">    Returns</span>
 <span class="sd">    ---------</span>
 <span class="sd">    pts1 :</span>
-<span class="sd">        Indices of the atoms which Y value is in range [GBRegion[0] - rCut, GBRegion[1] + rCut].</span>
+<span class="sd">        Indices of the atoms which Z value is in range [GBRegion[0] - rCut, GBRegion[1] + rCut].</span>
 <span class="sd">    gb1_inds :</span>
 <span class="sd">        Indices of the GB atoms</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -328,14 +328,14 @@
     <span class="n">position_Y</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">&#39;Position&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">]</span>
     <span class="n">position_Z</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">&#39;Position&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][:,</span> <span class="mi">2</span><span class="p">]</span>
 
-    <span class="n">Ymin</span><span class="p">,</span> <span class="n">Ymax</span> <span class="o">=</span> <span class="n">GbRegion</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">rCut</span><span class="p">,</span> <span class="n">GbRegion</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">rCut</span>
+    <span class="n">Zmin</span><span class="p">,</span> <span class="n">Zmax</span> <span class="o">=</span> <span class="n">GbRegion</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">rCut</span><span class="p">,</span> <span class="n">GbRegion</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">rCut</span>
 
-    <span class="n">pad1_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">position_Y</span> <span class="o">&lt;=</span> <span class="n">Ymax</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_Y</span> <span class="o">&gt;=</span> <span class="n">Ymin</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">pad1_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">position_Z</span> <span class="o">&lt;=</span> <span class="n">Zmax</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_Z</span> <span class="o">&gt;=</span> <span class="n">Zmin</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="n">int1</span><span class="p">,</span> <span class="n">a1</span><span class="p">,</span> <span class="n">a2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span><span class="n">pad1_inds</span><span class="p">,</span> <span class="n">GbIndex</span><span class="p">,</span> <span class="n">return_indices</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">gb1_inds</span> <span class="o">=</span> <span class="n">a1</span>
 
-    <span class="c1"># Replicate the GB structure along X and Z direction (nx and nz times)</span>
+    <span class="c1"># Replicate the GB structure along X and Y direction (nx and ny times)</span>
     <span class="n">num1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">pad1_inds</span><span class="p">)</span>
     <span class="n">pts1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
     <span class="n">pts1</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">position_X</span><span class="p">[</span><span class="n">pad1_inds</span><span class="p">])</span>

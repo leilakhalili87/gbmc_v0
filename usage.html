@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Usage &mdash; gbmc_v0 1.0.1.post50+g85e4514 documentation</title>
+  <title>Usage &mdash; gbmc_v0 0.post51+gb159629 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.0.1.post50+g85e4514
+                0.post51+gb159629
               </div>
             
           
@@ -312,7 +312,7 @@ is the number of replication in z direction.</p>
 <dt id="gbmc_v0.pad_dump_file.pad_gb_perp">
 <code class="sig-prename descclassname">gbmc_v0.pad_dump_file.</code><code class="sig-name descname">pad_gb_perp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">GbRegion</span></em>, <em class="sig-param"><span class="n">GbIndex</span></em>, <em class="sig-param"><span class="n">rCut</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gbmc_v0/pad_dump_file.html#pad_gb_perp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gbmc_v0.pad_dump_file.pad_gb_perp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to take as input the dump data (from OVITO), find the GB atoms
-and add padding to the GB atoms  within rCut in Y direction.</p>
+and add padding to the GB atoms  within rCut in Z direction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
@@ -328,7 +328,7 @@ and add padding to the GB atoms  within rCut in Y direction.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
-<dt>pts1 :</dt><dd><p>Indices of the atoms which Y value is in range [GBRegion[0] - rCut, GBRegion[1] + rCut].</p>
+<dt>pts1 :</dt><dd><p>Indices of the atoms which Z value is in range [GBRegion[0] - rCut, GBRegion[1] + rCut].</p>
 </dd>
 <dt>gb1_inds :</dt><dd><p>Indices of the GB atoms</p>
 </dd>
