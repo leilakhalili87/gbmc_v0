@@ -84,4 +84,3 @@ target/
 #lammps_dumps
 gbmc_v0/lammps_dump/
 gbmc_v0/log.lammps_dumps
-gbmc_v0/tests/data/dump_*
