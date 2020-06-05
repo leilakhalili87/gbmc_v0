@@ -26,7 +26,7 @@ def pad_dump_file(data, lat_par, rCut):
         Indices of the GB atoms
     """
 
-    GbRegion, GbIndex, GbWidth, w_left_SC, w_right_SC = GB_finder(data, lat_par)
+    GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC = GB_finder(data, lat_par)
 
     sim_cell = data.cell[...]
     sim_avec = np.array(sim_cell[:, 0])
@@ -147,7 +147,7 @@ def num_rep_2d(xvec, yvec, rCut):
 def pad_gb_perp(data, GbRegion, GbIndex, rCut):
     """
     Function to take as input the dump data (from OVITO), find the GB atoms
-    and add padding to the GB atoms  within rCut in Y direction.
+    and add padding to the GB atoms  within rCut in Z direction.
 
     Parameters
     -------------
@@ -163,7 +163,7 @@ def pad_gb_perp(data, GbRegion, GbIndex, rCut):
     Returns
     ---------
     pts1 :
-        Indices of the atoms which Y value is in range [GBRegion[0] - rCut, GBRegion[1] + rCut].
+        Indices of the atoms which Z value is in range [GBRegion[0] - rCut, GBRegion[1] + rCut].
     gb1_inds :
         Indices of the GB atoms
     """
@@ -171,14 +171,14 @@ def pad_gb_perp(data, GbRegion, GbIndex, rCut):
     position_Y = data.particles['Position'][...][:, 1]
     position_Z = data.particles['Position'][...][:, 2]
 
-    Ymin, Ymax = GbRegion[0] - rCut, GbRegion[1] + rCut
+    Zmin, Zmax = GbRegion[0] - rCut, GbRegion[1] + rCut
 
-    pad1_inds = np.where((position_Y <= Ymax) & (position_Y >= Ymin))[0]
+    pad1_inds = np.where((position_Z <= Zmax) & (position_Z >= Zmin))[0]
 
     int1, a1, a2 = np.intersect1d(pad1_inds, GbIndex, return_indices=True)
     gb1_inds = a1
 
-    # Replicate the GB structure along X and Z direction (nx and nz times)
+    # Replicate the GB structure along X and Y direction (nx and ny times)
     num1 = np.size(pad1_inds)
     pts1 = np.zeros((num1, 3))
     pts1[:, 0] = np.array(position_X[pad1_inds])
