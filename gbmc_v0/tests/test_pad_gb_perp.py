@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 import gbmc_v0.pad_dump_file as pad
 @pytest.mark.parametrize('filename0, lat_par',
-                         [('data/dump_1', 4.05)])
+                         [("data/dump_1", 4.05)])
 def pad_gb_perp(filename0, lat_par):
     data = uf.compute_ovito_data(filename0)
     rCut = 2 * lat_par
