@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>gbmc_v0.pad_dump_file &mdash; gbmc_v0 0.post51+gfb134ef documentation</title>
+  <title>gbmc_v0.pad_dump_file &mdash; gbmc_v0 0.post51+g424b853 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.post51+gfb134ef
+                0.post51+g424b853
               </div>
             
           
@@ -191,12 +191,12 @@
     <span class="n">sim_cvec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sim_cell</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
     <span class="n">sim_orig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sim_cell</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">])</span>
 
-    <span class="n">x1_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">sim_avec</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sim_avec</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
-    <span class="n">z1_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">sim_cvec</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sim_cvec</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
-    <span class="p">[</span><span class="n">nx</span><span class="p">,</span> <span class="n">nz</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_rep_2d</span><span class="p">(</span><span class="n">x1_vec</span><span class="p">,</span> <span class="n">z1_vec</span><span class="p">,</span> <span class="n">rCut</span><span class="p">)</span>
+    <span class="n">x1_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">sim_avec</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sim_avec</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+    <span class="n">z1_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">sim_cvec</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sim_cvec</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+    <span class="p">[</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_rep_2d</span><span class="p">(</span><span class="n">x1_vec</span><span class="p">,</span> <span class="n">y1_vec</span><span class="p">,</span> <span class="n">rCut</span><span class="p">)</span>
 
     <span class="n">pts1</span><span class="p">,</span> <span class="n">gb1_inds</span> <span class="o">=</span> <span class="n">pad_gb_perp</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">GbRegion</span><span class="p">,</span> <span class="n">GbIndex</span><span class="p">,</span> <span class="n">rCut</span><span class="p">)</span>
-    <span class="n">pts_w_imgs</span> <span class="o">=</span> <span class="n">create_imgs</span><span class="p">(</span><span class="n">pts1</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">nz</span><span class="p">,</span> <span class="n">sim_avec</span><span class="p">,</span> <span class="n">sim_cvec</span><span class="p">)</span>
+    <span class="n">pts_w_imgs</span> <span class="o">=</span> <span class="n">create_imgs</span><span class="p">(</span><span class="n">pts1</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">sim_avec</span><span class="p">,</span> <span class="n">sim_cvec</span><span class="p">)</span>
     <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">gb1_inds</span> <span class="o">=</span> <span class="p">(</span><span class="n">slice_along_planes</span><span class="p">(</span><span class="n">sim_orig</span><span class="p">,</span>
                                                <span class="n">sim_avec</span><span class="p">,</span> <span class="n">sim_bvec</span><span class="p">,</span> <span class="n">sim_cvec</span><span class="p">,</span> <span class="n">rCut</span><span class="p">,</span>
                                                <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">gb1_inds</span><span class="p">))</span>
@@ -279,9 +279,9 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ------------</span>
 <span class="sd">    xvec :</span>
-<span class="sd">        The basis vector in x direction in x-z plane</span>
+<span class="sd">        The basis vector in x direction in x-y plane</span>
 <span class="sd">    yvec :</span>
-<span class="sd">        The basis vector in z direction in x-z plane</span>
+<span class="sd">        The basis vector in y direction in x-y plane</span>
 <span class="sd">    rCut</span>
 <span class="sd">        Cut-off radius for computing Delaunay triangulations</span>
 
@@ -289,7 +289,7 @@
 <span class="sd">    ------------</span>
 <span class="sd">    [int(m_x), int(m_y)] :</span>
 <span class="sd">        int(m_x) is the number of replications in x direction, int(m_y)</span>
-<span class="sd">        is the number of replication in z direction.</span>
+<span class="sd">        is the number of replication in y direction.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">c_vec_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">xvec</span><span class="p">,</span> <span class="n">yvec</span><span class="p">))</span>
