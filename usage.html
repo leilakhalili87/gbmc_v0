@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Usage &mdash; gbmc_v0 0.post48+g296e17f documentation</title>
+  <title>Usage &mdash; gbmc_v0 0.post49+g4516582 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.post48+g296e17f
+                0.post49+g4516582
               </div>
             
           
@@ -339,26 +339,26 @@ and add padding to the GB atoms  within rCut in Z direction.</p>
 
 <dl class="py function">
 <dt id="gbmc_v0.pad_dump_file.create_imgs">
-<code class="sig-prename descclassname">gbmc_v0.pad_dump_file.</code><code class="sig-name descname">create_imgs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pts1</span></em>, <em class="sig-param"><span class="n">nx</span></em>, <em class="sig-param"><span class="n">nz</span></em>, <em class="sig-param"><span class="n">sim_avec</span></em>, <em class="sig-param"><span class="n">sim_cvec</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gbmc_v0/pad_dump_file.html#create_imgs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gbmc_v0.pad_dump_file.create_imgs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates the replicates of the main cell in X and Z direction.</p>
+<code class="sig-prename descclassname">gbmc_v0.pad_dump_file.</code><code class="sig-name descname">create_imgs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pts1</span></em>, <em class="sig-param"><span class="n">nx</span></em>, <em class="sig-param"><span class="n">ny</span></em>, <em class="sig-param"><span class="n">sim_avec</span></em>, <em class="sig-param"><span class="n">sim_bvec</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gbmc_v0/pad_dump_file.html#create_imgs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gbmc_v0.pad_dump_file.create_imgs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the replicates of the main cell in X and Y direction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>pts1 :</strong></dt><dd><p>Indices of the atoms which Y value is in range [GBRegion[0] - rCut, GBRegion[1] + rCut].</p>
+<dt><strong>pts1 :</strong></dt><dd><p>Indices of the atoms which Z value is in range [GBRegion[0] - rCut, GBRegion[1] + rCut].</p>
 </dd>
 <dt><strong>nx :</strong></dt><dd><p>Number of replications in x direction</p>
 </dd>
-<dt><strong>nz :</strong></dt><dd><p>Number of replications in z direction</p>
+<dt><strong>ny :</strong></dt><dd><p>Number of replications in y direction</p>
 </dd>
 <dt><strong>sim_avec :</strong></dt><dd><p>The simulation cell basis vector in a direction</p>
 </dd>
-<dt><strong>sim_cvec :</strong></dt><dd><p>The simulation cell basis vector in c direction</p>
+<dt><strong>sim_bvec :</strong></dt><dd><p>The simulation cell basis vector in b direction</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
-<dt>pts_w_imgs :</dt><dd><p>The position of atoms after replicating the box n_x and n_z times in X and Z direction.</p>
+<dt>pts_w_imgs :</dt><dd><p>The position of atoms after replicating the box n_x and n_y times in X and Y direction.</p>
 </dd>
 </dl>
 </dd>
