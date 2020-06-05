@@ -34,12 +34,12 @@ def pad_dump_file(data, lat_par, rCut):
     sim_cvec = np.array(sim_cell[:, 2])
     sim_orig = np.array(sim_cell[:, 3])
 
-    x1_vec = np.array([sim_avec[0], sim_avec[2]])
-    z1_vec = np.array([sim_cvec[0], sim_cvec[2]])
-    [nx, nz] = num_rep_2d(x1_vec, z1_vec, rCut)
+    x1_vec = np.array([sim_avec[0], sim_avec[1]])
+    z1_vec = np.array([sim_cvec[0], sim_cvec[1]])
+    [nx, ny] = num_rep_2d(x1_vec, y1_vec, rCut)
 
     pts1, gb1_inds = pad_gb_perp(data, GbRegion, GbIndex, rCut)
-    pts_w_imgs = create_imgs(pts1, nx, nz, sim_avec, sim_cvec)
+    pts_w_imgs = create_imgs(pts1, nx, ny, sim_avec, sim_cvec)
     pts_w_imgs, gb1_inds = (slice_along_planes(sim_orig,
                                                sim_avec, sim_bvec, sim_cvec, rCut,
                                                pts_w_imgs, gb1_inds))
@@ -122,9 +122,9 @@ def num_rep_2d(xvec, yvec, rCut):
     Parameters
     ------------
     xvec :
-        The basis vector in x direction in x-z plane
+        The basis vector in x direction in x-y plane
     yvec :
-        The basis vector in z direction in x-z plane
+        The basis vector in y direction in x-y plane
     rCut
         Cut-off radius for computing Delaunay triangulations
 
@@ -132,7 +132,7 @@ def num_rep_2d(xvec, yvec, rCut):
     ------------
     [int(m_x), int(m_y)] :
         int(m_x) is the number of replications in x direction, int(m_y)
-        is the number of replication in z direction.
+        is the number of replication in y direction.
 
     """
     c_vec_norm = np.linalg.norm(np.cross(xvec, yvec))
