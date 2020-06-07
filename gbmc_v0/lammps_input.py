@@ -121,7 +121,7 @@ def write_lammps_dump(filename0, box_bound, dump_lamp, box_type):
             np.savetxt(f, line, fmt='%d %d %.10f %.10f %.10f')
 
 
-def write_lammps_script(dump_name, path, script_name,  box_bound, box_type):
+def write_lammps_script(lat_par, dump_name, path, script_name,  box_bound, box_type):
     """
     Function writes the lammps script to minimize the simulation box.
 
@@ -142,6 +142,8 @@ def write_lammps_script(dump_name, path, script_name,  box_bound, box_type):
     Returns
     ----------
     """
+    delta_low = -5 * lat_par
+    delta_high = 5 * lat_par
     fiw = open(str(path) + str(script_name), 'w')
     line = []
     line.append('# Minimization Parameters -------------------------\n')
@@ -154,7 +156,7 @@ def write_lammps_script(dump_name, path, script_name,  box_bound, box_type):
     line.append('variable Inf equal 10000000000\n')
     line.append('# ------------------------------------------------\n')
     line.append('\n')
-    line.append('variable LatParam equal 4.05\n')
+    line.append('variable LatParam equal ' + str(lat_par) + '\n')
     line.append('# ------------------------------------------------\n')
     line.append('\n')
     line.append('variable GBname index in.minimize0\n')
@@ -189,14 +191,6 @@ def write_lammps_script(dump_name, path, script_name,  box_bound, box_type):
     line.append('read_dump ' + str(dump_name) + ' 0 x y z box yes add yes \n')
     line.append('\n')
 
-    # line.append('region lower prism ' + str(box_bound[0][0]) + ' ' + str(box_bound[0][1]) + ' ' +
-    #             str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' 0 ' + str(box_bound[2][1]) + ' ' +
-    #             str(box_bound[0][2]) + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + '\n')
-
-    # line.append('region upper prism ' + str(box_bound[0][0]) + ' ' + str(box_bound[0][1]) + ' ' +
-    #             str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' ' + str(box_bound[2][0]) + ' 0 ' +
-    #             str(box_bound[0][2]) + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + '\n')
-
     line.append('group lower type 2\n')
     line.append('group upper type 1\n')
     line.append('\n')
@@ -207,6 +201,7 @@ def write_lammps_script(dump_name, path, script_name,  box_bound, box_type):
     line.append('delete_atoms overlap ${OverLap}  upper lower\n')
     line.append('neighbor 2 bin\n')
     line.append('neigh_modify delay 10 check yes\n')
+    line.append('change_box all z delta ' + str(delta_low) + ' ' + str(delta_high) + '\n')
     line.append('\n')
     line.append('# ---------Computing Simulation Parameters---------\n')
     line.append('\n')
@@ -248,8 +243,8 @@ def write_lammps_script(dump_name, path, script_name,  box_bound, box_type):
 
 
 box_bound, dump_lamp, box_type = lammps_box('./tests/data/gb_attr.pkl')
-write_lammps_dump("./tests/data/dump", box_bound, dump_lamp, box_type)
-write_lammps_script('./tests/data/dump', './lammps_dump/', 'in.minimize0', box_bound, box_type)
+write_lammps_dump("./tests/data/dump_1", box_bound, dump_lamp, box_type)
+write_lammps_script(4.05, './tests/data/dump_1', './lammps_dump/', 'in.minimize0', box_bound, box_type)
 lammps_exe_path = '/home/leila/Downloads/lammps-stable/lammps-7Aug19/src/lmp_mpi'
 os.system(str(lammps_exe_path) + '< ./lammps_dump/' + 'in.minimize0')
 
