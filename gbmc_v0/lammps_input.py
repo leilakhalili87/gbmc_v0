@@ -3,7 +3,7 @@ import pickle as pkl
 import os
 
 
-def lammps_box(pkl_name):
+def lammps_box(lat_par, pkl_name):
     """
     Function calculates the box bound and the atom coordinates of the GB simulation.
     Ref: https://lammps.sandia.gov/doc/Howto_triclinic.html
@@ -31,19 +31,14 @@ def lammps_box(pkl_name):
     jar.close()
 
     u_pts = gb_attr['upts']
+    
     len_u = np.shape(u_pts)[0]
     u_type = np.zeros((len_u, 1)) + 1
-    upper = np.concatenate((u_type, u_pts), axis=1)
+
 
     l_pts = gb_attr['lpts']
     len_l = np.shape(l_pts)[0]
     l_type = np.zeros((len_l, 1)) + 2
-    lower = np.concatenate((l_type, l_pts), axis=1)
-
-    all_atoms = np.concatenate((lower, upper))
-    num_atoms = len_u + len_l
-    ID = np.arange(num_atoms).reshape(num_atoms, 1) + 1
-    dump_lamp = np.concatenate((ID, all_atoms), axis=1)
 
     sim_cell = gb_attr['cell']
     origin_o = sim_cell[:, 3]
@@ -73,6 +68,18 @@ def lammps_box(pkl_name):
     yhi_bound = yhi + np.max(np.array([0, yz]))
     zlo_bound = zlo
     zhi_bound = zhi
+
+    # u_id_rigid = np.where(u_pts[:,2] > (zhi - 5 * lat_par))[0]
+    # u_type[u_id_rigid] = 3 
+    # l_id_rigid = np.where(l_pts[:,2] < (zlo + 5 * lat_par))[0]
+    # l_type[l_id_rigid] = 4
+    upper = np.concatenate((u_type, u_pts), axis=1)
+    lower = np.concatenate((l_type, l_pts), axis=1)
+
+    all_atoms = np.concatenate((lower, upper))
+    num_atoms = len_u + len_l
+    ID = np.arange(num_atoms).reshape(num_atoms, 1) + 1
+    dump_lamp = np.concatenate((ID, all_atoms), axis=1)
 
     if box_type == "block":
         box_bound = np.array([[xlo_bound, xhi_bound], [ylo_bound, yhi_bound], [zlo_bound, zhi_bound]])
@@ -122,6 +129,7 @@ def write_lammps_dump(filename0, box_bound, dump_lamp, box_type):
 
 
 def write_lammps_script(lat_par, dump_name, path, script_name,  box_bound, box_type):
+
     """
     Function writes the lammps script to minimize the simulation box.
 
@@ -142,8 +150,15 @@ def write_lammps_script(lat_par, dump_name, path, script_name,  box_bound, box_t
     Returns
     ----------
     """
+    # the voundaries of change_box
     delta_low = -5 * lat_par
     delta_high = 5 * lat_par
+    # boundaries of fix rigid
+    zlo_0 = box_bound[2, 0]
+    zhi_1 = box_bound[2, 1]
+    z0 = zlo_0 +  5 * lat_par
+    z1 = zhi_1 -  5 *  lat_par
+
     fiw = open(str(path) + str(script_name), 'w')
     line = []
     line.append('# Minimization Parameters -------------------------\n')
@@ -170,7 +185,6 @@ def write_lammps_script(lat_par, dump_name, path, script_name,  box_bound, box_t
     line.append('clear\n')
     line.append('units metal\n')
     line.append('dimension 3\n')
-    # line.append('boundary '+bcon[0]+' '+bcon[1]+' '+bcon[2]+'\n')
     line.append('boundary p p f \n')
     line.append('atom_style atomic\n')
     line.append('\n')
@@ -181,27 +195,43 @@ def write_lammps_script(lat_par, dump_name, path, script_name,  box_bound, box_t
         line.append('region whole prism ' + str(box_bound[0][0]) + ' ' +
                     str(box_bound[0][1]) + ' ' + str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' ' +
                     str(box_bound[2][0]) + ' ' + str(box_bound[2][1]) + ' ' + str(box_bound[0][2])
-                    + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + '\n')
+                    + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + ' units box\n')
+
+        line.append('region reg_fix prism ' + str(box_bound[0][0]) + ' ' +
+                    str(box_bound[0][1]) + ' ' + str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' ' +
+                    str(z0) + ' ' + str(z1) + ' ' + str(box_bound[0][2])
+                    + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + ' units box\n')
     else:
         line.append('region whole block ' + str(box_bound[0][0]) + ' ' +
                     str(box_bound[0][1]) + ' ' + str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' ' +
-                    str(box_bound[2][0]) + ' ' + str(box_bound[2][1]) + ' ' + '\n')
+                    str(box_bound[2][0]) + ' ' + str(box_bound[2][1]) + ' ' + ' units box\n')
+    
+        line.append('region reg_fix block ' + str(box_bound[0][0]) + ' ' +
+                    str(box_bound[0][1]) + ' ' + str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' ' +
+                    str(z0) + ' ' + str(z1) + ' units box\n')
 
     line.append('create_box 2 whole\n')
     line.append('read_dump ' + str(dump_name) + ' 0 x y z box yes add yes \n')
     line.append('\n')
 
-    line.append('group lower type 2\n')
+    line.append('group lower type 2 \n')
     line.append('group upper type 1\n')
+
+    line.append("#---------Defining the fix rigid region--------------\n")
+    line.append('group non_fix region reg_fix\n')
+    line.append('group fix_reg subtract all non_fix\n')
+
     line.append('\n')
     line.append('# -------Defining the potential functions----------\n')
     line.append('\n')
     line.append('pair_style eam/alloy\n')
     line.append('pair_coeff * * ' + str(path) + 'Al99.eam.alloy Al Al\n')
     line.append('delete_atoms overlap ${OverLap}  upper lower\n')
+    
     line.append('neighbor 2 bin\n')
     line.append('neigh_modify delay 10 check yes\n')
     line.append('change_box all z delta ' + str(delta_low) + ' ' + str(delta_high) + '\n')
+    
     line.append('\n')
     line.append('# ---------Computing Simulation Parameters---------\n')
     line.append('\n')
@@ -216,12 +246,17 @@ def write_lammps_script(lat_par, dump_name, path, script_name,  box_bound, box_t
     line.append('thermo 10\n')
     line.append('thermo_style custom step pe lx ly lz xy xz yz xlo xhi ylo yhi zlo zhi ' +
                 'press pxx pyy pzz c_eatoms c_MinAtomEnergy\n')
+
     line.append('thermo_modify lost ignore\n')
+
     line.append('dump 1 all custom 10 ' + str(path) + 'dump_befor.${cnt} id type x y z c_csym c_eng\n')
     if box_type == "prism":
         line.append('fix 1 all box/relax x 0 y 0 xy 0\n')
     else:
         line.append('fix 1 all box/relax x 0 y 0\n')
+    line.append('fix 2 fix_reg rigid single reinit yes\n')
+    # line.append('fix 3 fix_reg momentum 1 linear 1 1 0\n')
+    
     line.append('min_style cg\n')
     line.append('minimize ${Etol} ${Ftol} ${MaxIter} ${MaxEval}\n')
     line.append('undump 1\n')
@@ -242,10 +277,10 @@ def write_lammps_script(lat_par, dump_name, path, script_name,  box_bound, box_t
     return True
 
 
-box_bound, dump_lamp, box_type = lammps_box('./tests/data/gb_attr.pkl')
+box_bound, dump_lamp, box_type = lammps_box(4.05, './tests/data/gb_attr.pkl')
 write_lammps_dump("./tests/data/dump_1", box_bound, dump_lamp, box_type)
 write_lammps_script(4.05, './tests/data/dump_1', './lammps_dump/', 'in.minimize0', box_bound, box_type)
-lammps_exe_path = '/home/leila/Downloads/lammps-stable/lammps-7Aug19/src/lmp_mpi'
+lammps_exe_path = '/home/leila/Downloads/mylammps/src/lmp_mpi'
 os.system(str(lammps_exe_path) + '< ./lammps_dump/' + 'in.minimize0')
 
 # box_bound, dump_lamp = lammps_box('./tests/data/gb_attr.pkl')
