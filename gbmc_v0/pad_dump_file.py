@@ -39,11 +39,11 @@ def pad_dump_file(data, lat_par, rCut):
     [nx, nz] = num_rep_2d(x1_vec, z1_vec, rCut)
 
     pts1, gb1_inds = pad_gb_perp(data, GbRegion, GbIndex, rCut)
-    pts_w_imgs = create_imgs(pts1, nx, nz, sim_avec, sim_cvec)
-    pts_w_imgs, gb1_inds = (slice_along_planes(sim_orig,
+    pts_w_imgs, inds_array = create_imgs(pts1, nx, nz, sim_avec, sim_cvec)
+    pts_w_imgs1, gb1_inds, inds_arr = (slice_along_planes(sim_orig,
                                                sim_avec, sim_bvec, sim_cvec, rCut,
-                                               pts_w_imgs, gb1_inds))
-    return pts_w_imgs, gb1_inds
+                                               pts_w_imgs, gb1_inds,inds_array))
+    return pts_w_imgs, gb1_inds, inds_arr.astype(int);
 
 
 def GB_finder(data, lat_par):
@@ -215,12 +215,16 @@ def create_imgs(pts1, nx, nz, sim_avec, sim_cvec):
     num1 = np.shape(pts1)[0]
     pts_w_imgs = np.zeros((num1*(2*nx+1)*(2*nz+1), 3))
 
+    inds_array = np.zeros((num1*(2*nx+1)*(2*nz+1), ))
+    tinds1 = np.arange(0, num1)
+
     # The first set of atoms correspond to the main
     # cell.
     ct1 = 0
     ind_st = num1*ct1
     ind_stop = num1*(ct1+1)-1
     pts_w_imgs[ind_st:ind_stop+1, :] = pts1
+    inds_array[ind_st:ind_stop+1] = tinds1
     ct1 = ct1 + 1
 
     # Array for translating the main cell
@@ -246,12 +250,13 @@ def create_imgs(pts1, nx, nz, sim_avec, sim_cvec):
         ind_st = num1*ct1
         ind_stop = num1*(ct1+1)-1
         pts_w_imgs[ind_st:ind_stop+1, :] = pts_trans
+        inds_array[ind_st:ind_stop+1] = tinds1
         ct1 = ct1 + 1
 
-    return pts_w_imgs
+    return pts_w_imgs, inds_array
 
 
-def slice_along_planes(orig, sim_avec, sim_bvec, sim_cvec, rCut, pts_w_imgs, gb1_inds):
+def slice_along_planes(orig, sim_avec, sim_bvec, sim_cvec, rCut, pts_w_imgs, gb1_inds, inds_arr):
     """
 
     1. Descriptions
@@ -285,13 +290,13 @@ def slice_along_planes(orig, sim_avec, sim_bvec, sim_cvec, rCut, pts_w_imgs, gb1
         pt1 = orig + sim_avec*l1[0] + au_vec*rCut*l1[1] + sim_cvec*l1[2] + cu_vec*rCut*l1[3]
         pl_nvec = pl_nvecs[ct1]
         inds_keep1 = inds_to_keep(pl_nvec, pt1, orig, pts_w_imgs)
-        pts_w_imgs, gb1_inds = del_inds(inds_keep1, pts_w_imgs, gb1_inds)
+        pts_w_imgs, gb1_inds, inds_arr = del_inds(inds_keep1, pts_w_imgs, gb1_inds, inds_arr)
         ct1 = ct1 + 1
 
-    return pts_w_imgs, gb1_inds
+    return pts_w_imgs, gb1_inds, inds_arr
 
 
-def del_inds(ind1, pts1, gb1_inds):
+def del_inds(ind1, pts1, gb1_inds, inds_arr):
     """
     Function deletes the indices of atoms outside of the main box plus rCut margin around it
 
@@ -301,8 +306,9 @@ def del_inds(ind1, pts1, gb1_inds):
         The indices of atoms we want to keep
     pts1 :
         The position of atoms after replicating the box n_x and n_z times in x and z direction.
-    gb1_ind
+    gb1_ind :
         Indices of the GB atoms
+    inds_arr
 
     Returns
     ---------
@@ -310,12 +316,14 @@ def del_inds(ind1, pts1, gb1_inds):
         The position of atoms we want to keep
     gb1_inds :
         Indices of the GB atoms
+    inds_arr
     """
 
     int1, a1, a2 = np.intersect1d(ind1, gb1_inds, return_indices=True)
     gb1_inds = a1
     pts1 = pts1[ind1, :]
-    return pts1, gb1_inds
+    inds_arr = inds_arr[ind1]
+    return pts1, gb1_inds, inds_arr
 
 
 def inds_to_keep(norm_vec, pl_pt, orig, pts):
