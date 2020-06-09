@@ -154,10 +154,17 @@ def write_lammps_script(lat_par, dump_name, path, script_name,  box_bound, box_t
     delta_low = -5 * lat_par
     delta_high = 5 * lat_par
     # boundaries of fix rigid
-    zlo_0 = box_bound[2, 0]
-    zhi_1 = box_bound[2, 1]
-    z0 = zlo_0 +  5 * lat_par
-    z1 = zhi_1 -  5 *  lat_par
+    xy = box_bound[0, 2]
+    xz = box_bound[1, 2]
+    yz = box_bound[2, 2]
+    xlo = box_bound[0, 0] - np.min(np.array([0, xy, xz, xy + xz]))
+    xhi = box_bound[0, 1] - np.max(np.array([0, xy, xz, xy + xz]))
+    ylo = box_bound[1, 0] - np.min(np.array([0, yz]))
+    yhi = box_bound[1, 1] - np.max(np.array([0, yz]))
+    zlo = box_bound[2, 0]
+    zhi = box_bound[2, 1]
+    z0 = zlo +  5 * lat_par
+    z1 = zhi -  5 *  lat_par
 
     fiw = open(str(path) + str(script_name), 'w')
     line = []
@@ -192,22 +199,22 @@ def write_lammps_script(lat_par, dump_name, path, script_name,  box_bound, box_t
     line.append('\n')
     line.append('lattice fcc ${LatParam}\n')
     if box_type == "prism":
-        line.append('region whole prism ' + str(box_bound[0][0]) + ' ' +
-                    str(box_bound[0][1]) + ' ' + str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' ' +
-                    str(box_bound[2][0]) + ' ' + str(box_bound[2][1]) + ' ' + str(box_bound[0][2])
-                    + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + ' units box\n')
+        line.append('region whole prism ' + str(xlo) + ' ' +
+                    str(xhi) + ' ' + str(ylo) + ' ' + str(yhi) + ' ' +
+                    str(zlo) + ' ' + str(zhi) + ' ' + str(xy)
+                    + ' ' + str(xz) + ' ' + str(yz) + ' units box\n')
 
-        line.append('region reg_fix prism ' + str(box_bound[0][0]) + ' ' +
-                    str(box_bound[0][1]) + ' ' + str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' ' +
-                    str(z0) + ' ' + str(z1) + ' ' + str(box_bound[0][2])
-                    + ' ' + str(box_bound[1][2]) + ' ' + str(box_bound[2][2]) + ' units box\n')
+        line.append('region reg_fix prism ' + str(xlo) + ' ' +
+                    str(xhi) + ' ' + str(ylo) + ' ' + str(yhi) + ' ' +
+                    str(z0) + ' ' + str(z1) + ' ' + str(xy)
+                    + ' ' + str(xz) + ' ' + str(yz) + ' units box\n')
     else:
-        line.append('region whole block ' + str(box_bound[0][0]) + ' ' +
-                    str(box_bound[0][1]) + ' ' + str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' ' +
-                    str(box_bound[2][0]) + ' ' + str(box_bound[2][1]) + ' ' + ' units box\n')
+        line.append('region whole block ' + str(xlo) + ' ' +
+                    str(xhi) + ' ' + str(ylo) + ' ' + str(yhi) + ' ' +
+                    str(zlo) + ' ' + str(zhi) + ' ' + ' units box\n')
     
-        line.append('region reg_fix block ' + str(box_bound[0][0]) + ' ' +
-                    str(box_bound[0][1]) + ' ' + str(box_bound[1][0]) + ' ' + str(box_bound[1][1]) + ' ' +
+        line.append('region reg_fix block ' + str(xlo) + ' ' +
+                    str(xhi) + ' ' + str(ylo) + ' ' + str(yhi) + ' ' +
                     str(z0) + ' ' + str(z1) + ' units box\n')
 
     line.append('create_box 2 whole\n')
@@ -308,6 +315,7 @@ def write_lammps_script(lat_par, dump_name, path, script_name,  box_bound, box_t
     line.append('run ${MaxEval}\n')
     line.append('unfix 1\n')
     line.append('undump 1\n')
+    line.append('----------------------minimization--------------------\n')
     
     for i in line:
         fiw.write(i)
