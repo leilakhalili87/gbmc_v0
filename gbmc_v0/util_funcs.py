@@ -24,6 +24,26 @@ def compute_ovito_data(filename0):
     return data
 
 
+def identify_pbc(data):
+    """
+    Function finds the non-periodic direction
+
+    Parameters
+    ------------
+    data : class
+        all the attributes of data
+
+    Returns
+    --------
+    non_pbc : int
+        The direction which is non-periodic.
+    """
+    pbc = data.cell.pbc
+    pbc = np.asarray(pbc) + 0
+    non_pbc = np.where(pbc == 0)[0][0]
+    return non_pbc
+
+
 def RemProb(data, CohEng, GbIndex):
     """
     The function finds The atomic removal probabilty.
