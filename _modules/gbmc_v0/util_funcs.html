@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>gbmc_v0.util_funcs &mdash; gbmc_v0 0.post50+g0c0b52e documentation</title>
+  <title>gbmc_v0.util_funcs &mdash; gbmc_v0 0.post50+gae57f31 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.post50+g0c0b52e
+                0.post50+gae57f31
               </div>
             
           
@@ -179,6 +179,26 @@
     <span class="n">pipeline</span><span class="o">.</span><span class="n">modifiers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dmod</span><span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">data</span></div>
+
+
+<span class="k">def</span> <span class="nf">identify_pbc</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function finds the non-periodic direction</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ------------</span>
+<span class="sd">    data : class</span>
+<span class="sd">        all the attributes of data</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">    non_pbc : int</span>
+<span class="sd">        The direction which is non-periodic.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pbc</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">pbc</span>
+    <span class="n">pbc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pbc</span><span class="p">)</span> <span class="o">+</span> <span class="mi">0</span>
+    <span class="n">non_pbc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">pbc</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">non_pbc</span>
 
 
 <div class="viewcode-block" id="RemProb"><a class="viewcode-back" href="../../usage.html#gbmc_v0.util_funcs.RemProb">[docs]</a><span class="k">def</span> <span class="nf">RemProb</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">CohEng</span><span class="p">,</span> <span class="n">GbIndex</span><span class="p">):</span>
