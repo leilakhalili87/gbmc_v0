@@ -82,7 +82,7 @@ def Circum_O_R(vertex_pos, tol):
         return circum_center, circum_rad
 
 
-def triang_inds(pts_w_imgs, gb1_inds):
+def triang_inds(pts_w_imgs, gb1_inds, inds_arr):
     """
     Function finds the indices of atoms making tetrahedrons
 
@@ -105,11 +105,18 @@ def triang_inds(pts_w_imgs, gb1_inds):
     for ct1 in range(num_tri):
         tri_vertices[ct1, :] = np.array([int(i) for i in str.split(tri_simplices[ct1+1])])
 
+    inds1 = (inds_arr[tri_vertices]);
+    inds2 = np.copy(inds1);
+    inds2.sort(axis=1);
+
     tarr1 = np.zeros((np.shape(pts_w_imgs)[0], ))
     tarr1[gb1_inds] = 1
     gb_tri_inds = np.where(np.sum(tarr1[tri_vertices], axis=1))[0]
 
-    return tri_vertices, gb_tri_inds
+    i1, ia = np.unique(gb_tri_uc_verts, return_index = True, axis = 0);
+    gb_tri_inds1 = gb_tri_inds[ia];
+
+    return tri_vertices, gb_tri_inds1
 
 
 def vv_props(pts_w_imgs, tri_vertices, gb_tri, lat_par):
@@ -126,4 +133,35 @@ def vv_props(pts_w_imgs, tri_vertices, gb_tri, lat_par):
         cc_rad[ct1, :] = cr
         ct1 = ct1 + 1
 
-    return cc_coors, cc_rad
+    tinds1 = np.where(cc_rad[:,0] < 1e-12)[0];
+    cc_coors1 = np.delete(cc_coors, tinds1, 0);
+    cc_rad1 = np.delete(cc_rad, tinds1, 0);
+
+    return cc_coors1, cc_rad1
+
+def wrap_cc(cell1, pts):
+    ### Create new Ovitos data-object with
+    # 1) Simulation cell same as the GB
+    # 2) Periodicity same as the GB
+    # 3) Add the Voronoi coordinates as the new set of atoms
+    # 4) Wrap voronoi vertex coordinates
+
+    import ovito.data as ovd;
+    data = ovd.DataCollection();
+    data.objects.append(cell1);
+    particles = ovd.Particles();
+    particles.create_property('Position', data=pts);
+    data.objects.append(particles);
+
+    # Create a new Pipeline with a StaticSource as data source:
+    from ovito.pipeline import StaticSource, Pipeline
+    pipeline = Pipeline(source = StaticSource(data = data))
+    # Wrap the atoms with given periodicity
+    # ovito.modifiers.WrapPeriodicImagesModifier
+    import ovito.modifiers as ovm;
+    pipeline.modifiers.append(ovm.WrapPeriodicImagesModifier());
+    data1 = pipeline.compute();
+    # pos = np.array(data.particle_properties['Position'][...]);
+    pts1 = np.array(data1.particle_properties['Position'][...]);
+
+    return pts1;
