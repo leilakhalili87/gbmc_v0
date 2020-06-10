@@ -5,23 +5,25 @@ import gbmc_v0.pad_dump_file as pdf
 import gbmc_v0.util_funcs as uf
 
 
-@pytest.mark.parametrize('filename0, rCut, lat_par',
-                         [("data/dump_1", 8.1, 4.05),
-                          ("data/dump_1", 30, 4.05)])
-def test_create_imgs(filename0, rCut, lat_par):
+@pytest.mark.parametrize('filename0, rCut, lat_par, non_p',
+                         [("data/dump_1", 8.1, 4.05, 2),
+                          ("data/dump_1", 30, 4.05, 2),
+                          ("data/dump_2", 8.1, 4.05, 1)])
+def test_create_imgs(filename0, rCut, lat_par, non_p):
     data = uf.compute_ovito_data(filename0)
-    GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC = pdf.GB_finder(data, lat_par)
+    arr = pdf.p_arr(non_p)
+    GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC = pdf.GB_finder(data, lat_par, non_p)
     sim_cell = data.cell[...]
-    sim_avec = np.array(sim_cell[:, 0])
-    sim_bvec = np.array(sim_cell[:, 1])
-    sim_cvec = np.array(sim_cell[:, 2])
+    sim_nonp_vec = np.array(sim_cell[:, non_p])
+    sim_1vec = np.array(sim_cell[:, arr[0]])
+    sim_2vec = np.array(sim_cell[:, arr[1]])
 
-    x1_vec = np.array([sim_avec[0], sim_avec[1]])
-    y1_vec = np.array([sim_bvec[0], sim_bvec[1]])
-    [nx, ny] = pdf.num_rep_2d(x1_vec, y1_vec, rCut)
-    pts1, gb1_inds = pdf.pad_gb_perp(data, GbRegion, GbIndex, rCut)
-    pts_w_imgs = pdf.create_imgs(pts1, nx, ny, sim_avec, sim_cvec)
+    p1_vec = np.array([sim_1vec[arr[0]], sim_1vec[arr[1]]])
+    p2_vec = np.array([sim_2vec[arr[0]], sim_2vec[arr[1]]])
+    [n1, n2] = pdf.num_rep_2d(p1_vec, p2_vec, rCut)
+    pts1, gb1_inds = pdf.pad_gb_perp(data, GbRegion, GbIndex, rCut, non_p)
+    pts_w_imgs = pdf.create_imgs(pts1, n1, n2, sim_1vec, sim_2vec, non_p)
 
     num0 = pts_w_imgs.shape[0]/pts1.shape[0]
-    num1 = np.power(nx+ny+1, 2)
+    num1 = np.power(n1+n2+1, 2)
     assert np.allclose(num0, num1)
