@@ -31,10 +31,8 @@ def lammps_box(lat_par, pkl_name):
     jar.close()
 
     u_pts = gb_attr['upts']
-    
     len_u = np.shape(u_pts)[0]
     u_type = np.zeros((len_u, 1)) + 1
-
 
     l_pts = gb_attr['lpts']
     len_l = np.shape(l_pts)[0]
@@ -69,10 +67,6 @@ def lammps_box(lat_par, pkl_name):
     zlo_bound = zlo
     zhi_bound = zhi
 
-    # u_id_rigid = np.where(u_pts[:,2] > (zhi - 5 * lat_par))[0]
-    # u_type[u_id_rigid] = 3 
-    # l_id_rigid = np.where(l_pts[:,2] < (zlo + 5 * lat_par))[0]
-    # l_type[l_id_rigid] = 4
     upper = np.concatenate((u_type, u_pts), axis=1)
     lower = np.concatenate((l_type, l_pts), axis=1)
 
@@ -163,8 +157,8 @@ def write_lammps_script(lat_par, dump_name, path, script_name,  box_bound, box_t
     yhi = box_bound[1, 1] - np.max(np.array([0, yz]))
     zlo = box_bound[2, 0]
     zhi = box_bound[2, 1]
-    z0 = zlo +  5 * lat_par
-    z1 = zhi -  5 *  lat_par
+    z0 = zlo + 5 * lat_par
+    z1 = zhi - 5 * lat_par
 
     fiw = open(str(path) + str(script_name), 'w')
     line = []
@@ -212,7 +206,7 @@ def write_lammps_script(lat_par, dump_name, path, script_name,  box_bound, box_t
         line.append('region whole block ' + str(xlo) + ' ' +
                     str(xhi) + ' ' + str(ylo) + ' ' + str(yhi) + ' ' +
                     str(zlo) + ' ' + str(zhi) + ' ' + ' units box\n')
-    
+
         line.append('region reg_fix block ' + str(xlo) + ' ' +
                     str(xhi) + ' ' + str(ylo) + ' ' + str(yhi) + ' ' +
                     str(z0) + ' ' + str(z1) + ' units box\n')
@@ -234,11 +228,11 @@ def write_lammps_script(lat_par, dump_name, path, script_name,  box_bound, box_t
     line.append('pair_style eam/alloy\n')
     line.append('pair_coeff * * ' + str(path) + 'Al99.eam.alloy Al Al\n')
     line.append('delete_atoms overlap ${OverLap}  upper lower\n')
-    
+
     line.append('neighbor 2 bin\n')
     line.append('neigh_modify delay 10 check yes\n')
     line.append('change_box all z delta ' + str(delta_low) + ' ' + str(delta_high) + '\n')
-    
+
     line.append('\n')
     line.append('# ---------Computing Simulation Parameters---------\n')
     line.append('\n')
@@ -262,23 +256,13 @@ def write_lammps_script(lat_par, dump_name, path, script_name,  box_bound, box_t
     else:
         line.append('fix 1 all box/relax x 0 y 0\n')
     line.append('fix 2 fix_reg rigid single reinit yes\n')
-    # line.append('fix 3 fix_reg momentum 1 linear 1 1 0\n')
-    
+
     line.append('min_style cg\n')
     line.append('minimize ${Etol} ${Ftol} ${MaxIter} ${MaxEval}\n')
     line.append('undump 1\n')
     line.append('unfix 1\n')
     line.append('\n')
-    # line.append('# -----------------Dumping Outputs-----------------\n')
-    # line.append('\n')
-    # line.append('reset_timestep 0\n')
-    # line.append('timestep 0.001\n')
-    # line.append('thermo 10\n')
-    # line.append('thermo_style custom step pe lx ly lz press pxx pyy pzz c_eatoms\n')
-    # line.append('thermo_modify lost ignore\n')
-    # line.append('dump 1 all custom 10 ' + str(path) + 'dump_after.${cnt} id type x y z c_csym c_eng\n')
-    # line.append('run 0\n')
-    # line.append('undump 1\n')
+
     line.append('# -----------------heating step-----------------\n')
     line.append('\n')
     line.append('reset_timestep 0\n')
@@ -320,7 +304,8 @@ def write_lammps_script(lat_par, dump_name, path, script_name,  box_bound, box_t
     line.append('\n')
     line.append('reset_timestep 0\n')
     line.append('thermo 100\n')
-    line.append('thermo_style custom step pe lx ly lz xy xz yz xlo xhi ylo yhi zlo zhi press pxx pyy pzz c_eatoms c_MinAtomEnergy\n')
+    line.append('thermo_style custom step pe lx ly lz xy xz yz xlo xhi ylo yhi zlo zhi press pxx pyy pzz '
+                'c_eatoms c_MinAtomEnergy\n')
     line.append('thermo_modify lost ignore\n')
     line.append('dump 1 all custom 10 ./lammps_dump/dump_minimized id type x y z c_csym c_eng\n')
     line.append('fix 1 all box/relax x 0 y 0 xy 0\n')

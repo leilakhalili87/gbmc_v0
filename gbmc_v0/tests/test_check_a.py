@@ -3,6 +3,7 @@ import numpy as np
 import gbmc_v0.util_funcs as uf
 from ovito.data import NearestNeighborFinder
 
+
 @pytest.mark.skip(reason="we can't push the data to repo. It is large.")
 @pytest.mark.parametrize('filename0, lat_par, cut_off, num_neighbors, non_p_dir',
                          [('data/dump_1', 4.05, 10, 12, 2),

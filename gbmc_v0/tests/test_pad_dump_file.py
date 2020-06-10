@@ -13,7 +13,6 @@ def test_pad_dump_file(filename0, rCut, lat_par, non_p):
     arr = pdf.p_arr(non_p)
     GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC = pdf.GB_finder(data, lat_par, non_p)
     sim_cell = data.cell[...]
-    sim_nonp_vec = np.array(sim_cell[:, non_p])
     sim_1vec = np.array(sim_cell[:, arr[0]])
     sim_2vec = np.array(sim_cell[:, arr[1]])
 

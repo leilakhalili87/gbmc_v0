@@ -2,10 +2,27 @@ import numpy as np
 # import ovito.modifiers as ovm
 # from ovito.io import import_file, export_file
 
+
 def p_arr(non_p):
+    """
+    Function creates an array for the periodic direction.
+
+    Parameters
+    ------------
+    non_pbc : int
+        The non-periodic direction. 0 , 1 or 2 which corresponds to
+        x, y and z direction, respectively.
+
+    Returns
+    ----------
+    arr0 : numpy aray
+        A 1*2 array having the periodic directions.
+
+    """
     arr = np.array([0, 1, 2])
     arr0 = np.delete(arr, non_p)
     return arr0
+
 
 def pad_dump_file(data, lat_par, rCut, non_p):
     """
@@ -21,7 +38,9 @@ def pad_dump_file(data, lat_par, rCut, non_p):
         Lattice parameter for the crystal being simulated
     rCut :
         Cut-off radius for computing Delaunay triangulations
-
+    non_pbc : int
+        The non-periodic direction. 0 , 1 or 2 which corresponds to
+        x, y and z direction, respectively.
     Returns
     ----------
     pts_w_imgs :
@@ -63,7 +82,7 @@ def GB_finder(data, lat_par, non_pbc):
         The lattice parameter
     non_pbc : int
         The non-periodic direction. 0 , 1 or 2 which corresponds to
-        x, y and z direction, respectively. 
+        x, y and z direction, respectively.
 
     Returns
     -----------
@@ -216,15 +235,13 @@ def create_imgs(pts1, n1, n2, sim_1vec, sim_2vec, non_p):
         The simulation cell basis vector in 2nd periodic direction
     non_pbc : int
         The non-periodic direction. 0 , 1 or 2 which corresponds to
-        x, y and z direction, respectively. 
+        x, y and z direction, respectively.
 
     Returns
     ----------
     pts_w_imgs :
         The position of atoms after replicating the box n_x and n_z times in X and Z direction.
     """
-    arr = p_arr(non_p)
-
     num1 = np.shape(pts1)[0]
     pts_w_imgs = np.zeros((num1*(2*n1+1)*(2*n2+1), 3))
 
@@ -254,9 +271,6 @@ def create_imgs(pts1, n1, n2, sim_1vec, sim_2vec, non_p):
         mp2 = m2[ct2]
         pts_trans = pts1 + mp1*p1_trans + mp2*p2_trans
 
-        pos_nonp = pts_trans[:, non_p]
-        pos_p1 = pts_trans[:, arr[0]]
-        pos_p2 = pts_trans[:, arr[1]]
         ind_st = num1*ct1
         ind_stop = num1*(ct1+1)-1
         pts_w_imgs[ind_st:ind_stop+1, :] = pts_trans
@@ -268,7 +282,7 @@ def create_imgs(pts1, n1, n2, sim_1vec, sim_2vec, non_p):
 def slice_along_planes(orig, sim_1vec, sim_2vec, sim_nonp_vec, rCut, pts_w_imgs, gb1_inds, non_p):
     """
 
-    Function 
+    Function cuts the pts_w_imgs within an rCut from the GB.
 
     Parameters
     ------------
@@ -288,7 +302,7 @@ def slice_along_planes(orig, sim_1vec, sim_2vec, sim_nonp_vec, rCut, pts_w_imgs,
         Indices of the GB atoms
     non_pbc : int
         The non-periodic direction. 0 , 1 or 2 which corresponds to
-        x, y and z direction, respectively. 
+        x, y and z direction, respectively.
 
     Returns
     ------------
