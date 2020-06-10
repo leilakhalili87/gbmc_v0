@@ -46,8 +46,8 @@ def pad_dump_file(data, lat_par, rCut, non_p):
     pts1, gb1_inds = pad_gb_perp(data, GbRegion, GbIndex, rCut, non_p)
     pts_w_imgs = create_imgs(pts1, n1, n2, sim_1vec, sim_2vec, non_p)
     pts_w_imgs, gb1_inds = (slice_along_planes(sim_orig,
-                                               sim_avec, sim_bvec, sim_cvec, rCut,
-                                               pts_w_imgs, gb1_inds))
+                                               sim_1vec, sim_2vec, sim_nonp_vec, rCut,
+                                               pts_w_imgs, gb1_inds, non_p))
     return pts_w_imgs, gb1_inds
 
 
@@ -265,38 +265,53 @@ def create_imgs(pts1, n1, n2, sim_1vec, sim_2vec, non_p):
     return pts_w_imgs
 
 
-def slice_along_planes(orig, sim_avec, sim_bvec, sim_cvec, rCut, pts_w_imgs, gb1_inds):
+def slice_along_planes(orig, sim_1vec, sim_2vec, sim_nonp_vec, rCut, pts_w_imgs, gb1_inds, non_p):
     """
 
-    1. Descriptions
-    2. Input Parameters
-        1. `orig` - The origin of the main cell.
-        2. `sim_avec` -  The simulation cell basis vector in a direction
-        3. `sim_bvec` - The simulation cell basis vector in b direction
-        4. `sim_cvec` - The simulation cell basis vector in c direction
-        5. `rCut` - Cut-off radius for computing Delaunay triangulations
-        6. `pts_w_imgs` - The position of atoms after replicating the box n_x and n_z times in X and Z direction.
-        7. `gb1_inds` - Indices of the GB atoms
-    3. Return Parameters
-        1. `pts_w_imgs` - The position of atoms after replicating the box, n_x and n_z times in x and z direction.
-        2. `gb1_inds` - Indices of the GB atoms
+    Function 
+
+    Parameters
+    ------------
+    orig
+        The origin of the main cell.
+    sim_1vec
+        The simulation cell basis vector in a direction
+    sim_2vec
+        The simulation cell basis vector in b direction
+    sim_nonp_vec
+        The simulation cell basis vector in c direction
+    rCut
+        Cut-off radius for computing Delaunay triangulations
+    pts_w_imgs
+        The position of atoms after replicating the box n_x and n_z times in X and Z direction.
+    gb1_inds
+        Indices of the GB atoms
+    non_pbc : int
+        The non-periodic direction. 0 , 1 or 2 which corresponds to
+        x, y and z direction, respectively. 
+
+    Returns
+    ------------
+    pts_w_imgs
+            The position of atoms after replicating the box, n_x and n_z times in x and z direction.
+    gb1_inds
+            Indices of the GB atoms
     """
+    p1u_vec = sim_1vec/np.linalg.norm(sim_1vec)
+    p2u_vec = sim_2vec/np.linalg.norm(sim_2vec)
+    nonp_u_vec = sim_nonp_vec/np.linalg.norm(sim_nonp_vec)
 
-    au_vec = sim_avec/np.linalg.norm(sim_avec)
-    bu_vec = sim_bvec/np.linalg.norm(sim_bvec)
-    cu_vec = sim_cvec/np.linalg.norm(sim_cvec)
+    p1cut_nvec = np.cross(p1u_vec, nonp_u_vec)
+    p1cut_nvec = p1cut_nvec/np.linalg.norm(p1cut_nvec)
+    p2cut_nvec = np.cross(p2u_vec, nonp_u_vec)
+    p2cut_nvec = p2cut_nvec/np.linalg.norm(p2cut_nvec)
 
-    xcut_nvec = np.cross(au_vec, bu_vec)
-    xcut_nvec = xcut_nvec/np.linalg.norm(xcut_nvec)
-    zcut_nvec = np.cross(cu_vec, bu_vec)
-    zcut_nvec = zcut_nvec/np.linalg.norm(zcut_nvec)
-
-    pl_nvecs = np.vstack((xcut_nvec, xcut_nvec, zcut_nvec, zcut_nvec))
+    pl_nvecs = np.vstack((p1cut_nvec, p1cut_nvec, p2cut_nvec, p2cut_nvec))
     lvals = ([[0, 0, 0, -1], [0, 0, 1, 1], [0, -1, 0, 0], [1, 1, 0, 0]])
     # pl_pts = np.zeros((4, 3))
     ct1 = 0
     for l1 in lvals:
-        pt1 = orig + sim_avec*l1[0] + au_vec*rCut*l1[1] + sim_cvec*l1[2] + cu_vec*rCut*l1[3]
+        pt1 = orig + sim_1vec*l1[0] + p1u_vec*rCut*l1[1] + sim_2vec*l1[2] + p2u_vec*rCut*l1[3]
         pl_nvec = pl_nvecs[ct1]
         inds_keep1 = inds_to_keep(pl_nvec, pt1, orig, pts_w_imgs)
         pts_w_imgs, gb1_inds = del_inds(inds_keep1, pts_w_imgs, gb1_inds)
