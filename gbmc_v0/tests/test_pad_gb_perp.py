@@ -2,9 +2,11 @@ import numpy as np
 import pytest
 import gbmc_v0.pad_dump_file as pad
 import gbmc_v0.util_funcs as uf
+
+
 @pytest.mark.parametrize('filename0, lat_par, non_p',
                          [("data/dump_1", 4.05, 2),
-                         ("data/dump_2", 4.05, 1)])
+                          ("data/dump_2", 4.05, 1)])
 def test_pad_gb_perp(filename0, lat_par, non_p):
     data = uf.compute_ovito_data(filename0)
     rCut = 2 * lat_par
@@ -14,4 +16,3 @@ def test_pad_gb_perp(filename0, lat_par, non_p):
     d_pos = data.particles['Position'][...][GbIndex, :]
     err = np.linalg.norm(p_pos - d_pos)
     assert np.allclose(0, err)
-
