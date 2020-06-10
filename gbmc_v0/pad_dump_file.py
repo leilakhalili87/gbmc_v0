@@ -2,8 +2,12 @@ import numpy as np
 # import ovito.modifiers as ovm
 # from ovito.io import import_file, export_file
 
+def p_arr(non_p):
+    arr = np.array([0, 1, 2])
+    arr0 = np.delete(arr, non_p)
+    return arr0
 
-def pad_dump_file(data, lat_par, rCut):
+def pad_dump_file(data, lat_par, rCut, non_p):
     """
     Function to take as input the dump data (from OVITO),find the GB atoms and
     add padding to the GB atoms (including images) within rCut.
@@ -26,20 +30,21 @@ def pad_dump_file(data, lat_par, rCut):
         Indices of the GB atoms
     """
 
-    GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC = GB_finder(data, lat_par)
+    GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC = GB_finder(data, lat_par, non_p)
+    arr = p_arr(non_p)
 
     sim_cell = data.cell[...]
-    sim_avec = np.array(sim_cell[:, 0])
-    sim_bvec = np.array(sim_cell[:, 1])
-    sim_cvec = np.array(sim_cell[:, 2])
+    sim_nonp_vec = np.array(sim_cell[:, non_p])
+    sim_1vec = np.array(sim_cell[:, arr[0]])
+    sim_2vec = np.array(sim_cell[:, arr[1]])
     sim_orig = np.array(sim_cell[:, 3])
 
-    x1_vec = np.array([sim_avec[0], sim_avec[2]])
-    z1_vec = np.array([sim_cvec[0], sim_cvec[2]])
-    [nx, nz] = num_rep_2d(x1_vec, z1_vec, rCut)
+    p1_vec = np.array([sim_1vec[arr[0]], sim_1vec[arr[1]]])
+    p2_vec = np.array([sim_2vec[arr[0]], sim_2vec[arr[1]]])
+    [n1, n2] = num_rep_2d(p1_vec, p2_vec, rCut)
 
-    pts1, gb1_inds = pad_gb_perp(data, GbRegion, GbIndex, rCut)
-    pts_w_imgs = create_imgs(pts1, nx, nz, sim_avec, sim_cvec)
+    pts1, gb1_inds = pad_gb_perp(data, GbRegion, GbIndex, rCut, non_p)
+    pts_w_imgs = create_imgs(pts1, n1, n2, sim_1vec, sim_2vec, non_p)
     pts_w_imgs, gb1_inds = (slice_along_planes(sim_orig,
                                                sim_avec, sim_bvec, sim_cvec, rCut,
                                                pts_w_imgs, gb1_inds))
@@ -170,8 +175,7 @@ def pad_gb_perp(data, GbRegion, GbIndex, rCut, non_p):
     gb1_inds :
         Indices of the GB atoms
     """
-    arr = np.array([0, 1, 2])
-    arr0 = np.delete(arr, non_p)
+    arr0 = p_arr(non_p)
 
     position_nonp = data.particles['Position'][...][:, non_p]
     position_p1 = data.particles['Position'][...][:, arr0[0]]
@@ -194,7 +198,7 @@ def pad_gb_perp(data, GbRegion, GbIndex, rCut, non_p):
     return pts1, gb1_inds
 
 
-def create_imgs(pts1, nx, nz, sim_avec, sim_cvec):
+def create_imgs(pts1, n1, n2, sim_1vec, sim_2vec, non_p):
     """
     Creates the replicates of the main cell in X and Z direction.
 
@@ -202,22 +206,27 @@ def create_imgs(pts1, nx, nz, sim_avec, sim_cvec):
     -------------
     pts1 :
         Indices of the atoms which Y value is in range [GBRegion[0] - rCut, GBRegion[1] + rCut].
-    nx :
-        Number of replications in x direction
-    nz :
-        Number of replications in z direction
-    sim_avec :
-        The simulation cell basis vector in a direction
-    sim_cvec :
-        The simulation cell basis vector in c direction
+    n1 :
+        Number of replications in 1st periodic direction
+    n2 :
+        Number of replications in 2nd periodic direction
+    sim_1vec :
+        The simulation cell basis vector in 1st periodic direction
+    sim_2vec :
+        The simulation cell basis vector in 2nd periodic direction
+    non_pbc : int
+        The non-periodic direction. 0 , 1 or 2 which corresponds to
+        x, y and z direction, respectively. 
 
     Returns
     ----------
     pts_w_imgs :
         The position of atoms after replicating the box n_x and n_z times in X and Z direction.
     """
+    arr = p_arr(non_p)
+
     num1 = np.shape(pts1)[0]
-    pts_w_imgs = np.zeros((num1*(2*nx+1)*(2*nz+1), 3))
+    pts_w_imgs = np.zeros((num1*(2*n1+1)*(2*n2+1), 3))
 
     # The first set of atoms correspond to the main
     # cell.
@@ -228,25 +237,26 @@ def create_imgs(pts1, nx, nz, sim_avec, sim_cvec):
     ct1 = ct1 + 1
 
     # Array for translating the main cell
-    nx_val = np.linspace(-nx, nx, 2*nx+1)
-    nz_val = np.linspace(-nz, nz, 2*nz+1)
-    mval = np.meshgrid(nx_val, nz_val)
-    mx = np.ndarray.flatten(mval[0])
-    mz = np.ndarray.flatten(mval[1])
-    i1 = np.where((mx == 0) & (mz == 0))[0][0]
-    mx = np.delete(mx, i1)
-    mz = np.delete(mz, i1)
-    x_trans = np.tile(sim_avec, (num1, 1))
-    z_trans = np.tile(sim_cvec, (num1, 1))
+    n1_val = np.linspace(-n1, n1, 2*n1+1)
+    n2_val = np.linspace(-n2, n2, 2*n2+1)
+    mval = np.meshgrid(n1_val, n2_val)
+    m1 = np.ndarray.flatten(mval[0])
+    m2 = np.ndarray.flatten(mval[1])
+    i1 = np.where((m1 == 0) & (m2 == 0))[0][0]
+    m1 = np.delete(m1, i1)
+    m2 = np.delete(m2, i1)
+    p1_trans = np.tile(sim_1vec, (num1, 1))
+    p2_trans = np.tile(sim_2vec, (num1, 1))
 
     # Creating the images
-    for ct2 in range(np.size(mx)):
-        mx1 = mx[ct2]
-        mz1 = mz[ct2]
-        pts_trans = pts1 + mx1*x_trans + mz1*z_trans
-        # xs = pts_trans[:, 0]
-        # ys = pts_trans[:, 1]
-        # zs = pts_trans[:, 2]
+    for ct2 in range(np.size(m1)):
+        mp1 = m1[ct2]
+        mp2 = m2[ct2]
+        pts_trans = pts1 + mp1*p1_trans + mp2*p2_trans
+
+        pos_nonp = pts_trans[:, non_p]
+        pos_p1 = pts_trans[:, arr[0]]
+        pos_p2 = pts_trans[:, arr[1]]
         ind_st = num1*ct1
         ind_stop = num1*(ct1+1)-1
         pts_w_imgs[ind_st:ind_stop+1, :] = pts_trans
