@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Usage &mdash; gbmc_v0 0.post50+g8ce303e documentation</title>
+  <title>Usage &mdash; gbmc_v0 0.post50+ga32f58e documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.post50+g8ce303e
+                0.post50+ga32f58e
               </div>
             
           
@@ -373,31 +373,39 @@ x, y and z direction, respectively.</p>
 
 <dl class="py function">
 <dt id="gbmc_v0.pad_dump_file.slice_along_planes">
-<code class="sig-prename descclassname">gbmc_v0.pad_dump_file.</code><code class="sig-name descname">slice_along_planes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">orig</span></em>, <em class="sig-param"><span class="n">sim_avec</span></em>, <em class="sig-param"><span class="n">sim_bvec</span></em>, <em class="sig-param"><span class="n">sim_cvec</span></em>, <em class="sig-param"><span class="n">rCut</span></em>, <em class="sig-param"><span class="n">pts_w_imgs</span></em>, <em class="sig-param"><span class="n">gb1_inds</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gbmc_v0/pad_dump_file.html#slice_along_planes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gbmc_v0.pad_dump_file.slice_along_planes" title="Permalink to this definition">¶</a></dt>
-<dd><ol class="arabic simple">
-<li><p>Descriptions</p></li>
-<li><dl class="simple">
-<dt>Input Parameters</dt><dd><ol class="arabic simple">
-<li><p><cite>orig</cite> - The origin of the main cell.</p></li>
-<li><p><cite>sim_avec</cite> -  The simulation cell basis vector in a direction</p></li>
-<li><p><cite>sim_bvec</cite> - The simulation cell basis vector in b direction</p></li>
-<li><p><cite>sim_cvec</cite> - The simulation cell basis vector in c direction</p></li>
-<li><p><cite>rCut</cite> - Cut-off radius for computing Delaunay triangulations</p></li>
-<li><p><cite>pts_w_imgs</cite> - The position of atoms after replicating the box n_x and n_z times in X and Z direction.</p></li>
-<li><p><cite>gb1_inds</cite> - Indices of the GB atoms</p></li>
-</ol>
+<code class="sig-prename descclassname">gbmc_v0.pad_dump_file.</code><code class="sig-name descname">slice_along_planes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">orig</span></em>, <em class="sig-param"><span class="n">sim_1vec</span></em>, <em class="sig-param"><span class="n">sim_2vec</span></em>, <em class="sig-param"><span class="n">sim_nonp_vec</span></em>, <em class="sig-param"><span class="n">rCut</span></em>, <em class="sig-param"><span class="n">pts_w_imgs</span></em>, <em class="sig-param"><span class="n">gb1_inds</span></em>, <em class="sig-param"><span class="n">non_p</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gbmc_v0/pad_dump_file.html#slice_along_planes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gbmc_v0.pad_dump_file.slice_along_planes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>orig</strong></dt><dd><p>The origin of the main cell.</p>
+</dd>
+<dt><strong>sim_1vec</strong></dt><dd><p>The simulation cell basis vector in a direction</p>
+</dd>
+<dt><strong>sim_2vec</strong></dt><dd><p>The simulation cell basis vector in b direction</p>
+</dd>
+<dt><strong>sim_nonp_vec</strong></dt><dd><p>The simulation cell basis vector in c direction</p>
+</dd>
+<dt><strong>rCut</strong></dt><dd><p>Cut-off radius for computing Delaunay triangulations</p>
+</dd>
+<dt><strong>pts_w_imgs</strong></dt><dd><p>The position of atoms after replicating the box n_x and n_z times in X and Z direction.</p>
+</dd>
+<dt><strong>gb1_inds</strong></dt><dd><p>Indices of the GB atoms</p>
+</dd>
+<dt><strong>non_pbc</strong><span class="classifier">int</span></dt><dd><p>The non-periodic direction. 0 , 1 or 2 which corresponds to
+x, y and z direction, respectively.</p>
 </dd>
 </dl>
-</li>
-<li><dl class="simple">
-<dt>Return Parameters</dt><dd><ol class="arabic simple">
-<li><p><cite>pts_w_imgs</cite> - The position of atoms after replicating the box, n_x and n_z times in x and z direction.</p></li>
-<li><p><cite>gb1_inds</cite> - Indices of the GB atoms</p></li>
-</ol>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>pts_w_imgs</dt><dd><p>The position of atoms after replicating the box, n_x and n_z times in x and z direction.</p>
+</dd>
+<dt>gb1_inds</dt><dd><p>Indices of the GB atoms</p>
 </dd>
 </dl>
-</li>
-</ol>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
