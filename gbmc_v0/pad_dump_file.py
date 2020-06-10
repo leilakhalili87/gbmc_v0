@@ -34,19 +34,19 @@ def pad_dump_file(data, lat_par, rCut):
     sim_cvec = np.array(sim_cell[:, 2])
     sim_orig = np.array(sim_cell[:, 3])
 
-    xvec = np.array([sim_avec[0], sim_avec[1]])
-    yvec = np.array([sim_bvec[0], sim_bvec[1]])
-    [nx, ny] = num_rep_2d(x1_vec, y1_vec, rCut)
+    x1_vec = np.array([sim_avec[0], sim_avec[2]])
+    z1_vec = np.array([sim_cvec[0], sim_cvec[2]])
+    [nx, nz] = num_rep_2d(x1_vec, z1_vec, rCut)
 
     pts1, gb1_inds = pad_gb_perp(data, GbRegion, GbIndex, rCut)
-    pts_w_imgs = create_imgs(pts1, nx, ny, sim_avec, sim_cvec)
+    pts_w_imgs = create_imgs(pts1, nx, nz, sim_avec, sim_cvec)
     pts_w_imgs, gb1_inds = (slice_along_planes(sim_orig,
                                                sim_avec, sim_bvec, sim_cvec, rCut,
                                                pts_w_imgs, gb1_inds))
     return pts_w_imgs, gb1_inds
 
 
-def GB_finder(data, lat_par):
+def GB_finder(data, lat_par, non_pbc):
     """
     The function finds the GB region usning Polyhedral Template Matching.
 
@@ -56,6 +56,9 @@ def GB_finder(data, lat_par):
         The lammps dump file
     lat_par:
         The lattice parameter
+    non_pbc : int
+        The non-periodic direction. 0 , 1 or 2 which corresponds to
+        x, y and z direction, respectively. 
 
     Returns
     -----------
@@ -73,39 +76,39 @@ def GB_finder(data, lat_par):
 
     # num_particles = data.particles.count
     ptm_struct = data.particles['Structure Type'][...]
-    position_Z = data.particles['Position'][...][:, 2]
+    position_np = data.particles['Position'][...][:, non_pbc]
 
     NoSurfArea = []
     # Find the smallest single crystal range
     a = 1
-    pos_min = np.min(position_Z)
+    pos_min = np.min(position_np)
 
     while a != 0:
         pos_max = pos_min + lat_par
-        a = len(np.where((ptm_struct == 0) & (position_Z < pos_max) & (position_Z > pos_min))[0])
+        a = len(np.where((ptm_struct == 0) & (position_np < pos_max) & (position_np > pos_min))[0])
         pos_min += lat_par
 
     NoSurfArea = NoSurfArea + [pos_min]
 
     # Find the largest single crystal range
     a = 1
-    pos_max = np.max(position_Z)
+    pos_max = np.max(position_np)
     while a != 0:
         pos_min = pos_max - lat_par
-        a = len(np.where((ptm_struct == 0) & (position_Z < pos_max) & (position_Z > pos_min))[0])
+        a = len(np.where((ptm_struct == 0) & (position_np < pos_max) & (position_np > pos_min))[0])
         pos_max -= lat_par
 
     NoSurfArea = NoSurfArea + [pos_min + lat_par]
 
-    gb_index = np.where((ptm_struct == 0) & (position_Z < NoSurfArea[1]) & (position_Z > NoSurfArea[0]))[0]
-    gb_mean = np.mean(position_Z[gb_index])
-    gb_std = np.std(position_Z[gb_index])
+    gb_index = np.where((ptm_struct == 0) & (position_np < NoSurfArea[1]) & (position_np > NoSurfArea[0]))[0]
+    gb_mean = np.mean(position_np[gb_index])
+    gb_std = np.std(position_np[gb_index])
 
     # Delete the outliers of gb
-    var = position_Z[gb_index] - gb_mean
+    var = position_np[gb_index] - gb_mean
     GbIndex = gb_index[np.where((var < 3*gb_std) & (var > -3*gb_std))[0]]
 
-    GbZ = position_Z[GbIndex]
+    GbZ = position_np[GbIndex]
     GbRegion = [np.min(GbZ), np.max(GbZ)]
     GbWidth = GbRegion[1] - GbRegion[0]
     w_bottom_SC = GbRegion[0] - NoSurfArea[0]
@@ -122,9 +125,9 @@ def num_rep_2d(xvec, yvec, rCut):
     Parameters
     ------------
     xvec :
-        The basis vector in x direction in x-y plane
+        The basis vector in x direction in x-z plane
     yvec :
-        The basis vector in y direction in x-y plane
+        The basis vector in z direction in x-z plane
     rCut
         Cut-off radius for computing Delaunay triangulations
 
@@ -132,7 +135,7 @@ def num_rep_2d(xvec, yvec, rCut):
     ------------
     [int(m_x), int(m_y)] :
         int(m_x) is the number of replications in x direction, int(m_y)
-        is the number of replication in y direction.
+        is the number of replication in z direction.
 
     """
     c_vec_norm = np.linalg.norm(np.cross(xvec, yvec))
@@ -188,30 +191,30 @@ def pad_gb_perp(data, GbRegion, GbIndex, rCut):
     return pts1, gb1_inds
 
 
-def create_imgs(pts1, nx, ny, sim_avec, sim_bvec):
+def create_imgs(pts1, nx, nz, sim_avec, sim_cvec):
     """
-    Creates the replicates of the main cell in X and Y direction.
+    Creates the replicates of the main cell in X and Z direction.
 
     Parameters
     -------------
     pts1 :
-        Indices of the atoms which Z value is in range [GBRegion[0] - rCut, GBRegion[1] + rCut].
+        Indices of the atoms which Y value is in range [GBRegion[0] - rCut, GBRegion[1] + rCut].
     nx :
         Number of replications in x direction
-    ny :
-        Number of replications in y direction
+    nz :
+        Number of replications in z direction
     sim_avec :
         The simulation cell basis vector in a direction
-    sim_bvec :
-        The simulation cell basis vector in b direction
+    sim_cvec :
+        The simulation cell basis vector in c direction
 
     Returns
     ----------
     pts_w_imgs :
-        The position of atoms after replicating the box n_x and n_y times in X and Y direction.
+        The position of atoms after replicating the box n_x and n_z times in X and Z direction.
     """
     num1 = np.shape(pts1)[0]
-    pts_w_imgs = np.zeros((num1*(2*nx+1)*(2*ny+1), 3))
+    pts_w_imgs = np.zeros((num1*(2*nx+1)*(2*nz+1), 3))
 
     # The first set of atoms correspond to the main
     # cell.
@@ -223,21 +226,21 @@ def create_imgs(pts1, nx, ny, sim_avec, sim_bvec):
 
     # Array for translating the main cell
     nx_val = np.linspace(-nx, nx, 2*nx+1)
-    ny_val = np.linspace(-ny, ny, 2*ny+1)
-    mval = np.meshgrid(nx_val, ny_val)
+    nz_val = np.linspace(-nz, nz, 2*nz+1)
+    mval = np.meshgrid(nx_val, nz_val)
     mx = np.ndarray.flatten(mval[0])
-    my = np.ndarray.flatten(mval[1])
-    i1 = np.where((mx == 0) & (my == 0))[0][0]
+    mz = np.ndarray.flatten(mval[1])
+    i1 = np.where((mx == 0) & (mz == 0))[0][0]
     mx = np.delete(mx, i1)
-    my = np.delete(my, i1)
+    mz = np.delete(mz, i1)
     x_trans = np.tile(sim_avec, (num1, 1))
-    y_trans = np.tile(sim_bvec, (num1, 1))
+    z_trans = np.tile(sim_cvec, (num1, 1))
 
     # Creating the images
     for ct2 in range(np.size(mx)):
         mx1 = mx[ct2]
-        my1 = my[ct2]
-        pts_trans = pts1 + mx1*x_trans + my1*y_trans
+        mz1 = mz[ct2]
+        pts_trans = pts1 + mx1*x_trans + mz1*z_trans
         # xs = pts_trans[:, 0]
         # ys = pts_trans[:, 1]
         # zs = pts_trans[:, 2]
