@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>gbmc_v0.pad_dump_file &mdash; gbmc_v0 0.post50+gaaa7581 documentation</title>
+  <title>gbmc_v0.pad_dump_file &mdash; gbmc_v0 0.post50+gf9329ca documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.post50+gaaa7581
+                0.post50+gf9329ca
               </div>
             
           
@@ -159,10 +159,27 @@
 <span class="c1"># import ovito.modifiers as ovm</span>
 <span class="c1"># from ovito.io import import_file, export_file</span>
 
+
 <span class="k">def</span> <span class="nf">p_arr</span><span class="p">(</span><span class="n">non_p</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function creates an array for the periodic direction.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ------------</span>
+<span class="sd">    non_pbc : int</span>
+<span class="sd">        The non-periodic direction. 0 , 1 or 2 which corresponds to</span>
+<span class="sd">        x, y and z direction, respectively.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    ----------</span>
+<span class="sd">    arr0 : numpy aray</span>
+<span class="sd">        A 1*2 array having the periodic directions.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
     <span class="n">arr0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">non_p</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">arr0</span>
+
 
 <div class="viewcode-block" id="pad_dump_file"><a class="viewcode-back" href="../../usage.html#gbmc_v0.pad_dump_file.pad_dump_file">[docs]</a><span class="k">def</span> <span class="nf">pad_dump_file</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">lat_par</span><span class="p">,</span> <span class="n">rCut</span><span class="p">,</span> <span class="n">non_p</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -178,7 +195,9 @@
 <span class="sd">        Lattice parameter for the crystal being simulated</span>
 <span class="sd">    rCut :</span>
 <span class="sd">        Cut-off radius for computing Delaunay triangulations</span>
-
+<span class="sd">    non_pbc : int</span>
+<span class="sd">        The non-periodic direction. 0 , 1 or 2 which corresponds to</span>
+<span class="sd">        x, y and z direction, respectively.</span>
 <span class="sd">    Returns</span>
 <span class="sd">    ----------</span>
 <span class="sd">    pts_w_imgs :</span>
@@ -220,7 +239,7 @@
 <span class="sd">        The lattice parameter</span>
 <span class="sd">    non_pbc : int</span>
 <span class="sd">        The non-periodic direction. 0 , 1 or 2 which corresponds to</span>
-<span class="sd">        x, y and z direction, respectively. </span>
+<span class="sd">        x, y and z direction, respectively.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -----------</span>
@@ -373,15 +392,13 @@
 <span class="sd">        The simulation cell basis vector in 2nd periodic direction</span>
 <span class="sd">    non_pbc : int</span>
 <span class="sd">        The non-periodic direction. 0 , 1 or 2 which corresponds to</span>
-<span class="sd">        x, y and z direction, respectively. </span>
+<span class="sd">        x, y and z direction, respectively.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    ----------</span>
 <span class="sd">    pts_w_imgs :</span>
 <span class="sd">        The position of atoms after replicating the box n_x and n_z times in X and Z direction.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">arr</span> <span class="o">=</span> <span class="n">p_arr</span><span class="p">(</span><span class="n">non_p</span><span class="p">)</span>
-
     <span class="n">num1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">pts1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">pts_w_imgs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num1</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">n1</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">n2</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="mi">3</span><span class="p">))</span>
 
@@ -411,9 +428,6 @@
         <span class="n">mp2</span> <span class="o">=</span> <span class="n">m2</span><span class="p">[</span><span class="n">ct2</span><span class="p">]</span>
         <span class="n">pts_trans</span> <span class="o">=</span> <span class="n">pts1</span> <span class="o">+</span> <span class="n">mp1</span><span class="o">*</span><span class="n">p1_trans</span> <span class="o">+</span> <span class="n">mp2</span><span class="o">*</span><span class="n">p2_trans</span>
 
-        <span class="n">pos_nonp</span> <span class="o">=</span> <span class="n">pts_trans</span><span class="p">[:,</span> <span class="n">non_p</span><span class="p">]</span>
-        <span class="n">pos_p1</span> <span class="o">=</span> <span class="n">pts_trans</span><span class="p">[:,</span> <span class="n">arr</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-        <span class="n">pos_p2</span> <span class="o">=</span> <span class="n">pts_trans</span><span class="p">[:,</span> <span class="n">arr</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
         <span class="n">ind_st</span> <span class="o">=</span> <span class="n">num1</span><span class="o">*</span><span class="n">ct1</span>
         <span class="n">ind_stop</span> <span class="o">=</span> <span class="n">num1</span><span class="o">*</span><span class="p">(</span><span class="n">ct1</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
         <span class="n">pts_w_imgs</span><span class="p">[</span><span class="n">ind_st</span><span class="p">:</span><span class="n">ind_stop</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">pts_trans</span>
@@ -425,7 +439,7 @@
 <div class="viewcode-block" id="slice_along_planes"><a class="viewcode-back" href="../../usage.html#gbmc_v0.pad_dump_file.slice_along_planes">[docs]</a><span class="k">def</span> <span class="nf">slice_along_planes</span><span class="p">(</span><span class="n">orig</span><span class="p">,</span> <span class="n">sim_1vec</span><span class="p">,</span> <span class="n">sim_2vec</span><span class="p">,</span> <span class="n">sim_nonp_vec</span><span class="p">,</span> <span class="n">rCut</span><span class="p">,</span> <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">gb1_inds</span><span class="p">,</span> <span class="n">non_p</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">    Function </span>
+<span class="sd">    Function cuts the pts_w_imgs within an rCut from the GB.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ------------</span>
@@ -445,7 +459,7 @@
 <span class="sd">        Indices of the GB atoms</span>
 <span class="sd">    non_pbc : int</span>
 <span class="sd">        The non-periodic direction. 0 , 1 or 2 which corresponds to</span>
-<span class="sd">        x, y and z direction, respectively. </span>
+<span class="sd">        x, y and z direction, respectively.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    ------------</span>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Usage &mdash; gbmc_v0 0.post50+gaaa7581 documentation</title>
+  <title>Usage &mdash; gbmc_v0 0.post50+gf9329ca documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.post50+gaaa7581
+                0.post50+gf9329ca
               </div>
             
           
@@ -239,13 +239,14 @@ These atoms (with padding) will be triangulated to compute Voronoi vertices and 
 </dd>
 <dt><strong>rCut :</strong></dt><dd><p>Cut-off radius for computing Delaunay triangulations</p>
 </dd>
-</dl>
+<dt><strong>non_pbc</strong><span class="classifier">int</span></dt><dd><p>The non-periodic direction. 0 , 1 or 2 which corresponds to
+x, y and z direction, respectively.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt>pts_w_imgs :</dt><dd><p>Points of interest (GB atoms and neighbors) on which Delaunay triangulation is called.</p>
+<dt><strong>Returns</strong></dt><dd></dd>
+<dt><strong>———-</strong></dt><dd></dd>
+<dt><strong>pts_w_imgs :</strong></dt><dd><p>Points of interest (GB atoms and neighbors) on which Delaunay triangulation is called.</p>
 </dd>
-<dt>gb1_inds :</dt><dd><p>Indices of the GB atoms</p>
+<dt><strong>gb1_inds :</strong></dt><dd><p>Indices of the GB atoms</p>
 </dd>
 </dl>
 </dd>
@@ -374,7 +375,7 @@ x, y and z direction, respectively.</p>
 <dl class="py function">
 <dt id="gbmc_v0.pad_dump_file.slice_along_planes">
 <code class="sig-prename descclassname">gbmc_v0.pad_dump_file.</code><code class="sig-name descname">slice_along_planes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">orig</span></em>, <em class="sig-param"><span class="n">sim_1vec</span></em>, <em class="sig-param"><span class="n">sim_2vec</span></em>, <em class="sig-param"><span class="n">sim_nonp_vec</span></em>, <em class="sig-param"><span class="n">rCut</span></em>, <em class="sig-param"><span class="n">pts_w_imgs</span></em>, <em class="sig-param"><span class="n">gb1_inds</span></em>, <em class="sig-param"><span class="n">non_p</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gbmc_v0/pad_dump_file.html#slice_along_planes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gbmc_v0.pad_dump_file.slice_along_planes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function</p>
+<dd><p>Function cuts the pts_w_imgs within an rCut from the GB.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
