@@ -147,7 +147,7 @@ def num_rep_2d(xvec, yvec, rCut):
     return [int(m_x), int(m_y)]
 
 
-def pad_gb_perp(data, GbRegion, GbIndex, rCut):
+def pad_gb_perp(data, GbRegion, GbIndex, rCut, non_p):
     """
     Function to take as input the dump data (from OVITO), find the GB atoms
     and add padding to the GB atoms  within rCut in Z direction.
@@ -170,23 +170,26 @@ def pad_gb_perp(data, GbRegion, GbIndex, rCut):
     gb1_inds :
         Indices of the GB atoms
     """
-    position_X = data.particles['Position'][...][:, 0]
-    position_Y = data.particles['Position'][...][:, 1]
-    position_Z = data.particles['Position'][...][:, 2]
+    arr = np.array([0, 1, 2])
+    arr0 = np.delete(arr, non_p)
+
+    position_nonp = data.particles['Position'][...][:, non_p]
+    position_p1 = data.particles['Position'][...][:, arr0[0]]
+    position_p2 = data.particles['Position'][...][:, arr0[1]]
 
     Zmin, Zmax = GbRegion[0] - rCut, GbRegion[1] + rCut
 
-    pad1_inds = np.where((position_Z <= Zmax) & (position_Z >= Zmin))[0]
+    pad1_inds = np.where((position_nonp <= Zmax) & (position_nonp >= Zmin))[0]
 
     int1, a1, a2 = np.intersect1d(pad1_inds, GbIndex, return_indices=True)
     gb1_inds = a1
 
-    # Replicate the GB structure along X and Y direction (nx and ny times)
+    # Replicate the GB structure along periodic directions (nx and ny times)
     num1 = np.size(pad1_inds)
     pts1 = np.zeros((num1, 3))
-    pts1[:, 0] = np.array(position_X[pad1_inds])
-    pts1[:, 1] = np.array(position_Y[pad1_inds])
-    pts1[:, 2] = np.array(position_Z[pad1_inds])
+    pts1[:, arr0[0]] = np.array(position_p1[pad1_inds])
+    pts1[:, arr0[1]] = np.array(position_p2[pad1_inds])
+    pts1[:, non_p] = np.array(position_nonp[pad1_inds])
 
     return pts1, gb1_inds
 
