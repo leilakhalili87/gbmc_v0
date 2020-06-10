@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Usage &mdash; gbmc_v0 0.post50+g00aceaa documentation</title>
+  <title>Usage &mdash; gbmc_v0 0.post50+g8ce303e documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.post50+g00aceaa
+                0.post50+g8ce303e
               </div>
             
           
@@ -226,7 +226,7 @@
 
 <dl class="py function">
 <dt id="gbmc_v0.pad_dump_file.pad_dump_file">
-<code class="sig-prename descclassname">gbmc_v0.pad_dump_file.</code><code class="sig-name descname">pad_dump_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">lat_par</span></em>, <em class="sig-param"><span class="n">rCut</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gbmc_v0/pad_dump_file.html#pad_dump_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gbmc_v0.pad_dump_file.pad_dump_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">gbmc_v0.pad_dump_file.</code><code class="sig-name descname">pad_dump_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">lat_par</span></em>, <em class="sig-param"><span class="n">rCut</span></em>, <em class="sig-param"><span class="n">non_p</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gbmc_v0/pad_dump_file.html#pad_dump_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gbmc_v0.pad_dump_file.pad_dump_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to take as input the dump data (from OVITO),find the GB atoms and
 add padding to the GB atoms (including images) within rCut.
 These atoms (with padding) will be triangulated to compute Voronoi vertices and their radii.</p>
@@ -342,20 +342,23 @@ and add padding to the GB atoms  within rCut in Z direction.</p>
 
 <dl class="py function">
 <dt id="gbmc_v0.pad_dump_file.create_imgs">
-<code class="sig-prename descclassname">gbmc_v0.pad_dump_file.</code><code class="sig-name descname">create_imgs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pts1</span></em>, <em class="sig-param"><span class="n">nx</span></em>, <em class="sig-param"><span class="n">nz</span></em>, <em class="sig-param"><span class="n">sim_avec</span></em>, <em class="sig-param"><span class="n">sim_cvec</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gbmc_v0/pad_dump_file.html#create_imgs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gbmc_v0.pad_dump_file.create_imgs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">gbmc_v0.pad_dump_file.</code><code class="sig-name descname">create_imgs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pts1</span></em>, <em class="sig-param"><span class="n">n1</span></em>, <em class="sig-param"><span class="n">n2</span></em>, <em class="sig-param"><span class="n">sim_1vec</span></em>, <em class="sig-param"><span class="n">sim_2vec</span></em>, <em class="sig-param"><span class="n">non_p</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gbmc_v0/pad_dump_file.html#create_imgs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gbmc_v0.pad_dump_file.create_imgs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates the replicates of the main cell in X and Z direction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>pts1 :</strong></dt><dd><p>Indices of the atoms which Y value is in range [GBRegion[0] - rCut, GBRegion[1] + rCut].</p>
 </dd>
-<dt><strong>nx :</strong></dt><dd><p>Number of replications in x direction</p>
+<dt><strong>n1 :</strong></dt><dd><p>Number of replications in 1st periodic direction</p>
 </dd>
-<dt><strong>nz :</strong></dt><dd><p>Number of replications in z direction</p>
+<dt><strong>n2 :</strong></dt><dd><p>Number of replications in 2nd periodic direction</p>
 </dd>
-<dt><strong>sim_avec :</strong></dt><dd><p>The simulation cell basis vector in a direction</p>
+<dt><strong>sim_1vec :</strong></dt><dd><p>The simulation cell basis vector in 1st periodic direction</p>
 </dd>
-<dt><strong>sim_cvec :</strong></dt><dd><p>The simulation cell basis vector in c direction</p>
+<dt><strong>sim_2vec :</strong></dt><dd><p>The simulation cell basis vector in 2nd periodic direction</p>
+</dd>
+<dt><strong>non_pbc</strong><span class="classifier">int</span></dt><dd><p>The non-periodic direction. 0 , 1 or 2 which corresponds to
+x, y and z direction, respectively.</p>
 </dd>
 </dl>
 </dd>
