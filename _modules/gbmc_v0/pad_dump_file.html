@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>gbmc_v0.pad_dump_file &mdash; gbmc_v0 0.post50+g3504683 documentation</title>
+  <title>gbmc_v0.pad_dump_file &mdash; gbmc_v0 0.post50+g00aceaa documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.post50+g3504683
+                0.post50+g00aceaa
               </div>
             
           
@@ -304,7 +304,7 @@
     <span class="k">return</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">m_x</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">m_y</span><span class="p">)]</span></div>
 
 
-<div class="viewcode-block" id="pad_gb_perp"><a class="viewcode-back" href="../../usage.html#gbmc_v0.pad_dump_file.pad_gb_perp">[docs]</a><span class="k">def</span> <span class="nf">pad_gb_perp</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">GbRegion</span><span class="p">,</span> <span class="n">GbIndex</span><span class="p">,</span> <span class="n">rCut</span><span class="p">):</span>
+<div class="viewcode-block" id="pad_gb_perp"><a class="viewcode-back" href="../../usage.html#gbmc_v0.pad_dump_file.pad_gb_perp">[docs]</a><span class="k">def</span> <span class="nf">pad_gb_perp</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">GbRegion</span><span class="p">,</span> <span class="n">GbIndex</span><span class="p">,</span> <span class="n">rCut</span><span class="p">,</span> <span class="n">non_p</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Function to take as input the dump data (from OVITO), find the GB atoms</span>
 <span class="sd">    and add padding to the GB atoms  within rCut in Z direction.</span>
@@ -327,23 +327,26 @@
 <span class="sd">    gb1_inds :</span>
 <span class="sd">        Indices of the GB atoms</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">position_X</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">&#39;Position&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span>
-    <span class="n">position_Y</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">&#39;Position&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">]</span>
-    <span class="n">position_Z</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">&#39;Position&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][:,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+    <span class="n">arr0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">non_p</span><span class="p">)</span>
+
+    <span class="n">position_nonp</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">&#39;Position&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][:,</span> <span class="n">non_p</span><span class="p">]</span>
+    <span class="n">position_p1</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">&#39;Position&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][:,</span> <span class="n">arr0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">position_p2</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">&#39;Position&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][:,</span> <span class="n">arr0</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
 
     <span class="n">Zmin</span><span class="p">,</span> <span class="n">Zmax</span> <span class="o">=</span> <span class="n">GbRegion</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">rCut</span><span class="p">,</span> <span class="n">GbRegion</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">rCut</span>
 
-    <span class="n">pad1_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">position_Z</span> <span class="o">&lt;=</span> <span class="n">Zmax</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_Z</span> <span class="o">&gt;=</span> <span class="n">Zmin</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">pad1_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">position_nonp</span> <span class="o">&lt;=</span> <span class="n">Zmax</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_nonp</span> <span class="o">&gt;=</span> <span class="n">Zmin</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="n">int1</span><span class="p">,</span> <span class="n">a1</span><span class="p">,</span> <span class="n">a2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span><span class="n">pad1_inds</span><span class="p">,</span> <span class="n">GbIndex</span><span class="p">,</span> <span class="n">return_indices</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">gb1_inds</span> <span class="o">=</span> <span class="n">a1</span>
 
-    <span class="c1"># Replicate the GB structure along X and Y direction (nx and ny times)</span>
+    <span class="c1"># Replicate the GB structure along periodic directions (nx and ny times)</span>
     <span class="n">num1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">pad1_inds</span><span class="p">)</span>
     <span class="n">pts1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-    <span class="n">pts1</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">position_X</span><span class="p">[</span><span class="n">pad1_inds</span><span class="p">])</span>
-    <span class="n">pts1</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">position_Y</span><span class="p">[</span><span class="n">pad1_inds</span><span class="p">])</span>
-    <span class="n">pts1</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">position_Z</span><span class="p">[</span><span class="n">pad1_inds</span><span class="p">])</span>
+    <span class="n">pts1</span><span class="p">[:,</span> <span class="n">arr0</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">position_p1</span><span class="p">[</span><span class="n">pad1_inds</span><span class="p">])</span>
+    <span class="n">pts1</span><span class="p">[:,</span> <span class="n">arr0</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">position_p2</span><span class="p">[</span><span class="n">pad1_inds</span><span class="p">])</span>
+    <span class="n">pts1</span><span class="p">[:,</span> <span class="n">non_p</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">position_nonp</span><span class="p">[</span><span class="n">pad1_inds</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">pts1</span><span class="p">,</span> <span class="n">gb1_inds</span></div>
 
