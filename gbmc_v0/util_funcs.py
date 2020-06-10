@@ -36,7 +36,8 @@ def identify_pbc(data):
     Returns
     --------
     non_pbc : int
-        The direction which is non-periodic.
+        The non-periodic direction. 0 , 1 or 2 which corresponds to
+        x, y and z direction, respectively.
     """
     pbc = data.cell.pbc
     pbc = np.asarray(pbc) + 0
