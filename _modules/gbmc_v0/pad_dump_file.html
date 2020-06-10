@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>gbmc_v0.pad_dump_file &mdash; gbmc_v0 0.post50+gf1b88d5 documentation</title>
+  <title>gbmc_v0.pad_dump_file &mdash; gbmc_v0 0.post50+g3504683 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.post50+gf1b88d5
+                0.post50+g3504683
               </div>
             
           
@@ -191,19 +191,19 @@
     <span class="n">sim_cvec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sim_cell</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
     <span class="n">sim_orig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sim_cell</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">])</span>
 
-    <span class="n">xvec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">sim_avec</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sim_avec</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
-    <span class="n">yvec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">sim_bvec</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sim_bvec</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
-    <span class="p">[</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_rep_2d</span><span class="p">(</span><span class="n">x1_vec</span><span class="p">,</span> <span class="n">y1_vec</span><span class="p">,</span> <span class="n">rCut</span><span class="p">)</span>
+    <span class="n">x1_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">sim_avec</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sim_avec</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+    <span class="n">z1_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">sim_cvec</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sim_cvec</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+    <span class="p">[</span><span class="n">nx</span><span class="p">,</span> <span class="n">nz</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_rep_2d</span><span class="p">(</span><span class="n">x1_vec</span><span class="p">,</span> <span class="n">z1_vec</span><span class="p">,</span> <span class="n">rCut</span><span class="p">)</span>
 
     <span class="n">pts1</span><span class="p">,</span> <span class="n">gb1_inds</span> <span class="o">=</span> <span class="n">pad_gb_perp</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">GbRegion</span><span class="p">,</span> <span class="n">GbIndex</span><span class="p">,</span> <span class="n">rCut</span><span class="p">)</span>
-    <span class="n">pts_w_imgs</span> <span class="o">=</span> <span class="n">create_imgs</span><span class="p">(</span><span class="n">pts1</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">sim_avec</span><span class="p">,</span> <span class="n">sim_cvec</span><span class="p">)</span>
+    <span class="n">pts_w_imgs</span> <span class="o">=</span> <span class="n">create_imgs</span><span class="p">(</span><span class="n">pts1</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">nz</span><span class="p">,</span> <span class="n">sim_avec</span><span class="p">,</span> <span class="n">sim_cvec</span><span class="p">)</span>
     <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">gb1_inds</span> <span class="o">=</span> <span class="p">(</span><span class="n">slice_along_planes</span><span class="p">(</span><span class="n">sim_orig</span><span class="p">,</span>
                                                <span class="n">sim_avec</span><span class="p">,</span> <span class="n">sim_bvec</span><span class="p">,</span> <span class="n">sim_cvec</span><span class="p">,</span> <span class="n">rCut</span><span class="p">,</span>
                                                <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">gb1_inds</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">gb1_inds</span></div>
 
 
-<div class="viewcode-block" id="GB_finder"><a class="viewcode-back" href="../../usage.html#gbmc_v0.pad_dump_file.GB_finder">[docs]</a><span class="k">def</span> <span class="nf">GB_finder</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">lat_par</span><span class="p">):</span>
+<div class="viewcode-block" id="GB_finder"><a class="viewcode-back" href="../../usage.html#gbmc_v0.pad_dump_file.GB_finder">[docs]</a><span class="k">def</span> <span class="nf">GB_finder</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">lat_par</span><span class="p">,</span> <span class="n">non_pbc</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The function finds the GB region usning Polyhedral Template Matching.</span>
 
@@ -213,6 +213,9 @@
 <span class="sd">        The lammps dump file</span>
 <span class="sd">    lat_par:</span>
 <span class="sd">        The lattice parameter</span>
+<span class="sd">    non_pbc : int</span>
+<span class="sd">        The non-periodic direction. 0 , 1 or 2 which corresponds to</span>
+<span class="sd">        x, y and z direction, respectively. </span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -----------</span>
@@ -230,39 +233,39 @@
 
     <span class="c1"># num_particles = data.particles.count</span>
     <span class="n">ptm_struct</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">&#39;Structure Type&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span>
-    <span class="n">position_Z</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">&#39;Position&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][:,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="n">position_np</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="s1">&#39;Position&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">][:,</span> <span class="n">non_pbc</span><span class="p">]</span>
 
     <span class="n">NoSurfArea</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="c1"># Find the smallest single crystal range</span>
     <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">pos_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">position_Z</span><span class="p">)</span>
+    <span class="n">pos_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">position_np</span><span class="p">)</span>
 
     <span class="k">while</span> <span class="n">a</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">pos_max</span> <span class="o">=</span> <span class="n">pos_min</span> <span class="o">+</span> <span class="n">lat_par</span>
-        <span class="n">a</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">ptm_struct</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_Z</span> <span class="o">&lt;</span> <span class="n">pos_max</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_Z</span> <span class="o">&gt;</span> <span class="n">pos_min</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">ptm_struct</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_np</span> <span class="o">&lt;</span> <span class="n">pos_max</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_np</span> <span class="o">&gt;</span> <span class="n">pos_min</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">pos_min</span> <span class="o">+=</span> <span class="n">lat_par</span>
 
     <span class="n">NoSurfArea</span> <span class="o">=</span> <span class="n">NoSurfArea</span> <span class="o">+</span> <span class="p">[</span><span class="n">pos_min</span><span class="p">]</span>
 
     <span class="c1"># Find the largest single crystal range</span>
     <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">pos_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">position_Z</span><span class="p">)</span>
+    <span class="n">pos_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">position_np</span><span class="p">)</span>
     <span class="k">while</span> <span class="n">a</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">pos_min</span> <span class="o">=</span> <span class="n">pos_max</span> <span class="o">-</span> <span class="n">lat_par</span>
-        <span class="n">a</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">ptm_struct</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_Z</span> <span class="o">&lt;</span> <span class="n">pos_max</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_Z</span> <span class="o">&gt;</span> <span class="n">pos_min</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">ptm_struct</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_np</span> <span class="o">&lt;</span> <span class="n">pos_max</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_np</span> <span class="o">&gt;</span> <span class="n">pos_min</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">pos_max</span> <span class="o">-=</span> <span class="n">lat_par</span>
 
     <span class="n">NoSurfArea</span> <span class="o">=</span> <span class="n">NoSurfArea</span> <span class="o">+</span> <span class="p">[</span><span class="n">pos_min</span> <span class="o">+</span> <span class="n">lat_par</span><span class="p">]</span>
 
-    <span class="n">gb_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">ptm_struct</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_Z</span> <span class="o">&lt;</span> <span class="n">NoSurfArea</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_Z</span> <span class="o">&gt;</span> <span class="n">NoSurfArea</span><span class="p">[</span><span class="mi">0</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">gb_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">position_Z</span><span class="p">[</span><span class="n">gb_index</span><span class="p">])</span>
-    <span class="n">gb_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">position_Z</span><span class="p">[</span><span class="n">gb_index</span><span class="p">])</span>
+    <span class="n">gb_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">ptm_struct</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_np</span> <span class="o">&lt;</span> <span class="n">NoSurfArea</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_np</span> <span class="o">&gt;</span> <span class="n">NoSurfArea</span><span class="p">[</span><span class="mi">0</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">gb_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">position_np</span><span class="p">[</span><span class="n">gb_index</span><span class="p">])</span>
+    <span class="n">gb_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">position_np</span><span class="p">[</span><span class="n">gb_index</span><span class="p">])</span>
 
     <span class="c1"># Delete the outliers of gb</span>
-    <span class="n">var</span> <span class="o">=</span> <span class="n">position_Z</span><span class="p">[</span><span class="n">gb_index</span><span class="p">]</span> <span class="o">-</span> <span class="n">gb_mean</span>
+    <span class="n">var</span> <span class="o">=</span> <span class="n">position_np</span><span class="p">[</span><span class="n">gb_index</span><span class="p">]</span> <span class="o">-</span> <span class="n">gb_mean</span>
     <span class="n">GbIndex</span> <span class="o">=</span> <span class="n">gb_index</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">var</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="o">*</span><span class="n">gb_std</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">var</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="n">gb_std</span><span class="p">))[</span><span class="mi">0</span><span class="p">]]</span>
 
-    <span class="n">GbZ</span> <span class="o">=</span> <span class="n">position_Z</span><span class="p">[</span><span class="n">GbIndex</span><span class="p">]</span>
+    <span class="n">GbZ</span> <span class="o">=</span> <span class="n">position_np</span><span class="p">[</span><span class="n">GbIndex</span><span class="p">]</span>
     <span class="n">GbRegion</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">GbZ</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">GbZ</span><span class="p">)]</span>
     <span class="n">GbWidth</span> <span class="o">=</span> <span class="n">GbRegion</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">GbRegion</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">w_bottom_SC</span> <span class="o">=</span> <span class="n">GbRegion</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">NoSurfArea</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -279,9 +282,9 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ------------</span>
 <span class="sd">    xvec :</span>
-<span class="sd">        The basis vector in x direction in x-y plane</span>
+<span class="sd">        The basis vector in x direction in x-z plane</span>
 <span class="sd">    yvec :</span>
-<span class="sd">        The basis vector in y direction in x-y plane</span>
+<span class="sd">        The basis vector in z direction in x-z plane</span>
 <span class="sd">    rCut</span>
 <span class="sd">        Cut-off radius for computing Delaunay triangulations</span>
 
@@ -289,7 +292,7 @@
 <span class="sd">    ------------</span>
 <span class="sd">    [int(m_x), int(m_y)] :</span>
 <span class="sd">        int(m_x) is the number of replications in x direction, int(m_y)</span>
-<span class="sd">        is the number of replication in y direction.</span>
+<span class="sd">        is the number of replication in z direction.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">c_vec_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">xvec</span><span class="p">,</span> <span class="n">yvec</span><span class="p">))</span>
@@ -345,30 +348,30 @@
     <span class="k">return</span> <span class="n">pts1</span><span class="p">,</span> <span class="n">gb1_inds</span></div>
 
 
-<div class="viewcode-block" id="create_imgs"><a class="viewcode-back" href="../../usage.html#gbmc_v0.pad_dump_file.create_imgs">[docs]</a><span class="k">def</span> <span class="nf">create_imgs</span><span class="p">(</span><span class="n">pts1</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">sim_avec</span><span class="p">,</span> <span class="n">sim_bvec</span><span class="p">):</span>
+<div class="viewcode-block" id="create_imgs"><a class="viewcode-back" href="../../usage.html#gbmc_v0.pad_dump_file.create_imgs">[docs]</a><span class="k">def</span> <span class="nf">create_imgs</span><span class="p">(</span><span class="n">pts1</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">nz</span><span class="p">,</span> <span class="n">sim_avec</span><span class="p">,</span> <span class="n">sim_cvec</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Creates the replicates of the main cell in X and Y direction.</span>
+<span class="sd">    Creates the replicates of the main cell in X and Z direction.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    -------------</span>
 <span class="sd">    pts1 :</span>
-<span class="sd">        Indices of the atoms which Z value is in range [GBRegion[0] - rCut, GBRegion[1] + rCut].</span>
+<span class="sd">        Indices of the atoms which Y value is in range [GBRegion[0] - rCut, GBRegion[1] + rCut].</span>
 <span class="sd">    nx :</span>
 <span class="sd">        Number of replications in x direction</span>
-<span class="sd">    ny :</span>
-<span class="sd">        Number of replications in y direction</span>
+<span class="sd">    nz :</span>
+<span class="sd">        Number of replications in z direction</span>
 <span class="sd">    sim_avec :</span>
 <span class="sd">        The simulation cell basis vector in a direction</span>
-<span class="sd">    sim_bvec :</span>
-<span class="sd">        The simulation cell basis vector in b direction</span>
+<span class="sd">    sim_cvec :</span>
+<span class="sd">        The simulation cell basis vector in c direction</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    ----------</span>
 <span class="sd">    pts_w_imgs :</span>
-<span class="sd">        The position of atoms after replicating the box n_x and n_y times in X and Y direction.</span>
+<span class="sd">        The position of atoms after replicating the box n_x and n_z times in X and Z direction.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">num1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">pts1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">pts_w_imgs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num1</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">nx</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">ny</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">pts_w_imgs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num1</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">nx</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">nz</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="mi">3</span><span class="p">))</span>
 
     <span class="c1"># The first set of atoms correspond to the main</span>
     <span class="c1"># cell.</span>
@@ -380,21 +383,21 @@
 
     <span class="c1"># Array for translating the main cell</span>
     <span class="n">nx_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">nx</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">nx</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">ny_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">ny</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">ny</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">mval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">nx_val</span><span class="p">,</span> <span class="n">ny_val</span><span class="p">)</span>
+    <span class="n">nz_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">nz</span><span class="p">,</span> <span class="n">nz</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">nz</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">mval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">nx_val</span><span class="p">,</span> <span class="n">nz_val</span><span class="p">)</span>
     <span class="n">mx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">mval</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="n">my</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">mval</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">i1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">mx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">my</span> <span class="o">==</span> <span class="mi">0</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">mz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">mval</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">i1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">mx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">mz</span> <span class="o">==</span> <span class="mi">0</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">mx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">mx</span><span class="p">,</span> <span class="n">i1</span><span class="p">)</span>
-    <span class="n">my</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">my</span><span class="p">,</span> <span class="n">i1</span><span class="p">)</span>
+    <span class="n">mz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">mz</span><span class="p">,</span> <span class="n">i1</span><span class="p">)</span>
     <span class="n">x_trans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">sim_avec</span><span class="p">,</span> <span class="p">(</span><span class="n">num1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-    <span class="n">y_trans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">sim_bvec</span><span class="p">,</span> <span class="p">(</span><span class="n">num1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">z_trans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">sim_cvec</span><span class="p">,</span> <span class="p">(</span><span class="n">num1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 
     <span class="c1"># Creating the images</span>
     <span class="k">for</span> <span class="n">ct2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">mx</span><span class="p">)):</span>
         <span class="n">mx1</span> <span class="o">=</span> <span class="n">mx</span><span class="p">[</span><span class="n">ct2</span><span class="p">]</span>
-        <span class="n">my1</span> <span class="o">=</span> <span class="n">my</span><span class="p">[</span><span class="n">ct2</span><span class="p">]</span>
-        <span class="n">pts_trans</span> <span class="o">=</span> <span class="n">pts1</span> <span class="o">+</span> <span class="n">mx1</span><span class="o">*</span><span class="n">x_trans</span> <span class="o">+</span> <span class="n">my1</span><span class="o">*</span><span class="n">y_trans</span>
+        <span class="n">mz1</span> <span class="o">=</span> <span class="n">mz</span><span class="p">[</span><span class="n">ct2</span><span class="p">]</span>
+        <span class="n">pts_trans</span> <span class="o">=</span> <span class="n">pts1</span> <span class="o">+</span> <span class="n">mx1</span><span class="o">*</span><span class="n">x_trans</span> <span class="o">+</span> <span class="n">mz1</span><span class="o">*</span><span class="n">z_trans</span>
         <span class="c1"># xs = pts_trans[:, 0]</span>
         <span class="c1"># ys = pts_trans[:, 1]</span>
         <span class="c1"># zs = pts_trans[:, 2]</span>

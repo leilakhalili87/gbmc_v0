@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>gbmc_v0.util_funcs &mdash; gbmc_v0 0.post50+gf1b88d5 documentation</title>
+  <title>gbmc_v0.util_funcs &mdash; gbmc_v0 0.post50+g3504683 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.post50+gf1b88d5
+                0.post50+g3504683
               </div>
             
           
@@ -193,7 +193,8 @@
 <span class="sd">    Returns</span>
 <span class="sd">    --------</span>
 <span class="sd">    non_pbc : int</span>
-<span class="sd">        The direction which is non-periodic.</span>
+<span class="sd">        The non-periodic direction. 0 , 1 or 2 which corresponds to</span>
+<span class="sd">        x, y and z direction, respectively.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">pbc</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">pbc</span>
     <span class="n">pbc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pbc</span><span class="p">)</span> <span class="o">+</span> <span class="mi">0</span>
