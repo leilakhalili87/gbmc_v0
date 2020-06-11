@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>gbmc_v0.pad_dump_file &mdash; gbmc_v0 0.post50+gf9329ca documentation</title>
+  <title>gbmc_v0.pad_dump_file &mdash; gbmc_v0 0.post50+g91714f1 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.post50+gf9329ca
+                0.post50+g91714f1
               </div>
             
           
@@ -204,6 +204,8 @@
 <span class="sd">        Points of interest (GB atoms and neighbors) on which Delaunay triangulation is called.</span>
 <span class="sd">    gb1_inds :</span>
 <span class="sd">        Indices of the GB atoms</span>
+<span class="sd">    inds_arr :</span>
+<span class="sd">        </span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">GbRegion</span><span class="p">,</span> <span class="n">GbIndex</span><span class="p">,</span> <span class="n">GbWidth</span><span class="p">,</span> <span class="n">w_bottom_SC</span><span class="p">,</span> <span class="n">w_top_SC</span> <span class="o">=</span> <span class="n">GB_finder</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">lat_par</span><span class="p">,</span> <span class="n">non_p</span><span class="p">)</span>
@@ -220,11 +222,11 @@
     <span class="p">[</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_rep_2d</span><span class="p">(</span><span class="n">p1_vec</span><span class="p">,</span> <span class="n">p2_vec</span><span class="p">,</span> <span class="n">rCut</span><span class="p">)</span>
 
     <span class="n">pts1</span><span class="p">,</span> <span class="n">gb1_inds</span> <span class="o">=</span> <span class="n">pad_gb_perp</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">GbRegion</span><span class="p">,</span> <span class="n">GbIndex</span><span class="p">,</span> <span class="n">rCut</span><span class="p">,</span> <span class="n">non_p</span><span class="p">)</span>
-    <span class="n">pts_w_imgs</span> <span class="o">=</span> <span class="n">create_imgs</span><span class="p">(</span><span class="n">pts1</span><span class="p">,</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">sim_1vec</span><span class="p">,</span> <span class="n">sim_2vec</span><span class="p">,</span> <span class="n">non_p</span><span class="p">)</span>
-    <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">gb1_inds</span> <span class="o">=</span> <span class="p">(</span><span class="n">slice_along_planes</span><span class="p">(</span><span class="n">sim_orig</span><span class="p">,</span>
+    <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">inds_array</span> <span class="o">=</span> <span class="n">create_imgs</span><span class="p">(</span><span class="n">pts1</span><span class="p">,</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">sim_1vec</span><span class="p">,</span> <span class="n">sim_2vec</span><span class="p">,</span> <span class="n">non_p</span><span class="p">)</span>
+    <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">gb1_inds</span><span class="p">,</span> <span class="n">inds_arr</span> <span class="o">=</span> <span class="p">(</span><span class="n">slice_along_planes</span><span class="p">(</span><span class="n">sim_orig</span><span class="p">,</span>
                                                <span class="n">sim_1vec</span><span class="p">,</span> <span class="n">sim_2vec</span><span class="p">,</span> <span class="n">sim_nonp_vec</span><span class="p">,</span> <span class="n">rCut</span><span class="p">,</span>
-                                               <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">gb1_inds</span><span class="p">,</span> <span class="n">non_p</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">gb1_inds</span></div>
+                                               <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">gb1_inds</span><span class="p">,</span> <span class="n">non_p</span><span class="p">,</span> <span class="n">inds_array</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">gb1_inds</span><span class="p">,</span> <span class="n">inds_arr</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="GB_finder"><a class="viewcode-back" href="../../usage.html#gbmc_v0.pad_dump_file.GB_finder">[docs]</a><span class="k">def</span> <span class="nf">GB_finder</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">lat_par</span><span class="p">,</span> <span class="n">non_pbc</span><span class="p">):</span>
@@ -296,6 +298,43 @@
     <span class="n">w_top_SC</span> <span class="o">=</span> <span class="n">NoSurfArea</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">GbRegion</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">GbRegion</span><span class="p">,</span> <span class="n">GbIndex</span><span class="p">,</span> <span class="n">GbWidth</span><span class="p">,</span> <span class="n">w_bottom_SC</span><span class="p">,</span> <span class="n">w_top_SC</span></div>
+
+
+<span class="k">def</span> <span class="nf">check_SC_reg</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">lat_par</span><span class="p">,</span> <span class="n">rCut</span><span class="p">,</span> <span class="n">non_p</span><span class="p">,</span> <span class="n">tol_fix_reg</span><span class="p">,</span> <span class="n">SC_tol</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to identify whether single crystal region on eaither side of the GB is bigger than a tolerance (SC_tol)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ------------</span>
+<span class="sd">    data :</span>
+<span class="sd">        Data object computed using OVITO I/O</span>
+<span class="sd">    lat_par :</span>
+<span class="sd">        Lattice parameter for the crystal being simulated</span>
+<span class="sd">    rCut :</span>
+<span class="sd">        Cut-off radius for computing Delaunay triangulations</span>
+<span class="sd">    non_pbc : int</span>
+<span class="sd">        The non-periodic direction. 0 , 1 or 2 which corresponds to</span>
+<span class="sd">        x, y and z direction, respectively.</span>
+<span class="sd">    tol_fix_reg : float</span>
+<span class="sd">        The user defined tolerance for the size of rigid translation region in lammps simulation.</span>
+<span class="sd">    SC_tol : float</span>
+<span class="sd">        The user defined tolerance for the minimum size of single crystal region.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    ----------</span>
+<span class="sd">    SC_boolean :</span>
+<span class="sd">        A boolean list for low/top or left/right single crytal region. True means the width &gt; SC_tol.</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">GbRegion</span><span class="p">,</span> <span class="n">GbIndex</span><span class="p">,</span> <span class="n">GbWidth</span><span class="p">,</span> <span class="n">w_bottom_SC</span><span class="p">,</span> <span class="n">w_top_SC</span> <span class="o">=</span> <span class="n">GB_finder</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">lat_par</span><span class="p">,</span> <span class="n">non_p</span><span class="p">)</span>
+
+    <span class="n">SC_boolean</span> <span class="o">=</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">]</span>
+    <span class="n">w_bottom_SC</span> <span class="o">=</span> <span class="n">w_bottom_SC</span> <span class="o">-</span> <span class="n">tol_fix_reg</span>
+    <span class="n">w_top_SC</span> <span class="o">=</span> <span class="n">w_top_SC</span> <span class="o">-</span> <span class="n">tol_fix_reg</span>
+    <span class="k">if</span> <span class="n">w_bottom_SC</span> <span class="o">&lt;</span> <span class="n">SC_tol</span><span class="p">:</span>
+        <span class="n">SC_boolean</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">w_top_SC</span> <span class="o">&lt;</span> <span class="n">SC_tol</span><span class="p">:</span>
+        <span class="n">SC_boolean</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="n">SC_boolean</span>
 
 
 <div class="viewcode-block" id="num_rep_2d"><a class="viewcode-back" href="../../usage.html#gbmc_v0.pad_dump_file.num_rep_2d">[docs]</a><span class="k">def</span> <span class="nf">num_rep_2d</span><span class="p">(</span><span class="n">xvec</span><span class="p">,</span> <span class="n">yvec</span><span class="p">,</span> <span class="n">rCut</span><span class="p">):</span>
@@ -401,6 +440,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">num1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">pts1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">pts_w_imgs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num1</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">n1</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">n2</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">inds_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num1</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">n1</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">n2</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="p">))</span>
+    <span class="n">tinds1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">num1</span><span class="p">)</span>
 
     <span class="c1"># The first set of atoms correspond to the main</span>
     <span class="c1"># cell.</span>
@@ -408,6 +449,7 @@
     <span class="n">ind_st</span> <span class="o">=</span> <span class="n">num1</span><span class="o">*</span><span class="n">ct1</span>
     <span class="n">ind_stop</span> <span class="o">=</span> <span class="n">num1</span><span class="o">*</span><span class="p">(</span><span class="n">ct1</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
     <span class="n">pts_w_imgs</span><span class="p">[</span><span class="n">ind_st</span><span class="p">:</span><span class="n">ind_stop</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">pts1</span>
+    <span class="n">inds_array</span><span class="p">[</span><span class="n">ind_st</span><span class="p">:</span><span class="n">ind_stop</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">tinds1</span>
     <span class="n">ct1</span> <span class="o">=</span> <span class="n">ct1</span> <span class="o">+</span> <span class="mi">1</span>
 
     <span class="c1"># Array for translating the main cell</span>
@@ -431,12 +473,13 @@
         <span class="n">ind_st</span> <span class="o">=</span> <span class="n">num1</span><span class="o">*</span><span class="n">ct1</span>
         <span class="n">ind_stop</span> <span class="o">=</span> <span class="n">num1</span><span class="o">*</span><span class="p">(</span><span class="n">ct1</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
         <span class="n">pts_w_imgs</span><span class="p">[</span><span class="n">ind_st</span><span class="p">:</span><span class="n">ind_stop</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">pts_trans</span>
+        <span class="n">inds_array</span><span class="p">[</span><span class="n">ind_st</span><span class="p">:</span><span class="n">ind_stop</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">tinds1</span>
         <span class="n">ct1</span> <span class="o">=</span> <span class="n">ct1</span> <span class="o">+</span> <span class="mi">1</span>
 
-    <span class="k">return</span> <span class="n">pts_w_imgs</span></div>
+    <span class="k">return</span> <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">inds_array</span></div>
 
 
-<div class="viewcode-block" id="slice_along_planes"><a class="viewcode-back" href="../../usage.html#gbmc_v0.pad_dump_file.slice_along_planes">[docs]</a><span class="k">def</span> <span class="nf">slice_along_planes</span><span class="p">(</span><span class="n">orig</span><span class="p">,</span> <span class="n">sim_1vec</span><span class="p">,</span> <span class="n">sim_2vec</span><span class="p">,</span> <span class="n">sim_nonp_vec</span><span class="p">,</span> <span class="n">rCut</span><span class="p">,</span> <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">gb1_inds</span><span class="p">,</span> <span class="n">non_p</span><span class="p">):</span>
+<div class="viewcode-block" id="slice_along_planes"><a class="viewcode-back" href="../../usage.html#gbmc_v0.pad_dump_file.slice_along_planes">[docs]</a><span class="k">def</span> <span class="nf">slice_along_planes</span><span class="p">(</span><span class="n">orig</span><span class="p">,</span> <span class="n">sim_1vec</span><span class="p">,</span> <span class="n">sim_2vec</span><span class="p">,</span> <span class="n">sim_nonp_vec</span><span class="p">,</span> <span class="n">rCut</span><span class="p">,</span> <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">gb1_inds</span><span class="p">,</span> <span class="n">non_p</span><span class="p">,</span> <span class="n">inds_arr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Function cuts the pts_w_imgs within an rCut from the GB.</span>
@@ -485,13 +528,13 @@
         <span class="n">pt1</span> <span class="o">=</span> <span class="n">orig</span> <span class="o">+</span> <span class="n">sim_1vec</span><span class="o">*</span><span class="n">l1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">p1u_vec</span><span class="o">*</span><span class="n">rCut</span><span class="o">*</span><span class="n">l1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">sim_2vec</span><span class="o">*</span><span class="n">l1</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">p2u_vec</span><span class="o">*</span><span class="n">rCut</span><span class="o">*</span><span class="n">l1</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
         <span class="n">pl_nvec</span> <span class="o">=</span> <span class="n">pl_nvecs</span><span class="p">[</span><span class="n">ct1</span><span class="p">]</span>
         <span class="n">inds_keep1</span> <span class="o">=</span> <span class="n">inds_to_keep</span><span class="p">(</span><span class="n">pl_nvec</span><span class="p">,</span> <span class="n">pt1</span><span class="p">,</span> <span class="n">orig</span><span class="p">,</span> <span class="n">pts_w_imgs</span><span class="p">)</span>
-        <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">gb1_inds</span> <span class="o">=</span> <span class="n">del_inds</span><span class="p">(</span><span class="n">inds_keep1</span><span class="p">,</span> <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">gb1_inds</span><span class="p">)</span>
+        <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">gb1_inds</span><span class="p">,</span> <span class="n">inds_arr</span> <span class="o">=</span> <span class="n">del_inds</span><span class="p">(</span><span class="n">inds_keep1</span><span class="p">,</span> <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">gb1_inds</span><span class="p">,</span> <span class="n">inds_arr</span><span class="p">)</span>
         <span class="n">ct1</span> <span class="o">=</span> <span class="n">ct1</span> <span class="o">+</span> <span class="mi">1</span>
 
-    <span class="k">return</span> <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">gb1_inds</span></div>
+    <span class="k">return</span> <span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">gb1_inds</span><span class="p">,</span> <span class="n">inds_arr</span></div>
 
 
-<div class="viewcode-block" id="del_inds"><a class="viewcode-back" href="../../usage.html#gbmc_v0.pad_dump_file.del_inds">[docs]</a><span class="k">def</span> <span class="nf">del_inds</span><span class="p">(</span><span class="n">ind1</span><span class="p">,</span> <span class="n">pts1</span><span class="p">,</span> <span class="n">gb1_inds</span><span class="p">):</span>
+<div class="viewcode-block" id="del_inds"><a class="viewcode-back" href="../../usage.html#gbmc_v0.pad_dump_file.del_inds">[docs]</a><span class="k">def</span> <span class="nf">del_inds</span><span class="p">(</span><span class="n">ind1</span><span class="p">,</span> <span class="n">pts1</span><span class="p">,</span> <span class="n">gb1_inds</span><span class="p">,</span> <span class="n">inds_arr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Function deletes the indices of atoms outside of the main box plus rCut margin around it</span>
 
@@ -515,7 +558,8 @@
     <span class="n">int1</span><span class="p">,</span> <span class="n">a1</span><span class="p">,</span> <span class="n">a2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span><span class="n">ind1</span><span class="p">,</span> <span class="n">gb1_inds</span><span class="p">,</span> <span class="n">return_indices</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">gb1_inds</span> <span class="o">=</span> <span class="n">a1</span>
     <span class="n">pts1</span> <span class="o">=</span> <span class="n">pts1</span><span class="p">[</span><span class="n">ind1</span><span class="p">,</span> <span class="p">:]</span>
-    <span class="k">return</span> <span class="n">pts1</span><span class="p">,</span> <span class="n">gb1_inds</span></div>
+    <span class="n">inds_arr</span> <span class="o">=</span> <span class="n">inds_arr</span><span class="p">[</span><span class="n">ind1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">pts1</span><span class="p">,</span> <span class="n">gb1_inds</span><span class="p">,</span> <span class="n">inds_arr</span></div>
 
 
 <div class="viewcode-block" id="inds_to_keep"><a class="viewcode-back" href="../../usage.html#gbmc_v0.pad_dump_file.inds_to_keep">[docs]</a><span class="k">def</span> <span class="nf">inds_to_keep</span><span class="p">(</span><span class="n">norm_vec</span><span class="p">,</span> <span class="n">pl_pt</span><span class="p">,</span> <span class="n">orig</span><span class="p">,</span> <span class="n">pts</span><span class="p">):</span>
