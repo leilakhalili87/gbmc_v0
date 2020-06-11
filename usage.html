@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Usage &mdash; gbmc_v0 0.post50+g91714f1 documentation</title>
+  <title>Usage &mdash; gbmc_v0 0.post50+g26605f1 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                0.post50+g91714f1
+                0.post50+g26605f1
               </div>
             
           
@@ -248,7 +248,8 @@ x, y and z direction, respectively.</p>
 </dd>
 <dt><strong>gb1_inds :</strong></dt><dd><p>Indices of the GB atoms</p>
 </dd>
-<dt><strong>inds_arr :</strong></dt><dd></dd>
+<dt><strong>inds_arr :</strong></dt><dd><p>The atom indices of the initial unit cell with no replicates.</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -368,6 +369,8 @@ x, y and z direction, respectively.</p>
 <dd class="field-even"><dl class="simple">
 <dt>pts_w_imgs :</dt><dd><p>The position of atoms after replicating the box n_x and n_z times in X and Z direction.</p>
 </dd>
+<dt>inds_array :</dt><dd><p>The atom indices of the initial unit cell with no replicates.</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -397,13 +400,15 @@ x, y and z direction, respectively.</p>
 <dt><strong>non_pbc</strong><span class="classifier">int</span></dt><dd><p>The non-periodic direction. 0 , 1 or 2 which corresponds to
 x, y and z direction, respectively.</p>
 </dd>
-</dl>
+<dt><strong>inds_arr :</strong></dt><dd><p>The atom indices of the initial unit cell with no replicates.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt>pts_w_imgs</dt><dd><p>The position of atoms after replicating the box, n_x and n_z times in x and z direction.</p>
+<dt><strong>Returns</strong></dt><dd></dd>
+<dt><strong>————</strong></dt><dd></dd>
+<dt><strong>pts_w_imgs</strong></dt><dd><p>The position of atoms after replicating the box, n_x and n_z times in x and z direction.</p>
 </dd>
-<dt>gb1_inds</dt><dd><p>Indices of the GB atoms</p>
+<dt><strong>gb1_inds</strong></dt><dd><p>Indices of the GB atoms</p>
+</dd>
+<dt><strong>inds_arr :</strong></dt><dd><p>The atom indices of the initial unit cell with no replicates.</p>
 </dd>
 </dl>
 </dd>
@@ -423,6 +428,8 @@ x, y and z direction, respectively.</p>
 </dd>
 <dt><strong>gb1_ind</strong></dt><dd><p>Indices of the GB atoms</p>
 </dd>
+<dt><strong>inds_arr :</strong></dt><dd><p>The atom indices of the initial unit cell with no replicates.</p>
+</dd>
 </dl>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -430,6 +437,8 @@ x, y and z direction, respectively.</p>
 <dt>pts1 :</dt><dd><p>The position of atoms we want to keep</p>
 </dd>
 <dt>gb1_inds :</dt><dd><p>Indices of the GB atoms</p>
+</dd>
+<dt>inds_arr :</dt><dd><p>The atom indices of the initial unit cell with no replicates.</p>
 </dd>
 </dl>
 </dd>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>gbmc_v0.pad_dump_file &mdash; gbmc_v0 0.post50+g91714f1 documentation</title>
+  <title>gbmc_v0.pad_dump_file &mdash; gbmc_v0 0.post50+g26605f1 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.post50+g91714f1
+                0.post50+g26605f1
               </div>
             
           
@@ -204,7 +204,8 @@
 <span class="sd">        Points of interest (GB atoms and neighbors) on which Delaunay triangulation is called.</span>
 <span class="sd">    gb1_inds :</span>
 <span class="sd">        Indices of the GB atoms</span>
-<span class="sd">    inds_arr :</span>
+<span class="sd">    inds_arr : </span>
+<span class="sd">        The atom indices of the initial unit cell with no replicates.</span>
 <span class="sd">        </span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -437,6 +438,8 @@
 <span class="sd">    ----------</span>
 <span class="sd">    pts_w_imgs :</span>
 <span class="sd">        The position of atoms after replicating the box n_x and n_z times in X and Z direction.</span>
+<span class="sd">    inds_array :</span>
+<span class="sd">        The atom indices of the initial unit cell with no replicates.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">num1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">pts1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">pts_w_imgs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num1</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">n1</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">n2</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="mi">3</span><span class="p">))</span>
@@ -503,13 +506,16 @@
 <span class="sd">    non_pbc : int</span>
 <span class="sd">        The non-periodic direction. 0 , 1 or 2 which corresponds to</span>
 <span class="sd">        x, y and z direction, respectively.</span>
-
+<span class="sd">    inds_arr :</span>
+<span class="sd">        The atom indices of the initial unit cell with no replicates.</span>
 <span class="sd">    Returns</span>
 <span class="sd">    ------------</span>
 <span class="sd">    pts_w_imgs</span>
 <span class="sd">            The position of atoms after replicating the box, n_x and n_z times in x and z direction.</span>
 <span class="sd">    gb1_inds</span>
 <span class="sd">            Indices of the GB atoms</span>
+<span class="sd">    inds_arr :</span>
+<span class="sd">        The atom indices of the initial unit cell with no replicates.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">p1u_vec</span> <span class="o">=</span> <span class="n">sim_1vec</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">sim_1vec</span><span class="p">)</span>
     <span class="n">p2u_vec</span> <span class="o">=</span> <span class="n">sim_2vec</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">sim_2vec</span><span class="p">)</span>
@@ -546,6 +552,8 @@
 <span class="sd">        The position of atoms after replicating the box n_x and n_z times in x and z direction.</span>
 <span class="sd">    gb1_ind</span>
 <span class="sd">        Indices of the GB atoms</span>
+<span class="sd">    inds_arr :</span>
+<span class="sd">        The atom indices of the initial unit cell with no replicates.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    ---------</span>
@@ -553,6 +561,8 @@
 <span class="sd">        The position of atoms we want to keep</span>
 <span class="sd">    gb1_inds :</span>
 <span class="sd">        Indices of the GB atoms</span>
+<span class="sd">    inds_arr :</span>
+<span class="sd">        The atom indices of the initial unit cell with no replicates.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">int1</span><span class="p">,</span> <span class="n">a1</span><span class="p">,</span> <span class="n">a2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span><span class="n">ind1</span><span class="p">,</span> <span class="n">gb1_inds</span><span class="p">,</span> <span class="n">return_indices</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
