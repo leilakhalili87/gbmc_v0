@@ -55,6 +55,8 @@ def triang_inds(pts_w_imgs, gb1_inds, inds_arr):
         The position of atoms which are inside the main box and within rCut to the main box.
     gb1_inds :
         Indices of the GB atoms
+    inds_arr : 
+        The atom indices of the initial unit cell with no replicates.
 
     Returns
     ------------
