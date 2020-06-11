@@ -20,7 +20,7 @@ def test_pad_dump_file(filename0, rCut, lat_par, non_p):
     p2_vec = np.array([sim_2vec[arr[0]], sim_2vec[arr[1]]])
     [n1, n2] = pdf.num_rep_2d(p1_vec, p2_vec, rCut)
     pts1, gb1_inds = pdf.pad_gb_perp(data, GbRegion, GbIndex, rCut, non_p)
-    pts_w_imgs, gb1_inds = pdf.pad_dump_file(data, lat_par, rCut, non_p)
+    pts_w_imgs, gb1_inds, inds_arr = pdf.pad_dump_file(data, lat_par, rCut, non_p)
 
     area = np.linalg.norm(np.cross(sim_1vec, sim_2vec))
     num_atom_slice = np.power(np.sqrt(area) + 2 * rCut, 2) * np.shape(pts1)[0] / area
