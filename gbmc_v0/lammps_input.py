@@ -122,7 +122,7 @@ def write_lammps_dump(filename0, box_bound, dump_lamp, box_type):
             np.savetxt(f, line, fmt='%d %d %.10f %.10f %.10f')
 
 
-def write_lammps_script(lat_par, dump_name, path, script_name,  box_bound, box_type):
+def write_lammps_script(lat_par, dump_name, path, script_name,  box_bound, box_type, tol_fix_reg):
 
     """
     Function writes the lammps script to minimize the simulation box.
@@ -145,8 +145,8 @@ def write_lammps_script(lat_par, dump_name, path, script_name,  box_bound, box_t
     ----------
     """
     # the voundaries of change_box
-    delta_low = -5 * lat_par
-    delta_high = 5 * lat_par
+    delta_low = -tol_fix_reg
+    delta_high = tol_fix_reg
     # boundaries of fix rigid
     xy = box_bound[0, 2]
     xz = box_bound[1, 2]
@@ -157,8 +157,8 @@ def write_lammps_script(lat_par, dump_name, path, script_name,  box_bound, box_t
     yhi = box_bound[1, 1] - np.max(np.array([0, yz]))
     zlo = box_bound[2, 0]
     zhi = box_bound[2, 1]
-    z0 = zlo + 5 * lat_par
-    z1 = zhi - 5 * lat_par
+    z0 = zlo + tol_fix_reg
+    z1 = zhi - tol_fix_reg
 
     fiw = open(str(path) + str(script_name), 'w')
     line = []
@@ -319,10 +319,11 @@ def write_lammps_script(lat_par, dump_name, path, script_name,  box_bound, box_t
     fiw.close()
     return True
 
-
-box_bound, dump_lamp, box_type = lammps_box(4.05, './tests/data/gb_attr.pkl')
+lat_par = 4.05
+tol_fix_reg = 5 * lat_par
+box_bound, dump_lamp, box_type = lammps_box(lat_par, './tests/data/gb_attr.pkl')
 write_lammps_dump("./tests/data/dump_1", box_bound, dump_lamp, box_type)
-write_lammps_script(4.05, './tests/data/dump_1', './lammps_dump/', 'in.minimize0', box_bound, box_type)
+write_lammps_script(4.05, './tests/data/dump_1', './lammps_dump/', 'in.minimize0', box_bound, box_type, tol_fix_reg)
 lammps_exe_path = '/home/leila/Downloads/mylammps/src/lmp_mpi'
 os.system(str(lammps_exe_path) + '< ./lammps_dump/' + 'in.minimize0')
 
