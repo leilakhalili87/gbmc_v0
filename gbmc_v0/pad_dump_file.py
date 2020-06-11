@@ -47,7 +47,8 @@ def pad_dump_file(data, lat_par, rCut, non_p):
         Points of interest (GB atoms and neighbors) on which Delaunay triangulation is called.
     gb1_inds :
         Indices of the GB atoms
-    inds_arr :
+    inds_arr : 
+        The atom indices of the initial unit cell with no replicates.
         
     """
 
@@ -280,6 +281,8 @@ def create_imgs(pts1, n1, n2, sim_1vec, sim_2vec, non_p):
     ----------
     pts_w_imgs :
         The position of atoms after replicating the box n_x and n_z times in X and Z direction.
+    inds_array :
+        The atom indices of the initial unit cell with no replicates.
     """
     num1 = np.shape(pts1)[0]
     pts_w_imgs = np.zeros((num1*(2*n1+1)*(2*n2+1), 3))
@@ -346,13 +349,16 @@ def slice_along_planes(orig, sim_1vec, sim_2vec, sim_nonp_vec, rCut, pts_w_imgs,
     non_pbc : int
         The non-periodic direction. 0 , 1 or 2 which corresponds to
         x, y and z direction, respectively.
-
+    inds_arr :
+        The atom indices of the initial unit cell with no replicates.
     Returns
     ------------
     pts_w_imgs
             The position of atoms after replicating the box, n_x and n_z times in x and z direction.
     gb1_inds
             Indices of the GB atoms
+    inds_arr :
+        The atom indices of the initial unit cell with no replicates.
     """
     p1u_vec = sim_1vec/np.linalg.norm(sim_1vec)
     p2u_vec = sim_2vec/np.linalg.norm(sim_2vec)
@@ -389,6 +395,8 @@ def del_inds(ind1, pts1, gb1_inds, inds_arr):
         The position of atoms after replicating the box n_x and n_z times in x and z direction.
     gb1_ind
         Indices of the GB atoms
+    inds_arr :
+        The atom indices of the initial unit cell with no replicates.
 
     Returns
     ---------
@@ -396,6 +404,8 @@ def del_inds(ind1, pts1, gb1_inds, inds_arr):
         The position of atoms we want to keep
     gb1_inds :
         Indices of the GB atoms
+    inds_arr :
+        The atom indices of the initial unit cell with no replicates.
     """
 
     int1, a1, a2 = np.intersect1d(ind1, gb1_inds, return_indices=True)
