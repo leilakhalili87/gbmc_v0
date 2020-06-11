@@ -47,6 +47,8 @@ def pad_dump_file(data, lat_par, rCut, non_p):
         Points of interest (GB atoms and neighbors) on which Delaunay triangulation is called.
     gb1_inds :
         Indices of the GB atoms
+    inds_arr :
+        
     """
 
     GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC = GB_finder(data, lat_par, non_p)
@@ -63,11 +65,11 @@ def pad_dump_file(data, lat_par, rCut, non_p):
     [n1, n2] = num_rep_2d(p1_vec, p2_vec, rCut)
 
     pts1, gb1_inds = pad_gb_perp(data, GbRegion, GbIndex, rCut, non_p)
-    pts_w_imgs = create_imgs(pts1, n1, n2, sim_1vec, sim_2vec, non_p)
-    pts_w_imgs, gb1_inds = (slice_along_planes(sim_orig,
+    pts_w_imgs, inds_array = create_imgs(pts1, n1, n2, sim_1vec, sim_2vec, non_p)
+    pts_w_imgs, gb1_inds, inds_arr = (slice_along_planes(sim_orig,
                                                sim_1vec, sim_2vec, sim_nonp_vec, rCut,
-                                               pts_w_imgs, gb1_inds, non_p))
-    return pts_w_imgs, gb1_inds
+                                               pts_w_imgs, gb1_inds, non_p, inds_array))
+    return pts_w_imgs, gb1_inds, inds_arr.astype(int)
 
 
 def GB_finder(data, lat_par, non_pbc):
@@ -139,6 +141,43 @@ def GB_finder(data, lat_par, non_pbc):
     w_top_SC = NoSurfArea[1] - GbRegion[1]
 
     return GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC
+
+
+def check_SC_reg(data, lat_par, rCut, non_p, tol_fix_reg, SC_tol):
+    """
+    Function to identify whether single crystal region on eaither side of the GB is bigger than a tolerance (SC_tol)
+
+    Parameters
+    ------------
+    data :
+        Data object computed using OVITO I/O
+    lat_par :
+        Lattice parameter for the crystal being simulated
+    rCut :
+        Cut-off radius for computing Delaunay triangulations
+    non_pbc : int
+        The non-periodic direction. 0 , 1 or 2 which corresponds to
+        x, y and z direction, respectively.
+    tol_fix_reg : float
+        The user defined tolerance for the size of rigid translation region in lammps simulation.
+    SC_tol : float
+        The user defined tolerance for the minimum size of single crystal region.
+    Returns
+    ----------
+    SC_boolean :
+        A boolean list for low/top or left/right single crytal region. True means the width > SC_tol.
+        
+    """
+    GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC = GB_finder(data, lat_par, non_p)
+
+    SC_boolean = [True, True]
+    w_bottom_SC = w_bottom_SC - tol_fix_reg
+    w_top_SC = w_top_SC - tol_fix_reg
+    if w_bottom_SC < SC_tol:
+        SC_boolean[0] = False
+    if w_top_SC < SC_tol:
+        SC_boolean[1] = False
+    return SC_boolean
 
 
 def num_rep_2d(xvec, yvec, rCut):
@@ -244,6 +283,8 @@ def create_imgs(pts1, n1, n2, sim_1vec, sim_2vec, non_p):
     """
     num1 = np.shape(pts1)[0]
     pts_w_imgs = np.zeros((num1*(2*n1+1)*(2*n2+1), 3))
+    inds_array = np.zeros((num1*(2*n1+1)*(2*n2+1), ))
+    tinds1 = np.arange(0, num1)
 
     # The first set of atoms correspond to the main
     # cell.
@@ -251,6 +292,7 @@ def create_imgs(pts1, n1, n2, sim_1vec, sim_2vec, non_p):
     ind_st = num1*ct1
     ind_stop = num1*(ct1+1)-1
     pts_w_imgs[ind_st:ind_stop+1, :] = pts1
+    inds_array[ind_st:ind_stop+1] = tinds1
     ct1 = ct1 + 1
 
     # Array for translating the main cell
@@ -274,12 +316,13 @@ def create_imgs(pts1, n1, n2, sim_1vec, sim_2vec, non_p):
         ind_st = num1*ct1
         ind_stop = num1*(ct1+1)-1
         pts_w_imgs[ind_st:ind_stop+1, :] = pts_trans
+        inds_array[ind_st:ind_stop+1] = tinds1
         ct1 = ct1 + 1
 
-    return pts_w_imgs
+    return pts_w_imgs, inds_array
 
 
-def slice_along_planes(orig, sim_1vec, sim_2vec, sim_nonp_vec, rCut, pts_w_imgs, gb1_inds, non_p):
+def slice_along_planes(orig, sim_1vec, sim_2vec, sim_nonp_vec, rCut, pts_w_imgs, gb1_inds, non_p, inds_arr):
     """
 
     Function cuts the pts_w_imgs within an rCut from the GB.
@@ -328,13 +371,13 @@ def slice_along_planes(orig, sim_1vec, sim_2vec, sim_nonp_vec, rCut, pts_w_imgs,
         pt1 = orig + sim_1vec*l1[0] + p1u_vec*rCut*l1[1] + sim_2vec*l1[2] + p2u_vec*rCut*l1[3]
         pl_nvec = pl_nvecs[ct1]
         inds_keep1 = inds_to_keep(pl_nvec, pt1, orig, pts_w_imgs)
-        pts_w_imgs, gb1_inds = del_inds(inds_keep1, pts_w_imgs, gb1_inds)
+        pts_w_imgs, gb1_inds, inds_arr = del_inds(inds_keep1, pts_w_imgs, gb1_inds, inds_arr)
         ct1 = ct1 + 1
 
-    return pts_w_imgs, gb1_inds
+    return pts_w_imgs, gb1_inds, inds_arr
 
 
-def del_inds(ind1, pts1, gb1_inds):
+def del_inds(ind1, pts1, gb1_inds, inds_arr):
     """
     Function deletes the indices of atoms outside of the main box plus rCut margin around it
 
@@ -358,7 +401,8 @@ def del_inds(ind1, pts1, gb1_inds):
     int1, a1, a2 = np.intersect1d(ind1, gb1_inds, return_indices=True)
     gb1_inds = a1
     pts1 = pts1[ind1, :]
-    return pts1, gb1_inds
+    inds_arr = inds_arr[ind1]
+    return pts1, gb1_inds, inds_arr
 
 
 def inds_to_keep(norm_vec, pl_pt, orig, pts):
