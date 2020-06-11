@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>gbmc_v0.vv_props &mdash; gbmc_v0 0.post50+g8e46bb7 documentation</title>
+  <title>gbmc_v0.vv_props &mdash; gbmc_v0 0.post50+g4864c5e documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.post50+g8e46bb7
+                0.post50+g4864c5e
               </div>
             
           
@@ -204,20 +204,21 @@
 
 <div class="viewcode-block" id="triang_inds"><a class="viewcode-back" href="../../usage.html#gbmc_v0.vv_props.triang_inds">[docs]</a><span class="k">def</span> <span class="nf">triang_inds</span><span class="p">(</span><span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">gb1_inds</span><span class="p">,</span> <span class="n">inds_arr</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Function finds the indices of atoms making tetrahedrons</span>
+<span class="sd">    Function finds the indices of atoms which make tetrahedrons with at least one GB atom.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    -------------</span>
 <span class="sd">    pts_w_imgs :</span>
-<span class="sd">        The position of atoms which are inside the main  box and within rCut to the main box (change name!)</span>
+<span class="sd">        The position of atoms which are inside the main box and within rCut to the main box.</span>
 <span class="sd">    gb1_inds :</span>
 <span class="sd">        Indices of the GB atoms</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    ------------</span>
 <span class="sd">    tri_vertices :</span>
-<span class="sd">    gb_tri_inds :</span>
-<span class="sd">        Tetrahedrons including at least one</span>
+<span class="sd">        Tetrahedrons with at least one corner in the GB region.</span>
+<span class="sd">    gb_tri_inds1 :</span>
+<span class="sd">        The indices of atoms which make tri_vertices tetrahedrons.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">tri_simplices</span> <span class="o">=</span> <span class="n">qdelaunay</span><span class="p">(</span><span class="s2">&quot;i Qt&quot;</span><span class="p">,</span> <span class="n">pts_w_imgs</span><span class="p">)</span>
     <span class="n">num_tri</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tri_simplices</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -238,6 +239,28 @@
 
 
 <div class="viewcode-block" id="vv_props"><a class="viewcode-back" href="../../usage.html#gbmc_v0.vv_props.vv_props">[docs]</a><span class="k">def</span> <span class="nf">vv_props</span><span class="p">(</span><span class="n">pts_w_imgs</span><span class="p">,</span> <span class="n">tri_vertices</span><span class="p">,</span> <span class="n">gb_tri</span><span class="p">,</span> <span class="n">lat_par</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function finds the circum-center/sphere of tetrahedrons containing</span>
+<span class="sd">    at least one GB atom.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -------------</span>
+<span class="sd">    pts_w_imgs :</span>
+<span class="sd">        The position of atoms which are inside the main box and within rCut to the main box.</span>
+<span class="sd">    tri_vertices :</span>
+<span class="sd">        Tetrahedrons with at least one corner in the GB region.</span>
+<span class="sd">    gb_tri :</span>
+<span class="sd">        The indices of atoms which make tri_vertices tetrahedrons.</span>
+<span class="sd">    lat_par :</span>
+<span class="sd">        Lattice parameter for the crystal being simulated.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    ------------</span>
+<span class="sd">    cc_coors1 :</span>
+<span class="sd">        Tetrahedrons with at least one corner in the GB region.</span>
+<span class="sd">    cc_rad1 :</span>
+<span class="sd">        The indices of atoms which make tri_vertices tetrahedrons.</span>
+<span class="sd">    &quot;&quot;&quot;</span>    
     <span class="n">num_tri</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">gb_tri</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">cc_coors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_tri</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
     <span class="n">cc_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_tri</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
