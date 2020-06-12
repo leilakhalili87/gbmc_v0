@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>gbmc_v0.pad_dump_file &mdash; gbmc_v0 0.post50+gafc61ce documentation</title>
+  <title>gbmc_v0.pad_dump_file &mdash; gbmc_v0 0.post50+g526cb89 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                0.post50+gafc61ce
+                0.post50+g526cb89
               </div>
             
           
@@ -269,7 +269,7 @@
 
     <span class="k">while</span> <span class="n">a</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">pos_max</span> <span class="o">=</span> <span class="n">pos_min</span> <span class="o">+</span> <span class="n">lat_par</span>
-        <span class="n">a</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">ptm_struct</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_np</span> <span class="o">&lt;</span> <span class="n">pos_max</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_np</span> <span class="o">&gt;</span> <span class="n">pos_min</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">ptm_struct</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_np</span> <span class="o">&lt;</span> <span class="n">pos_max</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">position_np</span> <span class="o">&gt;</span> <span class="n">pos_min</span><span class="p">))[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">pos_min</span> <span class="o">+=</span> <span class="n">lat_par</span>
 
     <span class="n">NoSurfArea</span> <span class="o">=</span> <span class="n">NoSurfArea</span> <span class="o">+</span> <span class="p">[</span><span class="n">pos_min</span><span class="p">]</span>
