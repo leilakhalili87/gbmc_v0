@@ -2,10 +2,9 @@
 import numpy as np
 import util_funcs as uf;
 import ovito.io as oio
+import os
 
 def file_gen(fil_name):
-
-    # file_name = fil_name[0] + '/in.'+ fil_name[1]
     fiw = open(fil_name, 'w')
     return fiw, fil_name
 
@@ -195,7 +194,7 @@ def script_min_sec(fiw):
 
     return True
 
-def script_main_min(fil_name, lat_par, tol_fix_reg, dump_name, pot_path):
+def script_main_min(fil_name, lat_par, tol_fix_reg, dump_name, pot_path, non_p):
     fiw, file_name = file_gen(fil_name)
     lammps_script_var(fiw, lat_par)
     script_init_sim(fiw, non_p)
@@ -208,18 +207,22 @@ def script_main_min(fil_name, lat_par, tol_fix_reg, dump_name, pot_path):
     script_overlap(fiw, tol_fix_reg)
     script_compute(fiw)
     script_min_sec(fiw)
-import os
-filename0 = './tests/data/dump_1'
-fil_name = 'in.min'
-lat_par = 4.05
-dump_name = './tests/data/dump_1'
-pot_path = './lammps_dump/'
-tol_fix_reg = 5*lat_par
-data = uf.compute_ovito_data(filename0)
-non_p = uf.identify_pbc(data)
-script_main_min(fil_name, lat_par, tol_fix_reg, dump_name, pot_path)
-lammps_exe_path = '/home/leila/Downloads/mylammps/src/lmp_mpi'
-os.system(str(lammps_exe_path) + '< ./' + 'in.min')
+
+
+def run_lammps_min(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path):
+    data = uf.compute_ovito_data(filename0)
+    non_p = uf.identify_pbc(data)
+    script_main_min(fil_name, lat_par, tol_fix_reg, filename0, pot_path, non_p)
+    os.system(str(lammps_exe_path) + '< ./' + fil_name)
+
+# lammps_exe_path = '/home/leila/Downloads/mylammps/src/lmp_mpi'
+# lat_par = 4.05
+# tol_fix_reg = 5*lat_par
+# filename0 = './tests/data/dump_1'
+# fil_name = 'in.min'
+# pot_path = './lammps_dump/'
+# lammps_min_runner(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path)
+
 # def script_heating(fiw):
 #     MaxEval0 = 1000
 #     line =[]
