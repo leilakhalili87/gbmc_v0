@@ -112,7 +112,7 @@ def GB_finder(data, lat_par, non_pbc):
 
     while a != 0:
         pos_max = pos_min + lat_par
-        a = len(np.where((ptm_struct == 0) & (position_np < pos_max) & (position_np > pos_min))[0])
+        a = len(np.where((ptm_struct != 1) & (position_np < pos_max) & (position_np > pos_min))[0])
         pos_min += lat_par
 
     NoSurfArea = NoSurfArea + [pos_min]
