@@ -1,6 +1,5 @@
 import numpy as np
 import pickle as pkl
-import os
 
 
 def lammps_box(lat_par, pkl_name):
@@ -323,7 +322,7 @@ def write_lammps_dump(filename0, box_bound, dump_lamp, box_type):
 # tol_fix_reg = 5 * lat_par
 # box_bound, dump_lamp, box_type = lammps_box(lat_par, './tests/data/gb_attr.pkl')
 # write_lammps_dump("./tests/data/dump_1", box_bound, dump_lamp, box_type)
-# write_lammps_script(4.05, './tests/data/dump_1', './lammps_dump/', 'in.minimize0', box_bound, box_type, tol_fix_reg)
+# write_lammps_script(4.05, './tests/data/dump_1', './lammps_dump/',
+#                     'in.minimize0', box_bound, box_type, tol_fix_reg)
 # lammps_exe_path = '/home/leila/Downloads/mylammps/src/lmp_mpi'
 # os.system(str(lammps_exe_path) + '< ./lammps_dump/' + 'in.minimize0')
-
