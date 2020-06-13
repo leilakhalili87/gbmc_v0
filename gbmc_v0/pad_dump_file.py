@@ -1,6 +1,4 @@
 import numpy as np
-# import ovito.modifiers as ovm
-# from ovito.io import import_file, export_file
 
 
 def p_arr(non_p):
@@ -47,9 +45,8 @@ def pad_dump_file(data, lat_par, rCut, non_p):
         Points of interest (GB atoms and neighbors) on which Delaunay triangulation is called.
     gb1_inds :
         Indices of the GB atoms
-    inds_arr : 
+    inds_arr :
         The atom indices of the initial unit cell with no replicates.
-        
     """
 
     GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC = GB_finder(data, lat_par, non_p)
@@ -68,8 +65,8 @@ def pad_dump_file(data, lat_par, rCut, non_p):
     pts1, gb1_inds = pad_gb_perp(data, GbRegion, GbIndex, rCut, non_p)
     pts_w_imgs, inds_array = create_imgs(pts1, n1, n2, sim_1vec, sim_2vec, non_p)
     pts_w_imgs, gb1_inds, inds_arr = (slice_along_planes(sim_orig,
-                                               sim_1vec, sim_2vec, sim_nonp_vec, rCut,
-                                               pts_w_imgs, gb1_inds, non_p, inds_array))
+                                      sim_1vec, sim_2vec, sim_nonp_vec, rCut,
+                                      pts_w_imgs, gb1_inds, non_p, inds_array))
     return pts_w_imgs, gb1_inds, inds_arr.astype(int)
 
 
@@ -142,43 +139,6 @@ def GB_finder(data, lat_par, non_pbc):
     w_top_SC = NoSurfArea[1] - GbRegion[1]
 
     return GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC
-
-
-def check_SC_reg(data, lat_par, rCut, non_p, tol_fix_reg, SC_tol):
-    """
-    Function to identify whether single crystal region on eaither side of the GB is bigger than a tolerance (SC_tol)
-
-    Parameters
-    ------------
-    data :
-        Data object computed using OVITO I/O
-    lat_par :
-        Lattice parameter for the crystal being simulated
-    rCut :
-        Cut-off radius for computing Delaunay triangulations
-    non_pbc : int
-        The non-periodic direction. 0 , 1 or 2 which corresponds to
-        x, y and z direction, respectively.
-    tol_fix_reg : float
-        The user defined tolerance for the size of rigid translation region in lammps simulation.
-    SC_tol : float
-        The user defined tolerance for the minimum size of single crystal region.
-    Returns
-    ----------
-    SC_boolean :
-        A boolean list for low/top or left/right single crytal region. True means the width > SC_tol.
-        
-    """
-    GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC = GB_finder(data, lat_par, non_p)
-
-    SC_boolean = [True, True]
-    w_bottom_SC = w_bottom_SC - tol_fix_reg
-    w_top_SC = w_top_SC - tol_fix_reg
-    if w_bottom_SC < SC_tol:
-        SC_boolean[0] = False
-    if w_top_SC < SC_tol:
-        SC_boolean[1] = False
-    return SC_boolean
 
 
 def num_rep_2d(xvec, yvec, rCut):
