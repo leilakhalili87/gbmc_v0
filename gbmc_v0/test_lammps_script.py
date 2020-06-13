@@ -85,11 +85,10 @@ def define_box(fiw, untilted, tilt, box_type):
 
 
 
-def define_fix_rigid(fiw, box_bound, tol_fix_reg, non_p):
+def define_fix_rigid(fiw, untilted, tilt, box_type, tol_fix_reg, non_p):
     """
     """
-    untilted, tilt, box_type = uf.define_bounds(box_bound)
-    untilted[non_p, :] = untilted[non_p, :] + np.array([tol_fix_reg, -tol_fix_reg])
+    untilted[non_p, :] = untilted[non_p, :] +  2 * np.array([tol_fix_reg, -tol_fix_reg])
 
     if box_type == 'block':
         rigid_reg = 'region reg_fix block ' + str(untilted[0][0]) + ' ' + str(untilted[0][1]) + ' ' +\
@@ -105,6 +104,7 @@ def define_fix_rigid(fiw, box_bound, tol_fix_reg, non_p):
     line.append("#---------Defining the fix rigid group--------------\n")
     line.append('group non_fix region reg_fix\n')
     line.append('group fix_reg subtract all non_fix\n')
+    line.append('fix 2 fix_reg rigid single reinit yes\n')
     line.append('\n')
   
 
@@ -131,21 +131,26 @@ def script_pot(fiw, pot_path):
 
 def script_read_dump(fiw, dump_name):
     line = []
-    line.append('read_dump ' + str(dump_name) + ' 0 x y z box yes add yes \n')
+    line.append('read_dump ' + str(dump_name) + ' 0 x y z box no add yes \n')
     for i in line:
         fiw.write(i)
 
     return True
 
 
-def script_overlap(fiw, tol_fix_reg):
-    delta_low = -tol_fix_reg
-    delta_high = tol_fix_reg
+def script_overlap(fiw, untilted, tol_fix_reg, non_p):
+    untilted[non_p, :] = untilted[non_p, :] +  np.array([-tol_fix_reg, tol_fix_reg])
+    if non_p == 0:
+        var = 'x'
+    elif non_p == 1:
+        var = 'y'
+    else:
+        var = 'z'
     line =[]
     line.append('group lower type 2 \n')
     line.append('group upper type 1\n')
     line.append('delete_atoms overlap ${OverLap}  upper lower\n')
-    line.append('change_box all z delta ' + str(delta_low) + ' ' + str(delta_high) + '\n')
+    line.append('change_box all ' + str(var) +  ' final ' + str(untilted[non_p,0]) + ' ' + str(untilted[non_p,1]) + ' units box\n')
 
     for i in line:
         fiw.write(i)
@@ -170,7 +175,7 @@ def script_compute(fiw):
     return True
 
 
-def script_min_sec(fiw):
+def script_min_sec(fiw, dump_path):
     line =[]
     line.append('#----------------------minimization--------------------\n')
     line.append('\n')
@@ -179,22 +184,81 @@ def script_min_sec(fiw):
     line.append('thermo_style custom step pe lx ly lz xy xz yz xlo xhi ylo yhi zlo zhi press pxx pyy pzz '
                 'c_eatoms c_MinAtomEnergy\n')
     line.append('thermo_modify lost ignore\n')
-    line.append('dump 1 all custom 10 ./lammps_dump/dump_minimized id type x y z c_csym c_eng\n')
+    line.append('dump 1 all custom 10 ' + str(dump_path) + 'dump_minimized id type x y z c_csym c_eng\n')
     line.append('fix 1 all box/relax x 0 y 0 xy 0\n')
-    line.append('fix 2 fix_reg rigid single reinit yes\n')
-    line.append('fix 2 fix_reg rigid single reinit yes\n')
     line.append('min_style cg\n')
     line.append('minimize ${Etol} ${Ftol} ${MaxIter} ${MaxEval}\n')
     line.append('undump 1\n')
     line.append('unfix 1\n')
-    line.append('unfix 2\n')
 
     for i in line:
         fiw.write(i)
 
     return True
 
-def script_main_min(fil_name, lat_par, tol_fix_reg, dump_name, pot_path, non_p):
+
+def script_heating(fiw, dump_path):
+    MaxEval0 = 1000
+    line =[]
+    line.append('# -----------------heating step-----------------\n')
+    line.append('\n')
+    line.append('reset_timestep 0\n')
+    line.append('timestep 0.001\n')
+    line.append('fix 1 all npt temp .1 466.75 .1 couple xy  x 0.0 0.0 1.0  y 0.0 0.0 1.0\n')
+    line.append('thermo 100\n')
+    line.append('thermo_style custom step temp pe lx ly lz press pxx pyy pzz c_eatoms\n')
+    line.append('dump 1 all custom 10 ' + str(dump_path) + 'dump_step_heat id type x y z c_csym c_eng\n')
+    line.append('run ' + str(MaxEval0) + '\n')
+    line.append('unfix 1\n')
+    line.append('undump 1\n')
+    line.append('\n')
+    for i in line:
+        fiw.write(i)
+
+    return True
+
+
+def script_equil(fiw, dump_path):
+    line =[]
+    line.append('# -----------------equilibrium step-----------------\n')
+    line.append('\n')
+    line.append('reset_timestep 0\n')
+    line.append('timestep 0.001\n')
+    line.append('fix 1 all npt temp 466.75 466.75 0.1 couple xy  x 0.0 0.0 1.0  y 0.0 0.0 1.0\n')
+    line.append('thermo 100\n')
+    line.append('thermo_style custom step temp pe lx ly lz press pxx pyy pzz c_eatoms\n')
+    line.append('dump 1 all custom 10 ' + str(dump_path) + 'dump_step_cool id type x y z c_csym c_eng\n')
+    line.append('run ${MaxEval}\n')
+    line.append('unfix 1\n')
+    line.append('undump 1\n')
+    line.append('\n')
+    for i in line:
+        fiw.write(i)
+
+    return True
+
+def script_cooling(fiw, dump_path):
+    MaxEval1 = 12000
+    line =[]
+    line.append('# -----------------cooling step-----------------\n')
+    line.append('\n')
+    line.append('reset_timestep 0\n')
+    line.append('timestep 0.001\n')
+    line.append('fix 1 all npt temp 466.75 .1 .1 couple xy  x 0.0 0.0 1.0  y 0.0 0.0 1.0\n')
+    line.append('thermo 10\n')
+    line.append('thermo_style custom step temp pe lx ly lz press pxx pyy pzz c_eatoms\n')
+    line.append('dump 1 all custom 10 ' + str(dump_path) + 'dump_step_equil id type x y z c_csym c_eng\n')
+    line.append('run ' + str(MaxEval1) + '\n')
+    line.append('unfix 1\n')
+    line.append('undump 1\n')
+    line.append('\n')
+    for i in line:
+        fiw.write(i)
+
+    return True
+
+
+def script_main_min(fil_name, lat_par, tol_fix_reg, dump_name, pot_path, non_p, dump_path):
     fiw, file_name = file_gen(fil_name)
     lammps_script_var(fiw, lat_par)
     script_init_sim(fiw, non_p)
@@ -202,86 +266,54 @@ def script_main_min(fil_name, lat_par, tol_fix_reg, dump_name, pot_path, non_p):
     untilted, tilt, box_type = uf.define_bounds(box_bound)
     define_box(fiw, untilted, tilt, box_type)
     script_read_dump(fiw, dump_name)
-    define_fix_rigid(fiw, box_bound, tol_fix_reg, non_p)
     script_pot(fiw, pot_path)
-    script_overlap(fiw, tol_fix_reg)
+    script_overlap(fiw, untilted, tol_fix_reg, non_p)
+    define_fix_rigid(fiw, untilted, tilt, box_type, tol_fix_reg, non_p)
     script_compute(fiw)
-    script_min_sec(fiw)
+    script_min_sec(fiw, dump_path)
 
 
-def run_lammps_min(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path):
+def run_lammps_min(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, dump_path):
     data = uf.compute_ovito_data(filename0)
     non_p = uf.identify_pbc(data)
-    script_main_min(fil_name, lat_par, tol_fix_reg, filename0, pot_path, non_p)
+    script_main_min(fil_name, lat_par, tol_fix_reg, filename0, pot_path, non_p, dump_path)
     os.system(str(lammps_exe_path) + '< ./' + fil_name)
 
-# lammps_exe_path = '/home/leila/Downloads/mylammps/src/lmp_mpi'
-# lat_par = 4.05
-# tol_fix_reg = 5*lat_par
-# filename0 = './tests/data/dump_1'
-# fil_name = 'in.min'
-# pot_path = './lammps_dump/'
-# lammps_min_runner(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path)
 
-# def script_heating(fiw):
-#     MaxEval0 = 1000
-#     line =[]
-#     line.append('# -----------------heating step-----------------\n')
-#     line.append('\n')
-#     line.append('reset_timestep 0\n')
-#     line.append('timestep 0.001\n')
-#     line.append('fix 1 all npt temp .1 466.75 .1 couple xy  x 0.0 0.0 1.0  y 0.0 0.0 1.0\n')
-#     line.append('thermo 100\n')
-#     line.append('thermo_style custom step temp pe lx ly lz press pxx pyy pzz c_eatoms\n')
-#     line.append('dump 1 all custom 10 ' + str(path) + 'dump_step_heat id type x y z c_csym c_eng\n')
-#     line.append('run ' + str(MaxEval0) + '\n')
-#     line.append('unfix 1\n')
-#     line.append('undump 1\n')
-#     line.append('\n')
-#     for i in line:
-#         fiw.write(i)
-
-#     return True
+def script_main_anneal(fil_name, lat_par, tol_fix_reg, dump_name, pot_path, non_p, dump_path):
+    fiw, file_name = file_gen(fil_name)
+    lammps_script_var(fiw, lat_par)
+    script_init_sim(fiw, non_p)
+    box_bound = uf.box_size_reader(dump_name)
+    untilted, tilt, box_type = uf.define_bounds(box_bound)
+    define_box(fiw, untilted, tilt, box_type)
+    script_read_dump(fiw, dump_name)
+    script_pot(fiw, pot_path)
+    define_fix_rigid(fiw, untilted, tilt, box_type, tol_fix_reg, non_p)
+    script_compute(fiw)
+    script_heating(fiw, dump_path)
+    script_equil(fiw, dump_path)
+    script_cooling(fiw, dump_path)
+    script_min_sec(fiw, dump_path)
 
 
-# def script_cooling(fiw):
-#     line =[]
-#     line.append('# -----------------equilibrium step-----------------\n')
-#     line.append('\n')
-#     line.append('reset_timestep 0\n')
-#     line.append('timestep 0.001\n')
-#     line.append('fix 1 all npt temp 466.75 466.75 0.1 couple xy  x 0.0 0.0 1.0  y 0.0 0.0 1.0\n')
-#     line.append('thermo 100\n')
-#     line.append('thermo_style custom step temp pe lx ly lz press pxx pyy pzz c_eatoms\n')
-#     line.append('dump 1 all custom 10 ' + str(path) + 'dump_step_cool id type x y z c_csym c_eng\n')
-#     line.append('run ${MaxEval}\n')
-#     line.append('unfix 1\n')
-#     line.append('undump 1\n')
-#     line.append('\n')
-#     for i in line:
-#         fiw.write(i)
+def run_lammps_anneal(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, dump_path):
+    data = uf.compute_ovito_data(filename0)
+    non_p = uf.identify_pbc(data)
+    script_main_anneal(fil_name, lat_par, tol_fix_reg, filename0, pot_path, non_p, dump_path)
+    os.system(str(lammps_exe_path) + '< ./' + fil_name)
 
-#     return True
+lammps_exe_path = '/home/leila/Downloads/mylammps/src/lmp_mpi'
+lat_par = 4.05
+tol_fix_reg = lat_par * 5
+filename0 = './tests/data/dump_1'
+fil_name = 'in.min'
+pot_path = './lammps_dump/'
 
-# def script_equil(fiw):
-#     MaxEval1 = 12000
-#     line =[]
-#     line.append('# -----------------cooling step-----------------\n')
-#     line.append('\n')
-#     line.append('reset_timestep 0\n')
-#     line.append('timestep 0.001\n')
-#     line.append('fix 1 all npt temp 466.75 .1 .1 couple xy  x 0.0 0.0 1.0  y 0.0 0.0 1.0\n')
-#     line.append('thermo 10\n')
-#     line.append('thermo_style custom step temp pe lx ly lz press pxx pyy pzz c_eatoms\n')
-#     line.append('dump 1 all custom 10 ' + str(path) + 'dump_step_equil id type x y z c_csym c_eng\n')
-#     line.append('run ' + str(MaxEval1) + '\n')
-#     line.append('unfix 1\n')
-#     line.append('undump 1\n')
-#     line.append('\n')
-#     for i in line:
-#         fiw.write(i)
+run_lammps_min(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, './lammps_dump/')
 
-#     return True
-
+filename1 = './lammps_dump/dump_minimized'
+fil_name1 = 'in.anneal'
+run_lammps_anneal(filename1, fil_name1, pot_path, lat_par, tol_fix_reg, lammps_exe_path, './lammps_dump/')
 
 
