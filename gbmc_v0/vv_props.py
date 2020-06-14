@@ -146,7 +146,7 @@ def wrap_cc(cell1, pts):
     """
     data = ovd.DataCollection()
     data.objects.append(cell1)
-    particles = ovd.Particles()
+    particles = ovd.particles
     particles.create_property('Position', data=pts)
     data.objects.append(particles)
 
