@@ -306,15 +306,15 @@ def run_lammps_anneal(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammp
     os.system(str(lammps_exe_path) + '< ./' + fil_name)
 
 
-lammps_exe_path = '/home/leila/Downloads/mylammps/src/lmp_mpi'
-lat_par = 4.05
-tol_fix_reg = lat_par * 5
-filename0 = './tests/data/dump_1'
-fil_name = 'in.min'
-pot_path = './lammps_dump/'
+# lammps_exe_path = '/home/leila/Downloads/mylammps/src/lmp_mpi'
+# lat_par = 4.05
+# tol_fix_reg = lat_par * 5
+# filename0 = './tests/data/dump_1'
+# fil_name = 'in.min'
+# pot_path = './lammps_dump/'
 
-run_lammps_min(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, './lammps_dump/')
+# run_lammps_min(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, './lammps_dump/')
 
-filename1 = './lammps_dump/dump_minimized'
-fil_name1 = 'in.anneal'
-run_lammps_anneal(filename1, fil_name1, pot_path, lat_par, tol_fix_reg, lammps_exe_path, './lammps_dump/')
+# filename1 = './lammps_dump/dump_minimized'
+# fil_name1 = 'in.anneal'
+# run_lammps_anneal(filename1, fil_name1, pot_path, lat_par, tol_fix_reg, lammps_exe_path, './lammps_dump/')
