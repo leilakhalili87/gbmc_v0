@@ -3,7 +3,7 @@ import ovito.io as oio
 import ovito.modifiers as ovm
 from itertools import islice
 import pad_dump_file as pdf
-
+import bisect
 
 def compute_ovito_data(filename0):
     """
@@ -101,8 +101,16 @@ def RemProb(data, CohEng, GbIndex):
     Excess_Eng = (GbAtomicEng - CohEng)
     Excess_Eng[Excess_Eng < 0] = 0
     Excess_Eng_Tot = np.sum(Excess_Eng)
+    E_rm = Excess_Eng/Excess_Eng_Tot
+    return E_rm
 
-    return Excess_Eng/Excess_Eng_Tot
+
+def RemIns_decision(Prob):
+    CS_prob = np.cumsum(Prob)
+    rand_num = np.random.uniform(0, 1)
+    location = bisect.bisect_left(CS_prob, rand_num)
+    ID2change =  = location - 1
+    return ID2change
 
 
 def radi_normaliz(cc_rad):
@@ -120,13 +128,21 @@ def choos_rem_ins():
         return "insertion"
 
 
-def atom_insertion():
-    return 
+def atom_insertion(filename0, path2dump, cc_coors1):
+    lines = open(filename0, 'r').readlines()
+    lines[3] = str(int(lines[3]) + 1) 
+    new_line = str(lines[3]) + ' 1 ' + str(cc_coors1[0]) + ' ' + str(cc_coors1[1]) + ' '\
+            + str(cc_coors1[2] ) + '.1 .2'
+    lines[3] = lines[3] + '\n'
+    out = open(filename0, 'w')
+    out.writelines(lines)
+    out.writelines(new_line)
+    out.close()
 
 
-def atom_removal(filename0, path2dump, IDtoRem):
+def atom_removal(filename0, path2dump, ID2change):
     pipeline = import_file(filename1)
-    pipeline.modifiers.append(ExpressionSelectionModifier(expression = 'ParticleIdentifier == ' + str(IDtoRem)))
+    pipeline.modifiers.append(ExpressionSelectionModifier(expression = 'ParticleIdentifier == ' + str(ID2change)))
     pipeline.modifiers.append( DeleteSelectedModifier() )
     dump_name = path2dump + 'rem_dump'
     export_file(pipeline, dump_name,format = "lammps_dump",
@@ -137,7 +153,6 @@ def atom_removal(filename0, path2dump, IDtoRem):
                     "Position.Z",
                     "c_eng",
                     "c_csym" ])
-    return
 
 
 def cal_area(data, non_p):
@@ -169,11 +184,12 @@ def cal_GB_E(data, weight_1, non_p, lat_par, E_coh):
     return E_GB
 
 
-def p_boltz(E0, E1, area, Tm):
+def p_boltz_func(E0, E1, area, Tm):
     T = Tm / 2  # in K
     kb = 1.380649 * 10e-26  # mj/K
     dE = (E1 - E0) * area
     p_boltz = np.exp(-dE / kb / T)
+    return p_boltz
 
 
 def decide(p_boltz):

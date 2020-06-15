@@ -34,9 +34,9 @@ GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC = pdf.GB_finder(data, lat_par,
 
 choice = choos_rem_ins()
 if choice == "removal":
-    E_excess = RemProb(data, CohEng, GbIndex)
-    IDtoRem = np.argmax(E_excess)
-    uf.atom_removal(filename0, path2dump, IDtoRem)
+    E_rm = RemProb(data, CohEng, GbIndex)
+    ID2change = RemIns_decision(Prob)
+    uf.atom_removal(filename0, path2dump, ID2change)
     fil_name = 'in.min'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
     lsw.run_lammps_min(filename, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, './lammps_dump/')
     data = compute_ovito_data(filename0)
@@ -53,7 +53,8 @@ else:
     cc_coors, cc_rad = vvp.vv_props(pts_w_imgs, tri_vertices, gb_tri_inds, lat_par)
     cc_coors1 = vvp.wrap_cc(ovito_data.cell, cc_coors)
     rad_norm = radi_normaliz(cc_rad)
-    IDtoAdd = np.max(rad_norm)
+    ID2change = RemIns_decision(Prob)
+    atom_insertion(filename0, path2dump, cc_coors1)
 
 
 
