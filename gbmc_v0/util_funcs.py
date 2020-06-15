@@ -112,7 +112,7 @@ def radi_normaliz(cc_rad):
     return rad_norm
 
 
-def choos_rem_ins(random_num):
+def choos_rem_ins():
     rand_num = np.random.uniform(0, 1)
     if random_num > 0.5:
         return "removal"
@@ -124,7 +124,19 @@ def atom_insertion():
     return 
 
 
-def atom_removal():
+def atom_removal(filename0, path2dump, IDtoRem):
+    pipeline = import_file(filename1)
+    pipeline.modifiers.append(ExpressionSelectionModifier(expression = 'ParticleIdentifier == ' + str(IDtoRem)))
+    pipeline.modifiers.append( DeleteSelectedModifier() )
+    dump_name = path2dump + 'rem_dump'
+    export_file(pipeline, dump_name,format = "lammps_dump",
+        columns=["Particle Identifier",
+                    "Particle Type",
+                    "Position.X",
+                    "Position.Y",
+                    "Position.Z",
+                    "c_eng",
+                    "c_csym" ])
     return
 
 
@@ -153,17 +165,23 @@ def cal_GB_E(data, weight_1, non_p, lat_par, E_coh):
     atom_id = np.where((position_np > min_pos_area) & (position_np < max_pos_area))[0]
     E_excess =  data.particles['c_eng'][...][atom_id] - E_coh
     area = cal_area(data, non_p)
-    E_GB = 16021.7733 * np.sum(E_excess) / area
+    E_GB = 16021.7733 * np.sum(E_excess) / area  # convert to mj/m^2
     return E_GB
 
 
 def p_boltz(E0, E1, area, Tm):
-    T = Tm / 2
-    kb = 1.380649×10−23
+    T = Tm / 2  # in K
+    kb = 1.380649 * 10e-26  # mj/K
     dE = (E1 - E0) * area
     p_boltz = np.exp(-dE / kb / T)
 
 
+def decide(p_boltz):
+    rand_num = np.random.uniform(0, 1)
+    if random_num > p_boltz:
+        return "reject"
+    else:
+        return "accept"    
 
 
 def check_SC_reg(data, lat_par, rCut, non_p, tol_fix_reg, SC_tol):
