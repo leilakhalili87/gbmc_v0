@@ -105,6 +105,67 @@ def RemProb(data, CohEng, GbIndex):
     return Excess_Eng/Excess_Eng_Tot
 
 
+def radi_normaliz(cc_rad):
+    min_rad = np.min(cc_rad)
+    max_rad = np.max(cc_rad)
+    rad_norm = (cc_rad - min_rad) / (max_rad - min_rad)
+    return rad_norm
+
+
+def choos_rem_ins(random_num):
+    rand_num = np.random.uniform(0, 1)
+    if random_num > 0.5:
+        return "removal"
+    else:
+        return "insertion"
+
+
+def atom_insertion():
+    return 
+
+
+def atom_removal():
+    return
+
+
+def cal_area(data, non_p):
+    sim_cell = data.cell
+    arr0 = pdf.p_arr(non_p)
+    area = np.linalg.norm(np.cross(sim_cell[:, arr0[0]], sim_cell[:, arr0[1]]))
+    return area
+
+
+def cal_GB_E(data, weight_1, non_p, lat_par, E_coh):
+    weight_2 = 1- weight_1
+    GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC = pdf.GB_finder(data, lat_par, non_p)
+
+    top_min = GbRegion[1]
+    top_max = GbRegion[1] + w_top_SC
+
+    max_pos_area = weight_1 * (top_max - top_min) + top_min
+
+    bot_min = GbRegion[0] - w_bottom_SC
+    bot_max = GbRegion[0]
+
+    min_pos_area = weight_1 * (bot_max - bot_min) + bot_min
+
+    position_np = data.particles['Position'][...][:, non_p]
+    atom_id = np.where((position_np > min_pos_area) & (position_np < max_pos_area))[0]
+    E_excess =  data.particles['c_eng'][...][atom_id] - E_coh
+    area = cal_area(data, non_p)
+    E_GB = 16021.7733 * np.sum(E_excess) / area
+    return E_GB
+
+
+def p_boltz(E0, E1, area, Tm):
+    T = Tm / 2
+    kb = 1.380649×10−23
+    dE = (E1 - E0) * area
+    p_boltz = np.exp(-dE / kb / T)
+
+
+
+
 def check_SC_reg(data, lat_par, rCut, non_p, tol_fix_reg, SC_tol):
     """
     Function to identify whether single crystal region on eaither side of the GB is
