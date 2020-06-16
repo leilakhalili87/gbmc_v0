@@ -143,18 +143,31 @@ def atom_insertion(filename0, path2dump, cc_coors1):
 
 
 def atom_removal(filename0, path2dump, ID2change):
-    pipeline = oio.import_file(filename0)
-    pipeline.modifiers.append(ovm.ExpressionSelectionModifier(expression = 'ParticleIdentifier == ' + str(ID2change)))
-    pipeline.modifiers.append( ovm.DeleteSelectedModifier() )
-    dump_name = path2dump + 'rem_dump'
-    oio.export_file(pipeline, dump_name,format = "lammps_dump",
-        columns=["Particle Identifier",
-                    "Particle Type",
-                    "Position.X",
-                    "Position.Y",
-                    "Position.Z",
-                    "c_eng",
-                    "c_csym" ])
+    lines = open(filename0, 'r').readlines()
+    lines[1] = '0\n'
+    lines[3] = str(int(lines[3]) - 1) + '\n'
+    try:
+        assert lines[ID2change + 8][0] == str(ID2change)
+    except AssertionError:
+        print('Lammps dump file is not ordered.')
+    lines[ID2change + 8] = ''  #  8 for the number of lines on the header
+
+    out = open(path2dump + 'rem_dump', 'w')
+    out.writelines(lines)
+    out.close()
+
+    # pipeline = oio.import_file(filename0)
+    # pipeline.modifiers.append(ovm.ExpressionSelectionModifier(expression = 'ParticleIdentifier == ' + str(ID2change)))
+    # pipeline.modifiers.append( ovm.DeleteSelectedModifier() )
+    # dump_name = path2dump + 'rem_dump'
+    # oio.export_file(pipeline, dump_name,format = "lammps_dump",
+    #     columns=["Particle Identifier",
+    #                 "Particle Type",
+    #                 "Position.X",
+    #                 "Position.Y",
+    #                 "Position.Z",
+    #                 "c_eng",
+    #                 "c_csym" ])
 
 
 def cal_area(data, non_p):
