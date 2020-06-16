@@ -9,8 +9,8 @@ import ovito.modifiers as ovm
 
 lat_par = 4.05
 rCut = 2*lat_par
-CohEng= -3.8
-Tm = 933
+CohEng= -3.35999998818377
+Tm = 933.5
 weight_1 = .5
 tol_fix_reg = 5 * lat_par  # the width of rigid traslation region
 lammps_exe_path = '/home/leila/Downloads/mylammps/src/lmp_mpi'
@@ -27,7 +27,9 @@ fil_name = 'in.min'  # the initila minimization lammps script write the in.min s
 lsw.run_lammps_min(initial_dump, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, filename_0, step=1)
 
 data_0 = uf.compute_ovito_data(filename_0)
-for i in range(1, 10, 1):
+dec = []
+energy = []
+for i in range(1, 2, 1):
     #  read the data
     data_0 = uf.compute_ovito_data(filename_0)
     non_p = uf.identify_pbc(data_0)
@@ -36,7 +38,6 @@ for i in range(1, 10, 1):
 
     #  decide between remove and insertion
     choice = uf.choos_rem_ins()
-    choice = "insertion"
     #  if the choice is removal
     if choice == "removal":
         p_rm = uf.RemProb(data_0, CohEng, GbIndex)
@@ -82,7 +83,6 @@ for i in range(1, 10, 1):
         E_1 = uf.cal_GB_E(data_1, weight_1, non_p, lat_par, CohEng)  #  after removal
         E_0 = uf.cal_GB_E(data_0, weight_1, non_p, lat_par, CohEng)
         dE = E_1 - E_0
-        print(dE)
         if dE < 0:
             decision = "accept"
             print("finally accepted in insertion")
@@ -95,6 +95,8 @@ for i in range(1, 10, 1):
             filename_0 = filename_1
         else:
             pass
+    dec = dec + [decision]
+    energy = energy + [dE]
 
 
 
