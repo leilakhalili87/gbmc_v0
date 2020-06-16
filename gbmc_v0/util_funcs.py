@@ -184,10 +184,10 @@ def cal_GB_E(data, weight_1, non_p, lat_par, CohEng):
     return E_GB
 
 
-def p_boltz_func(E0, E1, area, Tm):
+def p_boltz_func(dE, area, Tm):
     T = Tm / 2  # in K
     kb = 1.380649 * 10e-23  # mj/K
-    dE = (E1 - E0) * area
+    dE = dE * area
     p_boltz = np.exp(-dE / kb / T)
     return p_boltz
 

@@ -138,7 +138,7 @@ def script_read_dump(fiw, dump_name):
     return True
 
 
-def script_overlap(fiw, untilted, tol_fix_reg, non_p, step=2):
+def script_overlap(fiw, untilted, tol_fix_reg, non_p, step):
     untilted[non_p, :] = untilted[non_p, :] + np.array([-tol_fix_reg, tol_fix_reg])
     if non_p == 0:
         var = 'x'
@@ -177,7 +177,7 @@ def script_compute(fiw):
     return True
 
 
-def script_min_sec(fiw, dump_path):
+def script_min_sec(fiw, output):
     line = []
     line.append('#----------------------minimization--------------------\n')
     line.append('\n')
@@ -186,7 +186,7 @@ def script_min_sec(fiw, dump_path):
     line.append('thermo_style custom step pe lx ly lz xy xz yz xlo xhi ylo yhi zlo zhi press pxx pyy pzz '
                 'c_eatoms c_MinAtomEnergy\n')
     line.append('thermo_modify lost ignore\n')
-    line.append('dump 1 all custom 10 ' + str(dump_path) + 'dump_minimized id type x y z c_csym c_eng\n')
+    line.append('dump 1 all custom 10 ' + str(output) + ' id type x y z c_csym c_eng\n')
     line.append('fix 1 all box/relax x 0 y 0 xy 0\n')
     line.append('min_style cg\n')
     line.append('minimize ${Etol} ${Ftol} ${MaxIter} ${MaxEval}\n')
@@ -199,7 +199,7 @@ def script_min_sec(fiw, dump_path):
     return True
 
 
-def script_heating(fiw, dump_path):
+def script_heating(fiw, output):
     MaxEval0 = 1000
     line = []
     line.append('# -----------------heating step-----------------\n')
@@ -209,7 +209,7 @@ def script_heating(fiw, dump_path):
     line.append('fix 1 all npt temp .1 466.75 .1 couple xy  x 0.0 0.0 1.0  y 0.0 0.0 1.0\n')
     line.append('thermo 100\n')
     line.append('thermo_style custom step temp pe lx ly lz press pxx pyy pzz c_eatoms\n')
-    line.append('dump 1 all custom 10 ' + str(dump_path) + 'dump_step_heat id type x y z c_csym c_eng\n')
+    line.append('dump 1 all custom 10 ' + str(output) + ' id type x y z c_csym c_eng\n')
     line.append('run ' + str(MaxEval0) + '\n')
     line.append('unfix 1\n')
     line.append('undump 1\n')
@@ -220,7 +220,7 @@ def script_heating(fiw, dump_path):
     return True
 
 
-def script_equil(fiw, dump_path):
+def script_equil(fiw, output):
     line = []
     line.append('# -----------------equilibrium step-----------------\n')
     line.append('\n')
@@ -229,7 +229,7 @@ def script_equil(fiw, dump_path):
     line.append('fix 1 all npt temp 466.75 466.75 0.1 couple xy  x 0.0 0.0 1.0  y 0.0 0.0 1.0\n')
     line.append('thermo 100\n')
     line.append('thermo_style custom step temp pe lx ly lz press pxx pyy pzz c_eatoms\n')
-    line.append('dump 1 all custom 10 ' + str(dump_path) + 'dump_step_cool id type x y z c_csym c_eng\n')
+    line.append('dump 1 all custom 10 ' + str(output) + ' id type x y z c_csym c_eng\n')
     line.append('run ${MaxEval}\n')
     line.append('unfix 1\n')
     line.append('undump 1\n')
@@ -240,7 +240,7 @@ def script_equil(fiw, dump_path):
     return True
 
 
-def script_cooling(fiw, dump_path):
+def script_cooling(fiw, output):
     MaxEval1 = 12000
     line = []
     line.append('# -----------------cooling step-----------------\n')
@@ -250,7 +250,7 @@ def script_cooling(fiw, dump_path):
     line.append('fix 1 all npt temp 466.75 .1 .1 couple xy  x 0.0 0.0 1.0  y 0.0 0.0 1.0\n')
     line.append('thermo 10\n')
     line.append('thermo_style custom step temp pe lx ly lz press pxx pyy pzz c_eatoms\n')
-    line.append('dump 1 all custom 10 ' + str(dump_path) + 'dump_step_equil id type x y z c_csym c_eng\n')
+    line.append('dump 1 all custom 10 ' + str(output) + ' id type x y z c_csym c_eng\n')
     line.append('run ' + str(MaxEval1) + '\n')
     line.append('unfix 1\n')
     line.append('undump 1\n')
@@ -261,7 +261,7 @@ def script_cooling(fiw, dump_path):
     return True
 
 
-def script_main_min(fil_name, lat_par, tol_fix_reg, dump_name, pot_path, non_p, dump_path):
+def script_main_min(fil_name, lat_par, tol_fix_reg, dump_name, pot_path, non_p, output, step):
     fiw, file_name = file_gen(fil_name)
     lammps_script_var(fiw, lat_par)
     script_init_sim(fiw, non_p)
@@ -270,20 +270,20 @@ def script_main_min(fil_name, lat_par, tol_fix_reg, dump_name, pot_path, non_p, 
     define_box(fiw, untilted, tilt, box_type)
     script_read_dump(fiw, dump_name)
     script_pot(fiw, pot_path)
-    script_overlap(fiw, untilted, tol_fix_reg, non_p)
+    script_overlap(fiw, untilted, tol_fix_reg, non_p, step)
     define_fix_rigid(fiw, untilted, tilt, box_type, tol_fix_reg, non_p)
     script_compute(fiw)
-    script_min_sec(fiw, dump_path)
+    script_min_sec(fiw, output)
 
 
-def run_lammps_min(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, dump_path):
+def run_lammps_min(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, output, step=2):
     data = uf.compute_ovito_data(filename0)
     non_p = uf.identify_pbc(data)
-    script_main_min(fil_name, lat_par, tol_fix_reg, filename0, pot_path, non_p, dump_path)
+    script_main_min(fil_name, lat_par, tol_fix_reg, filename0, pot_path, non_p, output, step)
     os.system(str(lammps_exe_path) + '< ./' + fil_name)
 
 
-def script_main_anneal(fil_name, lat_par, tol_fix_reg, dump_name, pot_path, non_p, dump_path):
+def script_main_anneal(fil_name, lat_par, tol_fix_reg, dump_name, pot_path, non_p, output):
     fiw, file_name = file_gen(fil_name)
     lammps_script_var(fiw, lat_par)
     script_init_sim(fiw, non_p)
@@ -294,16 +294,16 @@ def script_main_anneal(fil_name, lat_par, tol_fix_reg, dump_name, pot_path, non_
     script_pot(fiw, pot_path)
     define_fix_rigid(fiw, untilted, tilt, box_type, tol_fix_reg, non_p)
     script_compute(fiw)
-    script_heating(fiw, dump_path)
-    script_equil(fiw, dump_path)
-    script_cooling(fiw, dump_path)
-    script_min_sec(fiw, dump_path)
+    script_heating(fiw, output)
+    script_equil(fiw, output)
+    script_cooling(fiw, output)
+    script_min_sec(fiw, output)
 
 
-def run_lammps_anneal(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, dump_path):
+def run_lammps_anneal(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, output):
     data = uf.compute_ovito_data(filename0)
     non_p = uf.identify_pbc(data)
-    script_main_anneal(fil_name, lat_par, tol_fix_reg, filename0, pot_path, non_p, dump_path)
+    script_main_anneal(fil_name, lat_par, tol_fix_reg, filename0, pot_path, non_p, output)
     os.system(str(lammps_exe_path) + '< ./' + fil_name)
 
 
