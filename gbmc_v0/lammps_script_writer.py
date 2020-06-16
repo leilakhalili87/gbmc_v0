@@ -192,7 +192,7 @@ def script_min_sec(fiw, output):
     line.append('minimize ${Etol} ${Ftol} ${MaxIter} ${MaxEval}\n')
     # line.append('undump 1\n')
     line.append('dump 1 all custom ${MaxIter} ' + str(output) + ' id type x y z c_csym c_eng\n')
-    line.append('dump_modify 1 every ${MaxIter} first yes\n')
+    line.append('dump_modify 1 every ${MaxIter} sort id first yes\n')
     line.append('run 0\n')
     line.append('unfix 1\n')
     line.append('undump 1\n')

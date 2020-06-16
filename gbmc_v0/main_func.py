@@ -6,10 +6,11 @@ import lammps_script_writer as lsw
 import ovito.data as ovd
 from ovito.pipeline import StaticSource, Pipeline
 import ovito.modifiers as ovm
+from shutil import copyfile
 
 lat_par = 4.05
 rCut = 2*lat_par
-CohEng= -3.35999998818377
+CohEng= -3.35999998818377  #  calculated from in.cohesive
 Tm = 933.5
 weight_1 = .5
 tol_fix_reg = 5 * lat_par  # the width of rigid traslation region
@@ -29,7 +30,7 @@ lsw.run_lammps_min(initial_dump, fil_name, pot_path, lat_par, tol_fix_reg, lammp
 data_0 = uf.compute_ovito_data(filename_0)
 dec = []
 energy = []
-for i in range(1, 2, 1):
+for i in range(1, 10, 1):
     #  read the data
     data_0 = uf.compute_ovito_data(filename_0)
     non_p = uf.identify_pbc(data_0)
@@ -61,6 +62,7 @@ for i in range(1, 2, 1):
             decision = uf.decide(p_boltz)
 
         if decision == "accept":
+            copyfile(filename_1, dump_path + 'accepted/dump.' + str(i))
             filename_0 = filename_1
         else:
             pass
@@ -92,6 +94,7 @@ for i in range(1, 2, 1):
             decision = uf.decide(p_boltz)
 
         if decision == "accept":
+            copyfile(filename_1, dump_path + 'accepted/dump.' + str(i))
             filename_0 = filename_1
         else:
             pass

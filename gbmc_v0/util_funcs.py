@@ -146,10 +146,7 @@ def atom_removal(filename0, path2dump, ID2change):
     lines = open(filename0, 'r').readlines()
     lines[1] = '0\n'
     lines[3] = str(int(lines[3]) - 1) + '\n'
-    try:
-        assert lines[ID2change + 8][0] == str(ID2change)
-    except AssertionError:
-        print('Lammps dump file is not ordered.')
+    assert lines[ID2change + 8].split(" ", 1)[0] == str(ID2change)
     lines[ID2change + 8] = ''  #  8 for the number of lines on the header
 
     out = open(path2dump + 'rem_dump', 'w')
