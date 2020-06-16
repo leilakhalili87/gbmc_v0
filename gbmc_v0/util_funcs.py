@@ -101,15 +101,15 @@ def RemProb(data, CohEng, GbIndex):
     Excess_Eng = (GbAtomicEng - CohEng)
     Excess_Eng[Excess_Eng < 0] = 0
     Excess_Eng_Tot = np.sum(Excess_Eng)
-    E_rm = Excess_Eng/Excess_Eng_Tot
-    return E_rm
+    p_rm = Excess_Eng/Excess_Eng_Tot
+    return p_rm
 
 
-def RemIns_decision(Prob):
-    CS_prob = np.cumsum(Prob)
+def RemIns_decision(p_rm):
+    CS_prob = np.cumsum(p_rm)
     rand_num = np.random.uniform(0, 1)
     location = bisect.bisect_left(CS_prob, rand_num)
-    ID2change =  = location - 1
+    ID2change = location - 1
     return ID2change
 
 
@@ -122,7 +122,7 @@ def radi_normaliz(cc_rad):
 
 def choos_rem_ins():
     rand_num = np.random.uniform(0, 1)
-    if random_num > 0.5:
+    if rand_num > 0.5:
         return "removal"
     else:
         return "insertion"
@@ -141,11 +141,11 @@ def atom_insertion(filename0, path2dump, cc_coors1):
 
 
 def atom_removal(filename0, path2dump, ID2change):
-    pipeline = import_file(filename1)
-    pipeline.modifiers.append(ExpressionSelectionModifier(expression = 'ParticleIdentifier == ' + str(ID2change)))
-    pipeline.modifiers.append( DeleteSelectedModifier() )
+    pipeline = oio.import_file(filename0)
+    pipeline.modifiers.append(ovm.ExpressionSelectionModifier(expression = 'ParticleIdentifier == ' + str(ID2change)))
+    pipeline.modifiers.append( ovm.DeleteSelectedModifier() )
     dump_name = path2dump + 'rem_dump'
-    export_file(pipeline, dump_name,format = "lammps_dump",
+    oio.export_file(pipeline, dump_name,format = "lammps_dump",
         columns=["Particle Identifier",
                     "Particle Type",
                     "Position.X",
@@ -159,10 +159,10 @@ def cal_area(data, non_p):
     sim_cell = data.cell
     arr0 = pdf.p_arr(non_p)
     area = np.linalg.norm(np.cross(sim_cell[:, arr0[0]], sim_cell[:, arr0[1]]))
-    return area
+    return area * 1e-20
 
 
-def cal_GB_E(data, weight_1, non_p, lat_par, E_coh):
+def cal_GB_E(data, weight_1, non_p, lat_par, CohEng):
     weight_2 = 1- weight_1
     GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC = pdf.GB_finder(data, lat_par, non_p)
 
@@ -178,15 +178,15 @@ def cal_GB_E(data, weight_1, non_p, lat_par, E_coh):
 
     position_np = data.particles['Position'][...][:, non_p]
     atom_id = np.where((position_np > min_pos_area) & (position_np < max_pos_area))[0]
-    E_excess =  data.particles['c_eng'][...][atom_id] - E_coh
+    E_excess =  data.particles['c_eng'][...][atom_id] - CohEng
     area = cal_area(data, non_p)
-    E_GB = 16021.7733 * np.sum(E_excess) / area  # convert to mj/m^2
+    E_GB = 1.60217733e-16 * np.sum(E_excess) / area  # convert to mj/m^2
     return E_GB
 
 
 def p_boltz_func(E0, E1, area, Tm):
     T = Tm / 2  # in K
-    kb = 1.380649 * 10e-26  # mj/K
+    kb = 1.380649 * 10e-23  # mj/K
     dE = (E1 - E0) * area
     p_boltz = np.exp(-dE / kb / T)
     return p_boltz
@@ -194,7 +194,7 @@ def p_boltz_func(E0, E1, area, Tm):
 
 def decide(p_boltz):
     rand_num = np.random.uniform(0, 1)
-    if random_num > p_boltz:
+    if rand_num > p_boltz:
         return "reject"
     else:
         return "accept"    

@@ -87,7 +87,7 @@ def define_box(fiw, untilted, tilt, box_type):
 def define_fix_rigid(fiw, untilted, tilt, box_type, tol_fix_reg, non_p):
     """
     """
-    untilted[non_p, :] = untilted[non_p, :] + 2 * np.array([tol_fix_reg, - tol_fix_reg])
+    untilted[non_p, :] = untilted[non_p, :] + 3 * np.array([tol_fix_reg, - tol_fix_reg])
 
     if box_type == 'block':
         rigid_reg = 'region reg_fix block ' + str(untilted[0][0]) + ' ' + str(untilted[0][1]) + ' ' +\
@@ -138,7 +138,7 @@ def script_read_dump(fiw, dump_name):
     return True
 
 
-def script_overlap(fiw, untilted, tol_fix_reg, non_p):
+def script_overlap(fiw, untilted, tol_fix_reg, non_p, step=2):
     untilted[non_p, :] = untilted[non_p, :] + np.array([-tol_fix_reg, tol_fix_reg])
     if non_p == 0:
         var = 'x'
@@ -149,9 +149,10 @@ def script_overlap(fiw, untilted, tol_fix_reg, non_p):
     line = []
     line.append('group lower type 2 \n')
     line.append('group upper type 1\n')
-    line.append('delete_atoms overlap ${OverLap}  upper lower\n')
-    line.append('change_box all ' + str(var) + ' final ' + str(untilted[non_p, 0]) + ' ' + str(untilted[non_p, 1])
-                + ' units box\n')
+    if step == 1:
+        line.append('delete_atoms overlap ${OverLap}  upper lower\n')
+        line.append('change_box all ' + str(var) + ' final ' + str(untilted[non_p, 0]) + ' ' + str(untilted[non_p, 1])
+                    + ' units box\n')
 
     for i in line:
         fiw.write(i)
