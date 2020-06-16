@@ -7,6 +7,7 @@ import ovito.data as ovd
 from ovito.pipeline import StaticSource, Pipeline
 import ovito.modifiers as ovm
 from shutil import copyfile
+import numpy as np
 
 lat_par = 4.05
 rCut = 2*lat_par
@@ -30,7 +31,9 @@ lsw.run_lammps_min(initial_dump, fil_name, pot_path, lat_par, tol_fix_reg, lammp
 data_0 = uf.compute_ovito_data(filename_0)
 dec = []
 energy = []
-for i in range(1, 10, 1):
+cho = []
+iter = 5000
+for i in range(1, iter, 1):
     #  read the data
     data_0 = uf.compute_ovito_data(filename_0)
     non_p = uf.identify_pbc(data_0)
@@ -98,8 +101,24 @@ for i in range(1, 10, 1):
             filename_0 = filename_1
         else:
             pass
+    cho = cho + [choice]
     dec = dec + [decision]
     energy = energy + [dE]
+print(cho)
+print(energy)
+print(dec)
+for i in range(iter - 1):
+    if dec[i] == 'accept':
+        dec[i] = 1
+    else:
+        dec[i] = 0
+for i in range(iter - 1):
+    if cho[i] == 'removal':
+        cho[i] = 1
+    else:
+        cho[i] = 0
+iter_num = np.arange(1,iter)
+np.savetxt('energy.txt', np.column_stack([iter_num,dec,cho, energy]))
 
 
 
