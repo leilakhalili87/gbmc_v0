@@ -24,10 +24,10 @@ ldw.write_lammps_dump(initial_dump, box_bound, dump_lamp, box_type)  # writing t
 
 filename_0 = dump_path + 'dump.0' # the output of previous step
 fil_name = 'in.min'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
-# lsw.run_lammps_min(initial_dump, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, filename_0, step=1)
+lsw.run_lammps_min(initial_dump, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, filename_0, step=1)
 
-
-for i in range(1, 2, 1):
+data_0 = uf.compute_ovito_data(filename_0)
+for i in range(1, 10, 1):
     #  read the data
     data_0 = uf.compute_ovito_data(filename_0)
     non_p = uf.identify_pbc(data_0)
@@ -36,7 +36,7 @@ for i in range(1, 2, 1):
 
     #  decide between remove and insertion
     choice = uf.choos_rem_ins()
-    choice = "removal"
+    choice = "insertion"
     #  if the choice is removal
     if choice == "removal":
         p_rm = uf.RemProb(data_0, CohEng, GbIndex)
@@ -44,7 +44,7 @@ for i in range(1, 2, 1):
         uf.atom_removal(filename_0, dump_path , GbIndex[ID2change])
         fil_name = 'in.min'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
         filename_rem = dump_path + 'rem_dump'
-        # lsw.run_lammps_min(filename_rem, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, dump_path + 'dump.' + str(i))
+        lsw.run_lammps_min(filename_rem, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, dump_path + 'dump.' + str(i))
         filename_1 = dump_path + 'dump.' + str(i)
         data_1 = uf.compute_ovito_data(filename_1)
 
@@ -53,6 +53,39 @@ for i in range(1, 2, 1):
         dE = E_1 - E_0
         if dE < 0:
             decision = "accept"
+            print("finally accepted in removal")
+        else:
+            area = uf.cal_area(data_1, non_p)
+            p_boltz = uf.p_boltz_func(dE, area, Tm)
+            decision = uf.decide(p_boltz)
+
+        if decision == "accept":
+            filename_0 = filename_1
+        else:
+            pass
+
+    else:
+        pts_w_imgs, gb1_inds, inds_arr = pdf.pad_dump_file(data_0, lat_par, rCut, non_p)
+        tri_vertices, gb_tri_inds = vvp.triang_inds(pts_w_imgs, gb1_inds, inds_arr)
+        cc_coors, cc_rad = vvp.vv_props(pts_w_imgs, tri_vertices, gb_tri_inds, lat_par)
+        cc_coors1 = vvp.wrap_cc(data_0.cell, cc_coors)
+        Prob = uf.radi_normaliz(cc_rad)
+        ID2change = uf.RemIns_decision(Prob)
+        pos_add_atom = cc_coors[ID2change]
+        uf.atom_insertion(filename_0, dump_path, pos_add_atom)
+        fil_name = 'in.min'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
+        filename_ins = dump_path + 'ins_dump'
+        lsw.run_lammps_min(filename_ins, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, dump_path + 'dump.' + str(i))
+        filename_1 = dump_path + 'dump.' + str(i)
+        data_1 = uf.compute_ovito_data(filename_1)
+
+        E_1 = uf.cal_GB_E(data_1, weight_1, non_p, lat_par, CohEng)  #  after removal
+        E_0 = uf.cal_GB_E(data_0, weight_1, non_p, lat_par, CohEng)
+        dE = E_1 - E_0
+        print(dE)
+        if dE < 0:
+            decision = "accept"
+            print("finally accepted in insertion")
         else:
             area = uf.cal_area(data_1, non_p)
             p_boltz = uf.p_boltz_func(dE, area, Tm)
@@ -64,28 +97,6 @@ for i in range(1, 2, 1):
             pass
 
 
-    # if choice == "removal":
-        # E_rm = uf.RemProb(data, CohEng, GbIndex)
-        # ID2change = uf.RemIns_decision(Prob)
-        # uf.atom_removal(filename0, path2dump, ID2change)
-        # fil_name = 'in.min'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
-        # lsw.run_lammps_min(filename, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, './lammps_dump/')
-        # data = compute_ovito_data(filename0)
-        # E_GB = cal_GB_E(data, weight_1, non_p, lat_par, E_coh)
-        # p_boltz = p_boltz_func(E0, E1, area, Tm)
-        # decision = uf.decide(p_boltz)
-        # if decision == "accept":
-        #     filename = "new"
-        # else:
-        #     filename = "old"
-    # else:
-    #     pts_w_imgs, gb1_inds, inds_arr = pdf.pad_dump_file(data, lat_par, rCut, non_p)
-    #     tri_vertices, gb_tri_inds = vvp.triang_inds(pts_w_imgs, gb1_inds, inds_arr)
-    #     cc_coors, cc_rad = vvp.vv_props(pts_w_imgs, tri_vertices, gb_tri_inds, lat_par)
-    #     cc_coors1 = vvp.wrap_cc(ovito_data.cell, cc_coors)
-    #     rad_norm = radi_normaliz(cc_rad)
-    #     ID2change = RemIns_decision(Prob)
-    #     atom_insertion(filename0, path2dump, cc_coors1)
 
 
 

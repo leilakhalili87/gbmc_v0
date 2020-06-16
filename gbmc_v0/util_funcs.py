@@ -130,11 +130,13 @@ def choos_rem_ins():
 
 def atom_insertion(filename0, path2dump, cc_coors1):
     lines = open(filename0, 'r').readlines()
+    lines[1] = '0\n'
     lines[3] = str(int(lines[3]) + 1) 
     new_line = str(lines[3]) + ' 1 ' + str(cc_coors1[0]) + ' ' + str(cc_coors1[1]) + ' '\
-            + str(cc_coors1[2] ) + '.1 .2'
+            + str(cc_coors1[2] ) + ' .1 .2\n'
     lines[3] = lines[3] + '\n'
-    out = open(filename0, 'w')
+
+    out = open(path2dump + 'ins_dump', 'w')
     out.writelines(lines)
     out.writelines(new_line)
     out.close()
@@ -159,7 +161,7 @@ def cal_area(data, non_p):
     sim_cell = data.cell
     arr0 = pdf.p_arr(non_p)
     area = np.linalg.norm(np.cross(sim_cell[:, arr0[0]], sim_cell[:, arr0[1]]))
-    return area * 1e-20
+    return area
 
 
 def cal_GB_E(data, weight_1, non_p, lat_par, CohEng):
@@ -180,14 +182,14 @@ def cal_GB_E(data, weight_1, non_p, lat_par, CohEng):
     atom_id = np.where((position_np > min_pos_area) & (position_np < max_pos_area))[0]
     E_excess =  data.particles['c_eng'][...][atom_id] - CohEng
     area = cal_area(data, non_p)
-    E_GB = 1.60217733e-16 * np.sum(E_excess) / area  # convert to mj/m^2
+    E_GB = 16021.7733 * np.sum(E_excess) / area  # convert to mj/m^2
     return E_GB
 
 
 def p_boltz_func(dE, area, Tm):
     T = Tm / 2  # in K
-    kb = 1.380649 * 10e-23  # mj/K
-    dE = dE * area
+    kb = 1.3806485279 * 10e-23 * 1e3 # mj/K
+    dE = dE * area * 1e-20
     p_boltz = np.exp(-dE / kb / T)
     return p_boltz
 
