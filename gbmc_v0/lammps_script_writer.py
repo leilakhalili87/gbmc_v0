@@ -64,7 +64,7 @@ def define_box(fiw, untilted, tilt, box_type):
     if box_type == 'block':
         whole_box = 'region whole block ' + str(untilted[0][0]) + ' ' + str(untilted[0][1]) + ' ' +\
                      str(untilted[1][0]) + ' ' + str(untilted[1][1]) + ' ' + str(untilted[2][0]) + ' '\
-                     + str(untilted[2][1]) + ' ', ' units box'
+                     + str(untilted[2][1]) + ' units box'
     elif box_type == 'prism':
         whole_box = 'region whole prism ' + str(untilted[0][0]) + ' ' + str(untilted[0][1]) + ' ' +\
                      str(untilted[1][0]) + ' ' + str(untilted[1][1]) + ' ' + str(untilted[2][0]) + ' '\
@@ -177,7 +177,7 @@ def script_compute(fiw):
     return True
 
 
-def script_min_sec(fiw, output):
+def script_min_sec(fiw, output, non_p, box_type):
     line = []
     line.append('#----------------------minimization--------------------\n')
     line.append('\n')
@@ -187,7 +187,23 @@ def script_min_sec(fiw, output):
                 'c_eatoms c_MinAtomEnergy\n')
     line.append('thermo_modify lost ignore\n')
     # line.append('dump 1 all custom ${MaxIter} ' + str(output) + ' id type x y z c_csym c_eng\n')
-    line.append('fix 1 all box/relax x 0 y 0 xy 0\n')
+
+    if non_p == 0:
+        if box_type == "block":
+            line.append('fix 1 all box/relax y 0 z 0\n')
+        else:
+            line.append('fix 1 all box/relax y 0 z 0 yz 0\n')
+    elif non_p == 1:
+        if box_type == "block":
+            line.append('fix 1 all box/relax x 0 z 0\n')
+        else:
+            line.append('fix 1 all box/relax x 0 z 0 xz 0\n')
+    else:
+        if box_type == "block":
+            line.append('fix 1 all box/relax x 0 y 0\n')
+        else:
+            line.append('fix 1 all box/relax x 0 y 0 xy 0\n')
+
     line.append('min_style cg\n')
     line.append('minimize ${Etol} ${Ftol} ${MaxIter} ${MaxEval}\n')
     # line.append('undump 1\n')
@@ -277,7 +293,7 @@ def script_main_min(fil_name, lat_par, tol_fix_reg, dump_name, pot_path, non_p, 
     script_overlap(fiw, untilted, tol_fix_reg, non_p, step)
     define_fix_rigid(fiw, untilted, tilt, box_type, tol_fix_reg, non_p)
     script_compute(fiw)
-    script_min_sec(fiw, output)
+    script_min_sec(fiw, output, non_p, box_type)
 
 
 def run_lammps_min(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, output, step=2):
@@ -301,7 +317,7 @@ def script_main_anneal(fil_name, lat_par, tol_fix_reg, dump_name, pot_path, non_
     script_heating(fiw, output)
     script_equil(fiw, output)
     script_cooling(fiw, output)
-    script_min_sec(fiw, output)
+    script_min_sec(fiw, output, non_p, box_type)
 
 
 def run_lammps_anneal(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, output):
