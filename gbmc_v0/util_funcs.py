@@ -108,8 +108,11 @@ def RemProb(data, CohEng, GbIndex):
 def RemIns_decision(p_rm):
     CS_prob = np.cumsum(p_rm)
     rand_num = np.random.uniform(0, 1)
-    location = bisect.bisect_left(CS_prob, rand_num)
-    ID2change = location - 1
+    location = (bisect.bisect_left(CS_prob, rand_num))
+    if CS_prob[location] == rand_num or location == 0:
+        ID2change = location 
+    else:
+        ID2change = location -1
     return ID2change
 
 
