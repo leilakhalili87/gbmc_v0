@@ -15,14 +15,15 @@ CohEng= -3.35999998818377  #  calculated from in.cohesive
 Tm = 933.5
 weight_1 = .5
 tol_fix_reg = 5 * lat_par  # the width of rigid traslation region
+SC_tol = 5 * lat_par
 lammps_exe_path = '/home/leila/Downloads/mylammps/src/lmp_mpi'
 pot_path = './lammps_dump/'  # the path for the potential
 dump_path = './lammps_dump/test/'
 pkl_file = './tests/data/gb_attr.pkl'
 initial_dump = 'tests/data/dump_1'  # the name of the dump file that
 
-box_bound, dump_lamp, box_type = ldw.lammps_box(lat_par, pkl_file) # lammps creates from the pkl file
-ldw.write_lammps_dump(initial_dump, box_bound, dump_lamp, box_type)  # writing the dump file
+# box_bound, dump_lamp, box_type = ldw.lammps_box(lat_par, pkl_file) # lammps creates from the pkl file
+# ldw.write_lammps_dump(initial_dump, box_bound, dump_lamp, box_type)  # writing the dump file
 
 filename_0 = dump_path + 'dump.0' # the output of previous step
 fil_name = 'in.min'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
@@ -52,7 +53,9 @@ for i in range(1, iter, 1):
         lsw.run_lammps_min(filename_rem, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, dump_path + 'dump.' + str(i))
         filename_1 = dump_path + 'dump.' + str(i)
         data_1 = uf.compute_ovito_data(filename_1)
-
+        SC_boolean = uf.check_SC_reg(data_1, lat_par, rCut, non_p, tol_fix_reg, SC_tol)
+        assert SC_boolean == [True, True]
+    
         E_1 = uf.cal_GB_E(data_1, weight_1, non_p, lat_par, CohEng)  #  after removal
         E_0 = uf.cal_GB_E(data_0, weight_1, non_p, lat_par, CohEng)
         dE = E_1 - E_0
@@ -84,7 +87,8 @@ for i in range(1, iter, 1):
         lsw.run_lammps_min(filename_ins, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, dump_path + 'dump.' + str(i))
         filename_1 = dump_path + 'dump.' + str(i)
         data_1 = uf.compute_ovito_data(filename_1)
-
+        SC_boolean = uf.check_SC_reg(data_1, lat_par, rCut, non_p, tol_fix_reg, SC_tol)
+        assert SC_boolean == [True, True]
         E_1 = uf.cal_GB_E(data_1, weight_1, non_p, lat_par, CohEng)  #  after removal
         E_0 = uf.cal_GB_E(data_0, weight_1, non_p, lat_par, CohEng)
         dE = E_1 - E_0

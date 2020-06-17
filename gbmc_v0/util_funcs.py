@@ -112,7 +112,7 @@ def RemIns_decision(p_rm):
     if CS_prob[location] == rand_num or location == 0:
         ID2change = location 
     else:
-        ID2change = location -1
+        ID2change = location - 1
     return ID2change
 
 
