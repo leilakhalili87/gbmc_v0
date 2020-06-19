@@ -147,7 +147,7 @@ def atom_insertion(filename0, path2dump, cc_coors1):
 
 def atom_removal(filename0, path2dump, ID2change):
     lines = open(filename0, 'r').readlines()
-    lines[1] = '0\n'
+    lines[1] = '0\n'  #  step should be 0 
     lines[3] = str(int(lines[3]) - 1) + '\n'
     assert lines[ID2change + 8].split(" ", 1)[0] == str(ID2change)
     lines[ID2change + 8] = ''  #  8 for the number of lines on the header
@@ -174,7 +174,7 @@ def cal_area(data, non_p):
     sim_cell = data.cell
     arr0 = pdf.p_arr(non_p)
     area = np.linalg.norm(np.cross(sim_cell[:, arr0[0]], sim_cell[:, arr0[1]]))
-    return area
+    return area  #  in A
 
 
 def cal_GB_E(data, weight_1, non_p, lat_par, CohEng):
