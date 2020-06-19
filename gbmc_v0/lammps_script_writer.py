@@ -118,7 +118,8 @@ def script_pot(fiw, pot_path):
     line.append('# -------Defining the potential functions----------\n')
     line.append('\n')
     line.append('pair_style eam/alloy\n')
-    line.append('pair_coeff * * ' + str(pot_path) + 'Al99.eam.alloy Al Al\n')
+    # line.append('pair_coeff * * ' + str(pot_path) + 'Al99.eam.alloy Al Al\n')
+    line.append('pair_coeff * * ' + str(pot_path) + 'in.Eam.dfs Al Al\n')
 
     line.append('neighbor 2 bin\n')
     line.append('neigh_modify delay 10 check yes\n')
@@ -188,29 +189,29 @@ def script_min_sec(fiw, output, non_p, box_type):
     line.append('thermo_modify lost ignore\n')
     # line.append('dump 1 all custom ${MaxIter} ' + str(output) + ' id type x y z c_csym c_eng\n')
 
-    if non_p == 0:
-        if box_type == "block":
-            line.append('fix 1 all box/relax y 0 z 0\n')
-        else:
-            line.append('fix 1 all box/relax y 0 z 0 yz 0\n')
-    elif non_p == 1:
-        if box_type == "block":
-            line.append('fix 1 all box/relax x 0 z 0\n')
-        else:
-            line.append('fix 1 all box/relax x 0 z 0 xz 0\n')
-    else:
-        if box_type == "block":
-            line.append('fix 1 all box/relax x 0 y 0\n')
-        else:
-            line.append('fix 1 all box/relax x 0 y 0 xy 0\n')
+    # if non_p == 0:
+    #     if box_type == "block":
+    #         line.append('fix 1 all box/relax y 0 z 0\n')
+    #     else:
+    #         line.append('fix 1 all box/relax y 0 z 0 yz 0\n')
+    # elif non_p == 1:
+    #     if box_type == "block":
+    #         line.append('fix 1 all box/relax x 0 z 0\n')
+    #     else:
+    #         line.append('fix 1 all box/relax x 0 z 0 xz 0\n')
+    # else:
+    #     if box_type == "block":
+    #         line.append('fix 1 all box/relax x 0 y 0\n')
+    #     else:
+    #         line.append('fix 1 all box/relax x 0 y 0 xy 0\n')
 
     line.append('min_style cg\n')
     line.append('minimize ${Etol} ${Ftol} ${MaxIter} ${MaxEval}\n')
-    # line.append('undump 1\n')
+    line.append('\n')
     line.append('dump 1 all custom ${MaxIter} ' + str(output) + ' id type x y z c_csym c_eng\n')
     line.append('dump_modify 1 every ${MaxIter} sort id first yes\n')
     line.append('run 0\n')
-    line.append('unfix 1\n')
+    # line.append('unfix 1\n')
     line.append('undump 1\n')
 
     for i in line:
