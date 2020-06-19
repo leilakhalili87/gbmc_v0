@@ -125,12 +125,15 @@ def GB_finder(data, lat_par, non_pbc):
     NoSurfArea = NoSurfArea + [pos_min + lat_par]
 
     gb_index = np.where((ptm_struct == 0) & (position_np < NoSurfArea[1]) & (position_np > NoSurfArea[0]))[0]
-    gb_mean = np.mean(position_np[gb_index])
-    gb_std = np.std(position_np[gb_index])
+    # gb_mean = np.mean(position_np[gb_index])
+    # gb_std = np.std(position_np[gb_index])
 
-    # Delete the outliers of gb
-    var = position_np[gb_index] - gb_mean
-    GbIndex = gb_index[np.where((var < 3*gb_std) & (var > -3*gb_std))[0]]
+    outlierConstant = 1.51
+    upper_quartile = np.percentile(position_np[gb_index], 75)
+    lower_quartile = np.percentile(position_np[gb_index], 25)
+    IQR = (upper_quartile - lower_quartile) * outlierConstant
+    quartileSet = (lower_quartile - IQR, upper_quartile + IQR)
+    GbIndex = gb_index[np.where((position_np[gb_index] < quartileSet[1]) & (position_np[gb_index] > quartileSet[0]))[0]]
 
     GbZ = position_np[GbIndex]
     GbRegion = [np.min(GbZ), np.max(GbZ)]
