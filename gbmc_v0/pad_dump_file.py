@@ -100,8 +100,9 @@ def GB_finder(data, lat_par, non_pbc):
 
     # num_particles = data.particles.count
     ptm_struct = data.particles['Structure Type'][...]
+    # csc = data.particles['c_csym'][...]
     position_np = data.particles['Position'][...][:, non_pbc]
-
+    
     NoSurfArea = []
     # Find the smallest single crystal range
     a = 1
@@ -110,6 +111,7 @@ def GB_finder(data, lat_par, non_pbc):
     while a != 0:
         pos_max = pos_min + lat_par
         a = len(np.where((ptm_struct != 1) & (position_np < pos_max) & (position_np > pos_min))[0])
+        # a = len(np.where((csc > .1) & (position_np < pos_max) & (position_np > pos_min))[0])
         pos_min += lat_par
 
     NoSurfArea = NoSurfArea + [pos_min]
@@ -119,12 +121,14 @@ def GB_finder(data, lat_par, non_pbc):
     pos_max = np.max(position_np)
     while a != 0:
         pos_min = pos_max - lat_par
-        a = len(np.where((ptm_struct == 0) & (position_np < pos_max) & (position_np > pos_min))[0])
+        a = len(np.where((ptm_struct != 1) & (position_np < pos_max) & (position_np > pos_min))[0])
+        # a = len(np.where((csc > .1) & (position_np < pos_max) & (position_np > pos_min))[0])
         pos_max -= lat_par
 
     NoSurfArea = NoSurfArea + [pos_min + lat_par]
 
-    gb_index = np.where((ptm_struct == 0) & (position_np < NoSurfArea[1]) & (position_np > NoSurfArea[0]))[0]
+    # gb_index = np.where((csc > .1) & (position_np < NoSurfArea[1]) & (position_np > NoSurfArea[0]))[0]
+    gb_index = np.where((ptm_struct != 1) & (position_np < NoSurfArea[1]) & (position_np > NoSurfArea[0]))[0]
     # gb_mean = np.mean(position_np[gb_index])
     # gb_std = np.std(position_np[gb_index])
 
