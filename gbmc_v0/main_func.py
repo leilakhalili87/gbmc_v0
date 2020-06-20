@@ -22,17 +22,14 @@ dump_path = './lammps_dump/test/'
 pkl_file = './tests/data/gb_attr.pkl'
 initial_dump = 'tests/data/dump_1'  # the name of the dump file that
 
-# box_bound, dump_lamp, box_type = ldw.lammps_box(lat_par, pkl_file) # lammps creates from the pkl file
-# ldw.write_lammps_dump(initial_dump, box_bound, dump_lamp, box_type)  # writing the dump file
+box_bound, dump_lamp, box_type = ldw.lammps_box(lat_par, pkl_file) # lammps creates from the pkl file
+ldw.write_lammps_dump(initial_dump, box_bound, dump_lamp, box_type)  # writing the dump file
 
 filename_0 = dump_path + 'dump.0' # the output of previous step
 fil_name = 'in.min'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
 lsw.run_lammps_min(initial_dump, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, filename_0, step=1)
 
-data_0 = uf.compute_ovito_data(filename_0)
-dec = []
-energy = []
-cho = []
+ff = open('output', 'w')
 iter = 5000
 for i in range(1, iter, 1):
     #  read the data
@@ -47,13 +44,18 @@ for i in range(1, iter, 1):
     if choice == "removal":
         p_rm = uf.RemProb(data_0, CohEng, GbIndex)
         ID2change = uf.RemIns_decision(p_rm)
-        uf.atom_removal(filename_0, dump_path , GbIndex[ID2change])
+        ff.write(str(i) + ' ' + choice + ' ' + str(GbIndex[ID2change]) )
+        ff.write('\n')
+        var2change = np.where(data_0.particles['Particle Identifier'] == GbIndex[ID2change])[0][0]
+        uf.atom_removal(filename_0, dump_path , var2change)
+
         fil_name = 'in.min'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
         filename_rem = dump_path + 'rem_dump'
         lsw.run_lammps_min(filename_rem, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, dump_path + 'dump.' + str(i))
         filename_1 = dump_path + 'dump.' + str(i)
         data_1 = uf.compute_ovito_data(filename_1)
         SC_boolean = uf.check_SC_reg(data_1, lat_par, rCut, non_p, tol_fix_reg, SC_tol)
+        # assert data_0.particles['Structure Type'][GbIndex[ID2change]] != 1
         assert SC_boolean == [True, True]
     
         E_1 = uf.cal_GB_E(data_1, weight_1, non_p, lat_par, CohEng)  #  after removal
@@ -70,9 +72,8 @@ for i in range(1, iter, 1):
         if decision == "accept":
             copyfile(filename_1, dump_path + 'accepted/dump.' + str(i))
             filename_0 = filename_1
-        else:
-            pass
 
+    #  if the choice is insertion   
     else:
         pts_w_imgs, gb1_inds, inds_arr = pdf.pad_dump_file(data_0, lat_par, rCut, non_p)
         tri_vertices, gb_tri_inds = vvp.triang_inds(pts_w_imgs, gb1_inds, inds_arr)
@@ -89,6 +90,7 @@ for i in range(1, iter, 1):
         data_1 = uf.compute_ovito_data(filename_1)
         SC_boolean = uf.check_SC_reg(data_1, lat_par, rCut, non_p, tol_fix_reg, SC_tol)
         assert SC_boolean == [True, True]
+
         E_1 = uf.cal_GB_E(data_1, weight_1, non_p, lat_par, CohEng)  #  after removal
         E_0 = uf.cal_GB_E(data_0, weight_1, non_p, lat_par, CohEng)
         dE = E_1 - E_0
@@ -103,26 +105,7 @@ for i in range(1, iter, 1):
         if decision == "accept":
             copyfile(filename_1, dump_path + 'accepted/dump.' + str(i))
             filename_0 = filename_1
-        else:
-            pass
-    cho = cho + [choice]
-    dec = dec + [decision]
-    energy = energy + [dE]
-print(cho)
-print(energy)
-print(dec)
-for i in range(iter - 1):
-    if dec[i] == 'accept':
-        dec[i] = 1
-    else:
-        dec[i] = 0
-for i in range(iter - 1):
-    if cho[i] == 'removal':
-        cho[i] = 1
-    else:
-        cho[i] = 0
-iter_num = np.arange(1,iter)
-np.savetxt('energy.txt', np.column_stack([iter_num,dec,cho, energy]))
+ff.close()
 
 
 
