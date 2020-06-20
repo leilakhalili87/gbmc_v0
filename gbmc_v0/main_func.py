@@ -46,8 +46,8 @@ for i in range(1, iter, 1):
         ID2change = uf.RemIns_decision(p_rm)
         ff.write(str(i) + ' ' + choice + ' ' + str(GbIndex[ID2change]) )
         ff.write('\n')
-        var2change = np.where(data_0.particles['Particle Identifier'] == GbIndex[ID2change])[0][0]
-        uf.atom_removal(filename_0, dump_path , var2change)
+        var2change = np.where(data_0.particles['Particle Identifier'] - 1 == GbIndex[ID2change])[0][0]
+        uf.atom_removal(filename_0, dump_path , GbIndex[ID2change], var2change)
 
         fil_name = 'in.min'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
         filename_rem = dump_path + 'rem_dump'

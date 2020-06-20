@@ -145,12 +145,12 @@ def atom_insertion(filename0, path2dump, cc_coors1):
     out.close()
 
 
-def atom_removal(filename0, path2dump, ID2change):
+def atom_removal(filename0, path2dump, ID2change, var):
     lines = open(filename0, 'r').readlines()
     lines[1] = '0\n'  #  step should be 0 
     lines[3] = str(int(lines[3]) - 1) + '\n'
-    assert lines[ID2change + 1 + 8].split(" ", 1)[0] == str(ID2change + 1)
-    lines[ID2change + 1 + 8] = ''  #  8 for the number of lines on the header
+    assert lines[var + 9].split(" ", 1)[0] == str(ID2change + 1)
+    lines[var + 9] = ''  #  8 for the number of lines on the header
 
     out = open(path2dump + 'rem_dump', 'w')
     out.writelines(lines)
