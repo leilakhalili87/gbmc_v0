@@ -100,7 +100,7 @@ def GB_finder(data, lat_par, non_pbc):
 
     # num_particles = data.particles.count
     ptm_struct = data.particles['Structure Type'][...]
-    # csc = data.particles['c_csym'][...]
+    csc = data.particles['c_csym'][...]
     position_np = data.particles['Position'][...][:, non_pbc]
     
     NoSurfArea = []

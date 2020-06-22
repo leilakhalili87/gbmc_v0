@@ -10,7 +10,7 @@ def file_gen(fil_name):
 
 
 def lammps_script_var(fiw, lat_par):
-    overlap_cte = np.sqrt(2) * lat_par / 4
+    overlap_cte = np.sqrt(2) * lat_par / 4 
     line = []
     line.append('# Minimization Parameters -------------------------\n')
     line.append('\n')
@@ -51,6 +51,7 @@ def script_init_sim(fiw, non_p):
     line.append('dimension 3\n')
     line.append('boundary ' + str(bound) + '\n')
     line.append('atom_style atomic\n')
+    line.append('atom_modify map array\n')
     line.append('\n')
     for i in line:
         fiw.write(i)
@@ -104,7 +105,7 @@ def define_fix_rigid(fiw, untilted, tilt, box_type, tol_fix_reg, non_p):
     line.append("#---------Defining the fix rigid group--------------\n")
     line.append('group non_fix region reg_fix\n')
     line.append('group fix_reg subtract all non_fix\n')
-    line.append('fix 2 fix_reg rigid single reinit yes\n')
+    # line.append('fix 2 fix_reg rigid single reinit yes\n')
     line.append('\n')
 
     for i in line:
@@ -118,8 +119,7 @@ def script_pot(fiw, pot_path):
     line.append('# -------Defining the potential functions----------\n')
     line.append('\n')
     line.append('pair_style eam/alloy\n')
-    # line.append('pair_coeff * * ' + str(pot_path) + 'Al99.eam.alloy Al Al\n')
-    line.append('pair_coeff * * ' + str(pot_path) + 'in.Eam.dfs Al Al\n')
+    line.append('pair_coeff * * ' + str(pot_path) + 'Al99.eam.alloy Al Al\n')
 
     line.append('neighbor 2 bin\n')
     line.append('neigh_modify delay 10 check yes\n')
@@ -132,7 +132,7 @@ def script_pot(fiw, pot_path):
 
 def script_read_dump(fiw, dump_name):
     line = []
-    line.append('read_dump ' + str(dump_name) + ' 0 x y z box no add yes \n')
+    line.append('read_dump ' + str(dump_name) + ' 0 x y z box yes add yes \n')
     for i in line:
         fiw.write(i)
 
@@ -152,8 +152,8 @@ def script_overlap(fiw, untilted, tol_fix_reg, non_p, step):
     line.append('group upper type 1\n')
     if step == 1:
         line.append('delete_atoms overlap ${OverLap}  upper lower\n')
-        line.append('change_box all ' + str(var) + ' final ' + str(untilted[non_p, 0]) + ' ' + str(untilted[non_p, 1])
-                    + ' units box\n')
+        # line.append('change_box all ' + str(var) + ' final ' + str(untilted[non_p, 0]) + ' ' + str(untilted[non_p, 1])
+        #             + ' units box\n')
 
     for i in line:
         fiw.write(i)
@@ -208,6 +208,11 @@ def script_min_sec(fiw, output, non_p, box_type):
     line.append('min_style cg\n')
     line.append('minimize ${Etol} ${Ftol} ${MaxIter} ${MaxEval}\n')
     line.append('\n')
+    line.append('reset_timestep 0\n')
+    line.append('thermo 10 \n')
+    line.append('thermo_style custom step pe lx ly lz xy xz yz xlo xhi ylo yhi zlo zhi press pxx pyy pzz\n')
+    line.append('thermo_modify lost ignore\n')
+    line.append('min_style cg\n')
     line.append('dump 1 all custom ${MaxIter} ' + str(output) + ' id type x y z c_csym c_eng\n')
     line.append('dump_modify 1 every ${MaxIter} sort id first yes\n')
     line.append('run 0\n')

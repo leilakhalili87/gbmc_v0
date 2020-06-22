@@ -131,11 +131,11 @@ def choos_rem_ins():
         return "insertion"
 
 
-def atom_insertion(filename0, path2dump, cc_coors1):
+def atom_insertion(filename0, path2dump, cc_coors1, atom_id):
     lines = open(filename0, 'r').readlines()
     lines[1] = '0\n'
     lines[3] = str(int(lines[3]) + 1) 
-    new_line = str(lines[3]) + ' 1 ' + str(cc_coors1[0]) + ' ' + str(cc_coors1[1]) + ' '\
+    new_line = str(atom_id) + ' 1 ' + str(cc_coors1[0]) + ' ' + str(cc_coors1[1]) + ' '\
             + str(cc_coors1[2] ) + ' .1 .2\n'
     lines[3] = lines[3] + '\n'
 
@@ -157,7 +157,7 @@ def atom_removal(filename0, path2dump, ID2change, var):
     out.close()
 
     # pipeline = oio.import_file(filename0)
-    # pipeline.modifiers.append(ovm.ExpressionSelectionModifier(expression = 'ParticleIdentifier == ' + str(ID2change)))
+    # pipeline.modifiers.append(ovm.ExpressionSelectionModifier(expression = 'ParticleIdentifier == ' + str(ID2change+1)))
     # pipeline.modifiers.append( ovm.DeleteSelectedModifier() )
     # dump_name = path2dump + 'rem_dump'
     # oio.export_file(pipeline, dump_name,format = "lammps_dump",
@@ -168,6 +168,11 @@ def atom_removal(filename0, path2dump, ID2change, var):
     #                 "Position.Z",
     #                 "c_eng",
     #                 "c_csym" ])
+    # lines = open(filename0, 'r').readlines()
+    # lines[1] = '0\n'  #  step should be 0 
+    # out = open(path2dump + 'rem_dump', 'w')
+    # out.writelines(lines)
+    # out.close()
 
 
 def cal_area(data, non_p):
