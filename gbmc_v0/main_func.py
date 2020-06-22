@@ -29,9 +29,12 @@ filename_0 = dump_path + 'dump.0' # the output of previous step
 fil_name = 'in.min'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
 lsw.run_lammps_min(initial_dump, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, filename_0, step=1)
 
-ff = open('output', 'w')
+
 iter = 5000
+ff = open('output', 'w')
 for i in range(1, iter, 1):
+    print(i)
+    
     #  read the data
     data_0 = uf.compute_ovito_data(filename_0)
     non_p = uf.identify_pbc(data_0)
@@ -41,21 +44,28 @@ for i in range(1, iter, 1):
     #  decide between remove and insertion
     choice = uf.choos_rem_ins()
     #  if the choice is removal
+
     if choice == "removal":
         p_rm = uf.RemProb(data_0, CohEng, GbIndex)
         ID2change = uf.RemIns_decision(p_rm)
+        ff.write(filename_0 + '\n')
+
         ff.write(str(i) + ' ' + choice + ' ' + str(GbIndex[ID2change]) )
         ff.write('\n')
+        print(GbIndex[ID2change])
+
         var2change = np.where(data_0.particles['Particle Identifier'] - 1 == GbIndex[ID2change])[0][0]
         uf.atom_removal(filename_0, dump_path , GbIndex[ID2change], var2change)
-
+        
         fil_name = 'in.min'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
         filename_rem = dump_path + 'rem_dump'
+        copyfile(filename_rem, dump_path + 'rem/rem_dump_' + str(i))
         lsw.run_lammps_min(filename_rem, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, dump_path + 'dump.' + str(i))
         filename_1 = dump_path + 'dump.' + str(i)
         data_1 = uf.compute_ovito_data(filename_1)
         SC_boolean = uf.check_SC_reg(data_1, lat_par, rCut, non_p, tol_fix_reg, SC_tol)
-        # assert data_0.particles['Structure Type'][GbIndex[ID2change]] != 1
+
+        assert data_0.particles['Structure Type'][GbIndex[ID2change]] !=1
         assert SC_boolean == [True, True]
     
         E_1 = uf.cal_GB_E(data_1, weight_1, non_p, lat_par, CohEng)  #  after removal
@@ -70,11 +80,14 @@ for i in range(1, iter, 1):
             decision = uf.decide(p_boltz)
 
         if decision == "accept":
+            print("accepted in botlzman removal")
+            print(GbIndex[ID2change])
             copyfile(filename_1, dump_path + 'accepted/dump.' + str(i))
             filename_0 = filename_1
 
     #  if the choice is insertion   
     else:
+        ff.write(filename_0 + '\n' )
         pts_w_imgs, gb1_inds, inds_arr = pdf.pad_dump_file(data_0, lat_par, rCut, non_p)
         tri_vertices, gb_tri_inds = vvp.triang_inds(pts_w_imgs, gb1_inds, inds_arr)
         cc_coors, cc_rad = vvp.vv_props(pts_w_imgs, tri_vertices, gb_tri_inds, lat_par)
@@ -82,9 +95,14 @@ for i in range(1, iter, 1):
         Prob = uf.radi_normaliz(cc_rad)
         ID2change = uf.RemIns_decision(Prob)
         pos_add_atom = cc_coors[ID2change]
-        uf.atom_insertion(filename_0, dump_path, pos_add_atom)
+        atom_id = np.max(data_0.particles['Particle Identifier']+1)
+        uf.atom_insertion(filename_0, dump_path, pos_add_atom, atom_id)
+        ff.write(str(i) + ' ' + choice + ' ' + str(pos_add_atom) )
+        ff.write('\n')
+
         fil_name = 'in.min'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
         filename_ins = dump_path + 'ins_dump'
+        copyfile(filename_ins, dump_path + 'ins/ins_dump_' + str(i))
         lsw.run_lammps_min(filename_ins, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, dump_path + 'dump.' + str(i))
         filename_1 = dump_path + 'dump.' + str(i)
         data_1 = uf.compute_ovito_data(filename_1)
@@ -96,7 +114,6 @@ for i in range(1, iter, 1):
         dE = E_1 - E_0
         if dE < 0:
             decision = "accept"
-            print("finally accepted in insertion")
         else:
             area = uf.cal_area(data_1, non_p)
             p_boltz = uf.p_boltz_func(dE, area, Tm)
@@ -105,7 +122,9 @@ for i in range(1, iter, 1):
         if decision == "accept":
             copyfile(filename_1, dump_path + 'accepted/dump.' + str(i))
             filename_0 = filename_1
+
 ff.close()
+
 
 
 
