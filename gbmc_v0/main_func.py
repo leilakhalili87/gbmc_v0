@@ -20,17 +20,17 @@ lammps_exe_path = '/home/leila/Downloads/mylammps/src/lmp_mpi'
 pot_path = './lammps_dump/'  # the path for the potential
 dump_path = './lammps_dump/test/'
 pkl_file = './tests/data/gb_attr.pkl'
-initial_dump = 'tests/data/dump_1'  # the name of the dump file that
-
-box_bound, dump_lamp, box_type = ldw.lammps_box(lat_par, pkl_file) # lammps creates from the pkl file
-ldw.write_lammps_dump(initial_dump, box_bound, dump_lamp, box_type)  # writing the dump file
+initial_dump = 'tests/data/dump.3'  # the name of the dump file that
+str_alg = "ptm"
+csc_tol = .1
+# box_bound, dump_lamp, box_type = ldw.lammps_box(lat_par, pkl_file) # lammps creates from the pkl file
+# ldw.write_lammps_dump(initial_dump, box_bound, dump_lamp, box_type)  # writing the dump file
 
 filename_0 = dump_path + 'dump.0' # the output of previous step
 fil_name = 'in.min'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
-lsw.run_lammps_min(initial_dump, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, filename_0, step=1)
+lsw.run_lammps_min(initial_dump, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, filename_0, step=1, Etol=1e-9, Ftol=1e-9, MaxIter=5000, MaxEval=10000)
 
-
-iter = 5000
+iter = 2
 ff = open('output', 'w')
 for i in range(1, iter, 1):
     print(i)
@@ -39,7 +39,7 @@ for i in range(1, iter, 1):
     data_0 = uf.compute_ovito_data(filename_0)
     non_p = uf.identify_pbc(data_0)
     #  find the gb atoms
-    GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC = pdf.GB_finder(data_0, lat_par, non_p)
+    GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC = pdf.GB_finder(data_0, lat_par, non_p, str_alg, csc_tol)
 
     #  decide between remove and insertion
     choice = uf.choos_rem_ins()
@@ -54,22 +54,25 @@ for i in range(1, iter, 1):
         ff.write('\n')
         print(GbIndex[ID2change])
 
-        var2change = np.where(data_0.particles['Particle Identifier'] - 1 == GbIndex[ID2change])[0][0]
+        var2change = data_0.particles['Particle Identifier'][GbIndex[ID2change]]
         uf.atom_removal(filename_0, dump_path , GbIndex[ID2change], var2change)
         
         fil_name = 'in.min'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
         filename_rem = dump_path + 'rem_dump'
         copyfile(filename_rem, dump_path + 'rem/rem_dump_' + str(i))
-        lsw.run_lammps_min(filename_rem, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, dump_path + 'dump.' + str(i))
+        lsw.run_lammps_min(filename_rem, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, dump_path + 'dump.' + str(i), Etol=1e-9, Ftol=1e-9, MaxIter=5000, MaxEval=10000)
         filename_1 = dump_path + 'dump.' + str(i)
         data_1 = uf.compute_ovito_data(filename_1)
-        SC_boolean = uf.check_SC_reg(data_1, lat_par, rCut, non_p, tol_fix_reg, SC_tol)
+        SC_boolean = uf.check_SC_reg(data_1, lat_par, rCut, non_p, tol_fix_reg, SC_tol, str_alg, csc_tol)
 
-        assert data_0.particles['Structure Type'][GbIndex[ID2change]] !=1
+        if str_alg == "ptm":
+            assert data_0.particles['Structure Type'][GbIndex[ID2change]] !=1
+        else:
+            assert data_0.particles['c_csym'][GbIndex[ID2change]] > .1
         assert SC_boolean == [True, True]
     
-        E_1 = uf.cal_GB_E(data_1, weight_1, non_p, lat_par, CohEng)  #  after removal
-        E_0 = uf.cal_GB_E(data_0, weight_1, non_p, lat_par, CohEng)
+        E_1 = uf.cal_GB_E(data_1, weight_1, non_p, lat_par, CohEng, str_alg, csc_tol)  #  after removal
+        E_0 = uf.cal_GB_E(data_0, weight_1, non_p, lat_par, CohEng, str_alg, csc_tol)
         dE = E_1 - E_0
         if dE < 0:
             decision = "accept"
@@ -88,7 +91,7 @@ for i in range(1, iter, 1):
     #  if the choice is insertion   
     else:
         ff.write(filename_0 + '\n' )
-        pts_w_imgs, gb1_inds, inds_arr = pdf.pad_dump_file(data_0, lat_par, rCut, non_p)
+        pts_w_imgs, gb1_inds, inds_arr = pdf.pad_dump_file(data_0, lat_par, rCut, non_p, str_alg, csc_tol)
         tri_vertices, gb_tri_inds = vvp.triang_inds(pts_w_imgs, gb1_inds, inds_arr)
         cc_coors, cc_rad = vvp.vv_props(pts_w_imgs, tri_vertices, gb_tri_inds, lat_par)
         cc_coors1 = vvp.wrap_cc(data_0.cell, cc_coors)
@@ -103,14 +106,14 @@ for i in range(1, iter, 1):
         fil_name = 'in.min'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
         filename_ins = dump_path + 'ins_dump'
         copyfile(filename_ins, dump_path + 'ins/ins_dump_' + str(i))
-        lsw.run_lammps_min(filename_ins, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, dump_path + 'dump.' + str(i))
+        lsw.run_lammps_min(filename_ins, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, dump_path + 'dump.' + str(i), Etol=1e-9, Ftol=1e-9, MaxIter=5000, MaxEval=10000)
         filename_1 = dump_path + 'dump.' + str(i)
         data_1 = uf.compute_ovito_data(filename_1)
-        SC_boolean = uf.check_SC_reg(data_1, lat_par, rCut, non_p, tol_fix_reg, SC_tol)
+        SC_boolean = uf.check_SC_reg(data_1, lat_par, rCut, non_p, tol_fix_reg, SC_tol, str_alg, csc_tol)
         assert SC_boolean == [True, True]
 
-        E_1 = uf.cal_GB_E(data_1, weight_1, non_p, lat_par, CohEng)  #  after removal
-        E_0 = uf.cal_GB_E(data_0, weight_1, non_p, lat_par, CohEng)
+        E_1 = uf.cal_GB_E(data_1, weight_1, non_p, lat_par, CohEng, str_alg, csc_tol)  #  after removal
+        E_0 = uf.cal_GB_E(data_0, weight_1, non_p, lat_par, CohEng, str_alg, csc_tol)
         dE = E_1 - E_0
         if dE < 0:
             decision = "accept"

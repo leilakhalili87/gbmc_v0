@@ -22,7 +22,7 @@ def p_arr(non_p):
     return arr0
 
 
-def pad_dump_file(data, lat_par, rCut, non_p):
+def pad_dump_file(data, lat_par, rCut, non_p, str_alg, csc_tol):
     """
     Function to take as input the dump data (from OVITO),find the GB atoms and
     add padding to the GB atoms (including images) within rCut.
@@ -49,7 +49,7 @@ def pad_dump_file(data, lat_par, rCut, non_p):
         The atom indices of the initial unit cell with no replicates.
     """
 
-    GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC = GB_finder(data, lat_par, non_p)
+    GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC = GB_finder(data, lat_par, non_p, str_alg, csc_tol)
     arr = p_arr(non_p)
 
     sim_cell = data.cell[...]
@@ -70,7 +70,7 @@ def pad_dump_file(data, lat_par, rCut, non_p):
     return pts_w_imgs, gb1_inds, inds_arr.astype(int)
 
 
-def GB_finder(data, lat_par, non_pbc):
+def GB_finder(data, lat_par, non_pbc, str_alg, csc_tol):
     """
     The function finds the GB region usning Polyhedral Template Matching.
 
@@ -100,9 +100,10 @@ def GB_finder(data, lat_par, non_pbc):
 
     # num_particles = data.particles.count
     ptm_struct = data.particles['Structure Type'][...]
-    csc = data.particles['c_csym'][...]
     position_np = data.particles['Position'][...][:, non_pbc]
-    
+    if str_alg=="csc":
+        csc = data.particles['c_csym'][...]
+
     NoSurfArea = []
     # Find the smallest single crystal range
     a = 1
@@ -110,8 +111,10 @@ def GB_finder(data, lat_par, non_pbc):
 
     while a != 0:
         pos_max = pos_min + lat_par
-        a = len(np.where((ptm_struct != 1) & (position_np < pos_max) & (position_np > pos_min))[0])
-        # a = len(np.where((csc > .1) & (position_np < pos_max) & (position_np > pos_min))[0])
+        if str_alg == "ptm":
+            a = len(np.where((ptm_struct != 1) & (position_np < pos_max) & (position_np > pos_min))[0])
+        else:
+            a = len(np.where((csc > csc_tol) & (position_np < pos_max) & (position_np > pos_min))[0])
         pos_min += lat_par
 
     NoSurfArea = NoSurfArea + [pos_min]
@@ -121,17 +124,19 @@ def GB_finder(data, lat_par, non_pbc):
     pos_max = np.max(position_np)
     while a != 0:
         pos_min = pos_max - lat_par
-        a = len(np.where((ptm_struct != 1) & (position_np < pos_max) & (position_np > pos_min))[0])
-        # a = len(np.where((csc > .1) & (position_np < pos_max) & (position_np > pos_min))[0])
+        if str_alg == "ptm":
+            a = len(np.where((ptm_struct != 1) & (position_np < pos_max) & (position_np > pos_min))[0])
+        else:
+            a = len(np.where((csc > csc_tol) & (position_np < pos_max) & (position_np > pos_min))[0])
         pos_max -= lat_par
 
     NoSurfArea = NoSurfArea + [pos_min + lat_par]
 
-    # gb_index = np.where((csc > .1) & (position_np < NoSurfArea[1]) & (position_np > NoSurfArea[0]))[0]
-    gb_index = np.where((ptm_struct != 1) & (position_np < NoSurfArea[1]) & (position_np > NoSurfArea[0]))[0]
-    # gb_mean = np.mean(position_np[gb_index])
-    # gb_std = np.std(position_np[gb_index])
-
+    if str_alg == "ptm":
+        gb_index = np.where((ptm_struct != 1) & (position_np < NoSurfArea[1]) & (position_np > NoSurfArea[0]))[0]
+    else:
+        gb_index = np.where((csc > csc_tol) & (position_np < NoSurfArea[1]) & (position_np > NoSurfArea[0]))[0]
+    
     outlierConstant = 1.51
     upper_quartile = np.percentile(position_np[gb_index], 75)
     lower_quartile = np.percentile(position_np[gb_index], 25)

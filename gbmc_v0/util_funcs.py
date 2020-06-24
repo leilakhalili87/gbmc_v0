@@ -48,12 +48,48 @@ def identify_pbc(data):
 
 
 def box_size_reader(dump_name):
+    """
+    Function reads the box_bound from lammps dump file.
+
+    Parameters
+    ------------
+    dump_name : string
+        The name of the lammps input file.
+
+    Returns
+    --------
+    box_bound : np.array
+        The box bound read from lammps dump file which is 9 parameters: xlo, xhi, ylo,
+        yhi, zlo, zhi, xy, xz, yz
+
+    """
     with open(dump_name) as lines:
         box_bound = np.genfromtxt(islice(lines, 5, 8))
     return box_bound
 
 
 def define_bounds(box_bound):
+    """
+    Function to find the untilted, tilt, and box type.
+
+    Parameters
+    ------------
+    box_bound : np.array
+        The box bound read from lammps dump file which is 9 parameters: xlo, xhi, ylo,
+        yhi, zlo, zhi, xy, xz, yz
+
+    Returns
+    --------
+    untilted : np.array
+        values of xlo, xhi, ylo, yhi, zlo, zhi.
+        
+    tilt : np.array
+        For box type "block" this values id [].
+        For box type "prism" this value is [xy, yz, xz].
+    box_type : string
+        type of box which is eaither "block" or "prism".
+
+    """
     # boundaries of fix rigid
     siz_box = np.shape(box_bound)[1]
     if siz_box == 2:
@@ -106,6 +142,22 @@ def RemProb(data, CohEng, GbIndex):
 
 
 def RemIns_decision(p_rm):
+    """
+    The function finds The atomic removal probabilty.
+
+    Parameters
+    --------------
+    filename0 : string
+        The lammps dump file
+    CohEng	: float
+        The cohesive energy
+
+    Return
+    ----------------
+
+    AtomicRemProb : float
+        The probabilty of removing an atom
+    """
     CS_prob = np.cumsum(p_rm)
     rand_num = np.random.uniform(0, 1)
     location = (bisect.bisect_left(CS_prob, rand_num))
@@ -117,6 +169,20 @@ def RemIns_decision(p_rm):
 
 
 def radi_normaliz(cc_rad):
+    """
+    The function finds The atomic removal probabilty.
+
+    Parameters
+    --------------
+    cc_rad : 
+        
+
+    Return
+    ----------------
+
+    rad_norm : 
+        
+    """
     min_rad = np.min(cc_rad)
     max_rad = np.max(cc_rad)
     rad_norm = (cc_rad - min_rad) / (max_rad - min_rad)
@@ -124,6 +190,18 @@ def radi_normaliz(cc_rad):
 
 
 def choos_rem_ins():
+    """
+    The function 
+
+    Parameters
+    --------------
+
+    Return
+    ----------------
+
+    decision : string
+        
+    """
     rand_num = np.random.uniform(0, 1)
     if rand_num > 0.5:
         return "removal"
@@ -132,6 +210,23 @@ def choos_rem_ins():
 
 
 def atom_insertion(filename0, path2dump, cc_coors1, atom_id):
+    """
+    The function 
+
+    Parameters
+    --------------
+    filename0 : string
+        The lammps dump file
+    path2dump	: 
+
+     cc_coors1 :
+
+    atom_id    
+
+    Return
+    ----------------
+
+    """
     lines = open(filename0, 'r').readlines()
     lines[1] = '0\n'
     lines[3] = str(int(lines[3]) + 1) 
@@ -146,11 +241,28 @@ def atom_insertion(filename0, path2dump, cc_coors1, atom_id):
 
 
 def atom_removal(filename0, path2dump, ID2change, var):
+    """
+    The function finds The atomic removal probabilty.
+
+    Parameters
+    --------------
+    filename0 : string
+        The lammps dump file
+    path2dump	: 
+
+    ID2change
+
+    var
+
+    Return
+    ----------------
+
+    """
     lines = open(filename0, 'r').readlines()
     lines[1] = '0\n'  #  step should be 0 
     lines[3] = str(int(lines[3]) - 1) + '\n'
-    assert lines[var + 9].split(" ", 1)[0] == str(ID2change + 1)
-    lines[var + 9] = ''  #  8 for the number of lines on the header
+    assert lines[ID2change + 9 ].split(" ", 1)[0] == str(var)
+    lines[ID2change + 9] = ''  #  8 for the number of lines on the header
 
     out = open(path2dump + 'rem_dump', 'w')
     out.writelines(lines)
@@ -176,15 +288,49 @@ def atom_removal(filename0, path2dump, ID2change, var):
 
 
 def cal_area(data, non_p):
+    """
+    The function finds The atomic removal probabilty.
+
+    Parameters
+    --------------
+    data : 
+        
+    non_p	: 
+
+
+    Return
+    ----------------
+
+    area : 
+    """
     sim_cell = data.cell
     arr0 = pdf.p_arr(non_p)
     area = np.linalg.norm(np.cross(sim_cell[:, arr0[0]], sim_cell[:, arr0[1]]))
     return area  #  in A
 
 
-def cal_GB_E(data, weight_1, non_p, lat_par, CohEng):
+def cal_GB_E(data, weight_1, non_p, lat_par, CohEng, str_alg, csc_tol):
+    """
+    The function finds The atomic removal probabilty.
+
+    Parameters
+    --------------
+    data : 
+      
+
+    non_p
+
+    lat_par
+    CohEng
+        
+
+    Return
+    ----------------
+
+    E_GB : 
+    """
     weight_2 = 1- weight_1
-    GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC = pdf.GB_finder(data, lat_par, non_p)
+    GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC = pdf.GB_finder(data, lat_par, non_p, str_alg, csc_tol)
 
     top_min = GbRegion[1]
     top_max = GbRegion[1] + w_top_SC
@@ -205,6 +351,21 @@ def cal_GB_E(data, weight_1, non_p, lat_par, CohEng):
 
 
 def p_boltz_func(dE, area, Tm):
+    """
+    The function finds The atomic removal probabilty.
+
+    Parameters
+    --------------
+    dE : 
+    area	: 
+    
+    Tm
+
+    Return
+    ----------------
+
+    p_boltz : 
+    """
     T = Tm / 2  # in K
     kb = 1.3806485279 * 10e-23 * 1e3 # mj/K
     dE = dE * area * 1e-20
@@ -213,6 +374,18 @@ def p_boltz_func(dE, area, Tm):
 
 
 def decide(p_boltz):
+    """
+    The function finds The atomic removal probabilty.
+
+    Parameters
+    --------------
+    p_boltz
+
+    Return
+    ----------------
+
+    decision :
+    """
     rand_num = np.random.uniform(0, 1)
     if rand_num > p_boltz:
         return "reject"
@@ -220,7 +393,7 @@ def decide(p_boltz):
         return "accept"    
 
 
-def check_SC_reg(data, lat_par, rCut, non_p, tol_fix_reg, SC_tol):
+def check_SC_reg(data, lat_par, rCut, non_p, tol_fix_reg, SC_tol, str_alg, csc_tol):
     """
     Function to identify whether single crystal region on eaither side of the GB is
     bigger than a tolerance (SC_tol)
@@ -245,11 +418,11 @@ def check_SC_reg(data, lat_par, rCut, non_p, tol_fix_reg, SC_tol):
     SC_boolean :
         A boolean list for low/top or left/right single crytal region. True means the width > SC_tol.
     """
-    GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC = pdf.GB_finder(data, lat_par, non_p)
+    GbRegion, GbIndex, GbWidth, w_bottom_SC, w_top_SC = pdf.GB_finder(data, lat_par, non_p, str_alg, csc_tol)
 
     SC_boolean = [True, True]
-    w_bottom_SC = w_bottom_SC - tol_fix_reg
-    w_top_SC = w_top_SC - tol_fix_reg
+    # w_bottom_SC = w_bottom_SC - tol_fix_reg
+    # w_top_SC = w_top_SC - tol_fix_reg
     if w_bottom_SC < SC_tol:
         SC_boolean[0] = False
     if w_top_SC < SC_tol:

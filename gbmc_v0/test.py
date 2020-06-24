@@ -9,35 +9,51 @@ import ovito.modifiers as ovm
 from shutil import copyfile
 import numpy as np
 import os
-# directory = '/home/leila/Leila_sndhard/codes/GBMC-master/data/sym_100/Al_S13_1_N1_0_-1_5_N2_0_-1_-5/accepted_steps/'
-directory = '/home/leila/Leila_sndhard/codes/gbmc_python/gbmc_v0/gbmc_v0/gbmc_v0/lammps_dump/test/accepted/'
-a = os.listdir(directory)
-lat_par = 4.074
-non_p = 1
+import re
+# directory_a = '/home/leila/Leila_sndhard/codes/gbmc_python/gbmc_v0/gbmc_v0/gbmc_v0/lammps_dump/test_n1/arash/'
+# directory_m = '/home/leila/Leila_sndhard/codes/gbmc_python/gbmc_v0/gbmc_v0/gbmc_v0/lammps_dump/test_n1/leila/'
+# path = '/home/leila/Leila_sndhard/codes/gbmc_python/gbmc_v0/gbmc_v0/gbmc_v0/lammps_dump/'
+path_name = '/home/leila/Leila_sndhard/codes/gbmc_python/gbmc_v0/gbmc_v0/gbmc_v0/result/'
+lat_par = 4.05
+non_p = 2
 weight_1= 0.5
-CohEng= -3.443962  #  calculated from in.cohesive
+CohEng= -3.35999998818377  #  calculated from in.cohesive
 
 rCut = 2*lat_par
 Tm = 1000
 weight_1 = .5
 tol_fix_reg = 5 * lat_par  # the width of rigid traslation region
 SC_tol = 5 * lat_par
-energy = []
-iteration = []
-j = 0
-# a = ['dump.0']
-for i in a:
-    filename_0 = directory + i
-    data = uf.compute_ovito_data(filename_0)
-    eng = uf.cal_GB_E(data, weight_1, non_p, lat_par, CohEng)
-    energy = energy + [eng]
-    print(eng)
-    iteration = iteration + [j]
-    j += 1
-
-# import matplotlib.pyplot as plt
+directory_a = '/home/leila/Downloads/15_al_S5_0_N1_1_-2_1_N2_-1_1_-2/accepted_steps/'
+directory_m = '/home/leila/Leila_sndhard/codes/gbmc_python/gbmc_v0/gbmc_v0/gbmc_v0/lammps_dump/test_pkl/accepted/'
+directory = [directory_m, directory_a]
+directory = [directory_m]
+# directory = ['/home/leila/Leila_sndhard/codes/gbmc_python/gbmc_v0/gbmc_v0/gbmc_v0/lammps_dump/test/accepted/']
+for n_run in range(1,2):
+    # directory_a = path + 'test_n' + str(n_run) + '/arash/'
+    # directory_m = path + 'test_n' + str(n_run) + '/leila/'
+    j = 0
+    for dir in directory:
+        a = os.listdir(dir)
+        energy = []
+        iteration = []
+        for i in a:
+            num = re.findall('.*[._]([0-9]+)', i)
+            filename_0 = dir + i
+            data = uf.compute_ovito_data(filename_0)
+            eng = uf.cal_GB_E(data, weight_1, non_p, lat_par, CohEng)
+            energy = energy + [eng]
+            # print(eng)
+            iteration = iteration + [int(num[0])]
+        
+        if j == 1:
+            name = path_name + 'arash/' + str(n_run) + '.txt'
+        else:
+            name = path_name + 'leila/' + str(n_run) + '.txt'
+        j += 1 
+        np.savetxt(name, np.column_stack([iteration,energy]))
+    # import matplotlib.pyplot as plt
 # fig, axes = plt.subplots()
 # axes.plot(iteration, energy, 'o-', markeredgewidth=0)
 # plt.show()
 
-# np.savetxt('energy_mycod.txt', np.column_stack([iteration,energy]))

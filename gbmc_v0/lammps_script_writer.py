@@ -9,15 +9,15 @@ def file_gen(fil_name):
     return fiw, fil_name
 
 
-def lammps_script_var(fiw, lat_par):
+def lammps_script_var(fiw, lat_par, Etol, Ftol, MaxIter, MaxEval):
     overlap_cte = np.sqrt(2) * lat_par / 4 
     line = []
     line.append('# Minimization Parameters -------------------------\n')
     line.append('\n')
-    line.append('variable Etol equal 1e-25\n')
-    line.append('variable Ftol equal 1e-25\n')
-    line.append('variable MaxIter equal 5000\n')
-    line.append('variable MaxEval equal 10000\n')
+    line.append('variable Etol equal ' + str(Etol) + '\n')
+    line.append('variable Ftol equal ' + str(Ftol) + '\n')
+    line.append('variable MaxIter equal ' + str(MaxIter) + '\n')
+    line.append('variable MaxEval equal ' + str(MaxEval) + '\n')
     line.append('\n')
     line.append('# Structural variables------------------------------\n')
     line.append('\n')
@@ -204,7 +204,7 @@ def script_min_sec(fiw, output, non_p, box_type):
     #         line.append('fix 1 all box/relax x 0 y 0\n')
     #     else:
     #         line.append('fix 1 all box/relax x 0 y 0 xy 0\n')
-
+    line.append('reset_ids\n')
     line.append('min_style cg\n')
     line.append('minimize ${Etol} ${Ftol} ${MaxIter} ${MaxEval}\n')
     line.append('\n')
@@ -215,6 +215,7 @@ def script_min_sec(fiw, output, non_p, box_type):
     line.append('min_style cg\n')
     line.append('dump 1 all custom ${MaxIter} ' + str(output) + ' id type x y z c_csym c_eng\n')
     line.append('dump_modify 1 every ${MaxIter} sort id first yes\n')
+    
     line.append('run 0\n')
     # line.append('unfix 1\n')
     line.append('undump 1\n')
@@ -287,9 +288,9 @@ def script_cooling(fiw, output):
     return True
 
 
-def script_main_min(fil_name, lat_par, tol_fix_reg, dump_name, pot_path, non_p, output, step):
+def script_main_min(fil_name, lat_par, tol_fix_reg, dump_name, pot_path, non_p, output, step, Etol, Ftol, MaxIter, MaxEval):
     fiw, file_name = file_gen(fil_name)
-    lammps_script_var(fiw, lat_par)
+    lammps_script_var(fiw, lat_par, Etol, Ftol, MaxIter, MaxEval)
     script_init_sim(fiw, non_p)
     box_bound = uf.box_size_reader(dump_name)
     untilted, tilt, box_type = uf.define_bounds(box_bound)
@@ -302,10 +303,10 @@ def script_main_min(fil_name, lat_par, tol_fix_reg, dump_name, pot_path, non_p, 
     script_min_sec(fiw, output, non_p, box_type)
 
 
-def run_lammps_min(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, output, step=2):
+def run_lammps_min(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, output, step=2, Etol=1e-25, Ftol=1e-25, MaxIter=5000, MaxEval=10000):
     data = uf.compute_ovito_data(filename0)
     non_p = uf.identify_pbc(data)
-    script_main_min(fil_name, lat_par, tol_fix_reg, filename0, pot_path, non_p, output, step)
+    script_main_min(fil_name, lat_par, tol_fix_reg, filename0, pot_path, non_p, output, step, Etol, Ftol, MaxIter, MaxEval)
     os.system(str(lammps_exe_path) + '< ./' + fil_name)
 
 
