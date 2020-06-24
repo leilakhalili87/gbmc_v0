@@ -9,26 +9,40 @@ import ovito.modifiers as ovm
 from shutil import copyfile
 import numpy as np
 
+#  --------------------------------------------------------------------------
+#  Define the input
+#  --------------------------------------------------------------------------
 lat_par = 4.05
 rCut = 2*lat_par
 CohEng= -3.35999998818377  #  calculated from in.cohesive
 Tm = 933.5
 weight_1 = .5
-tol_fix_reg = 5 * lat_par  # the width of rigid traslation region
+# tol_fix_reg = 5 * lat_par  # the width of rigid traslation region
 SC_tol = 5 * lat_par
+str_alg = "ptm"
+csc_tol = .1
+#  --------------------------------------------------------------------------
+#  Define the path to dump files
+#  --------------------------------------------------------------------------
 lammps_exe_path = '/home/leila/Downloads/mylammps/src/lmp_mpi'
 pot_path = './lammps_dump/'  # the path for the potential
 dump_path = './lammps_dump/test/'
 pkl_file = './tests/data/gb_attr.pkl'
 initial_dump = 'tests/data/dump.3'  # the name of the dump file that
-str_alg = "ptm"
-csc_tol = .1
+
+#  --------------------------------------------------------------------------
+#  Create lammps dump file for pkl file
+#  --------------------------------------------------------------------------
 # box_bound, dump_lamp, box_type = ldw.lammps_box(lat_par, pkl_file) # lammps creates from the pkl file
 # ldw.write_lammps_dump(initial_dump, box_bound, dump_lamp, box_type)  # writing the dump file
 
+#  --------------------------------------------------------------------------
+#  Define the path to dump files
+#  --------------------------------------------------------------------------
 filename_0 = dump_path + 'dump.0' # the output of previous step
 fil_name = 'in.min'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
-lsw.run_lammps_min(initial_dump, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, filename_0, step=1, Etol=1e-9, Ftol=1e-9, MaxIter=5000, MaxEval=10000)
+lsw.run_lammps_min(initial_dump, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path,\
+                   filename_0, step=1, Etol=1e-9, Ftol=1e-9, MaxIter=5000, MaxEval=10000)
 
 iter = 2
 ff = open('output', 'w')
@@ -43,8 +57,10 @@ for i in range(1, iter, 1):
 
     #  decide between remove and insertion
     choice = uf.choos_rem_ins()
-    #  if the choice is removal
-
+    
+    #  --------------------------------------------------------------------------
+    #  If the choice is removal
+    #  --------------------------------------------------------------------------
     if choice == "removal":
         p_rm = uf.RemProb(data_0, CohEng, GbIndex)
         ID2change = uf.RemIns_decision(p_rm)
@@ -88,7 +104,9 @@ for i in range(1, iter, 1):
             copyfile(filename_1, dump_path + 'accepted/dump.' + str(i))
             filename_0 = filename_1
 
-    #  if the choice is insertion   
+    #  --------------------------------------------------------------------------
+    #  If the choice is insertion
+    #  -------------------------------------------------------------------------- 
     else:
         ff.write(filename_0 + '\n' )
         pts_w_imgs, gb1_inds, inds_arr = pdf.pad_dump_file(data_0, lat_par, rCut, non_p, str_alg, csc_tol)
