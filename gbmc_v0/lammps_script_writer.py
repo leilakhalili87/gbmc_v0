@@ -401,16 +401,16 @@ def run_lammps_anneal(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammp
     os.system(str(lammps_exe_path) + '< ./' + fil_name)
 
 
-lammps_exe_path = '/home/leila/Downloads/mylammps/src/lmp_mpi'
-lat_par = 4.05
-tol_fix_reg = lat_par * 5
-filename0 = './tests/data/dump.3'
-fil_name = 'in.min'
-pot_path = './lammps_dump/'
-Tm = 1000
-run_lammps_min(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, './lammps_dump/dump.0',\
-               step=1, Etol=1e-9, Ftol=1e-9, MaxIter=10000, MaxEval=10000)
+# lammps_exe_path = '/home/leila/Downloads/mylammps/src/lmp_mpi'
+# lat_par = 4.05
+# tol_fix_reg = lat_par * 5
+# filename0 = './tests/data/dump.3'
+# fil_name = 'in.min'
+# pot_path = './lammps_dump/'
+# Tm = 1000
+# run_lammps_min(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, './lammps_dump/dump.0',\
+#                step=1, Etol=1e-9, Ftol=1e-9, MaxIter=10000, MaxEval=10000)
 
-fil_name1 = 'in.anneal'
-run_lammps_anneal('./lammps_dump/dump.0', fil_name1, pot_path, lat_par, tol_fix_reg, lammps_exe_path, './lammps_dump/dump_heat',\
-                   Tm,  step=2, Etol=1e-25, Ftol=1e-25, MaxIter=5000, MaxEval=10000, Iter_heat=1000, Iter_equil=10000, Iter_cool=12000)
+# fil_name1 = 'in.anneal'
+# run_lammps_anneal('./lammps_dump/dump.0', fil_name1, pot_path, lat_par, tol_fix_reg, lammps_exe_path, './lammps_dump/dump_heat',\
+#                    Tm,  step=2, Etol=1e-25, Ftol=1e-25, MaxIter=5000, MaxEval=10000, Iter_heat=1000, Iter_equil=10000, Iter_cool=12000)
