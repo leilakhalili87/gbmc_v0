@@ -13,3 +13,4 @@ gbmc_v0 Documentation
    release-history
    min_versions
    Tutorials/index
+   Modules

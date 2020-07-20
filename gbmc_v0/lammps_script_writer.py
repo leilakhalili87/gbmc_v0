@@ -114,11 +114,13 @@ def define_box(fiw, untilted, tilt, box_type):
     return True
 
 
-def define_fix_rigid(fiw, untilted, tilt, box_type, tol_fix_reg, non_p):
+def define_fix_rigid(fiw, untilted, tilt, box_type, tol_fix_reg, non_p, step):
     """
     """
-    # untilted[non_p, :] = untilted[non_p, :] + 3 * np.array([tol_fix_reg, - tol_fix_reg])
-    untilted[non_p, :] = untilted[non_p, :] + np.array([tol_fix_reg, - tol_fix_reg])
+    if step == 1:
+        untilted[non_p, :] = untilted[non_p, :] + 2 * np.array([tol_fix_reg, - tol_fix_reg])
+    else:
+        untilted[non_p, :] = untilted[non_p, :] + 3 * np.array([tol_fix_reg, - tol_fix_reg])
 
     if box_type == 'block':
         rigid_reg = 'region reg_fix block ' + str(untilted[0][0]) + ' ' + str(untilted[0][1]) + ' ' +\
@@ -152,7 +154,7 @@ def script_pot(fiw, pot_path):
     line.append('pair_coeff * * ' + str(pot_path) + 'Al99.eam.alloy Al Al\n')
 
     line.append('neighbor 2 bin\n')
-    line.append('neigh_modify delay 10 check yes\n')
+    line.append('neigh_modify delay 5 check yes\n')
 
     for i in line:
         fiw.write(i)
@@ -210,44 +212,54 @@ def script_compute(fiw):
 
 def script_min_sec(fiw, output, non_p, box_type):
     line = []
-    line.append('#----------------------minimization--------------------\n')
+    line.append('\n')
+    line.append('#----------------------Run minimization 1--------------------\n')
     line.append('\n')
     line.append('reset_timestep 0\n')
     line.append('thermo 100\n')
     line.append('thermo_style custom step pe lx ly lz xy xz yz xlo xhi ylo yhi zlo zhi press pxx pyy pzz '
                 'c_eatoms c_MinAtomEnergy\n')
     line.append('thermo_modify lost ignore\n')
-    # line.append('dump 1 all custom ${MaxIter} ' + str(output) + ' id type x y z c_csym c_eng\n')
+    line.append('min_style cg\n')
+    line.append('minimize 1e-5 1e-5 5000 10000\n')
 
-    # if non_p == 0:
-    #     if box_type == "block":
-    #         line.append('fix 1 all box/relax y 0 z 0\n')
-    #     else:
-    #         line.append('fix 1 all box/relax y 0 z 0 yz 0\n')
-    # elif non_p == 1:
-    #     if box_type == "block":
-    #         line.append('fix 1 all box/relax x 0 z 0\n')
-    #     else:
-    #         line.append('fix 1 all box/relax x 0 z 0 xz 0\n')
-    # else:
-    #     if box_type == "block":
-    #         line.append('fix 1 all box/relax x 0 y 0\n')
-    #     else:
-    #         line.append('fix 1 all box/relax x 0 y 0 xy 0\n')
-    line.append('reset_ids\n')
+    line.append('\n')
+    line.append('#----------------------Run minimization 2--------------------\n')
+    line.append('\n')
+    line.append('thermo 100\n')
+    line.append('thermo_style custom step pe lx ly lz xy xz yz xlo xhi ylo yhi zlo zhi press pxx pyy pzz '
+                'c_eatoms c_MinAtomEnergy\n')
+    line.append('thermo_modify lost ignore\n')
+    if non_p == 0:
+        if box_type == "block":
+            line.append('fix 1 all box/relax y 0 z 0 vmax .001\n')
+        else:
+            line.append('fix 1 all box/relax y 0 z 0 yz 0 vmax .001\n')
+    elif non_p == 1:
+        if box_type == "block":
+            line.append('fix 1 all box/relax x 0 z 0 vmax .001\n')
+        else:
+            line.append('fix 1 all box/relax x 0 z 0 xz 0 vmax .001\n')
+    else:
+        if box_type == "block":
+            line.append('fix 1 all box/relax x 0 y 0 vmax .001\n')
+        else:
+            line.append('fix 1 all box/relax x 0 y 0 xy 0 vmax .001\n')
     line.append('min_style cg\n')
     line.append('minimize ${Etol} ${Ftol} ${MaxIter} ${MaxEval}\n')
     line.append('\n')
+    line.append('#----------------------Run 0 to dump--------------------\n')
+    line.append('\n')
     line.append('reset_timestep 0\n')
-    line.append('thermo 10 \n')
-    line.append('thermo_style custom step pe lx ly lz xy xz yz xlo xhi ylo yhi zlo zhi press pxx pyy pzz\n')
+    line.append('reset_ids\n')
+    line.append('thermo 100\n')
+    line.append('thermo_style custom step pe lx ly lz xy xz yz xlo xhi ylo yhi zlo zhi press pxx pyy pzz '
+                'c_eatoms c_MinAtomEnergy\n')
     line.append('thermo_modify lost ignore\n')
-    line.append('min_style cg\n')
     line.append('dump 1 all custom ${MaxIter} ' + str(output) + ' id type x y z c_csym c_eng\n')
     line.append('dump_modify 1 every ${MaxIter} sort id first yes\n')
-    
     line.append('run 0\n')
-    # line.append('unfix 1\n')
+    line.append('unfix 1\n')
     line.append('undump 1\n')
 
     for i in line:
@@ -259,27 +271,36 @@ def script_min_sec(fiw, output, non_p, box_type):
 def script_heating(fiw, output, Tm, non_p):
     T = Tm / 2
     line = []
+
+    line.append('velocity all create ' + str(T) + ' 235911\n')
+    line.append('fix 1 all nve \n')
+#thermalize at temperature
+    line.append('thermo 100\n')
+    line.append('thermo_modify flush yes\n')
+    line.append('run 10000\n')
+    line.append('unfix 1\n')
+
     line.append('# -----------------heating step-----------------\n')
     line.append('\n')
     line.append('reset_timestep 0\n')
     line.append('timestep 0.001\n')
     if non_p == 0:
-        line.append('fix 1 all npt temp .1 ' + str(T) + ' .1 couple yz  y 0.0 0.0 1.0  z 0.0 0.0 1.0\n')
+        line.append('fix 1 all npt temp .01 ' + str(T) + ' $(100.0*dt) couple yz  y 0.0 0.0 $(1000.0*dt)  z 0.0 0.0 $(1000.0*dt)\n')
     elif non_p == 1:
-        line.append('fix 1 all npt temp .1 ' + str(T) + ' .1 couple xz  x 0.0 0.0 1.0  z 0.0 0.0 1.0\n')
+        line.append('fix 1 all npt temp .01 ' + str(T) + ' $(100.0*dt) couple xz  x 0.0 0.0 $(1000.0*dt)  z 0.0 0.0 $(1000.0*dt)\n')
     else:
-        line.append('fix 1 all npt temp .1 ' + str(T) + ' .1 couple xy  x 0.0 0.0 1.0  y 0.0 0.0 1.0\n')
+        line.append('fix 1 all npt temp .01 ' + str(T) + ' $(100.0*dt) couple xy  x 0.0 0.0 $(1000.0*dt)  y 0.0 0.0 $(1000.0*dt)\n')
 
     # line.append('fix 1 all npt temp .1 ' + str(T) + ' .1 couple xy  x 0.0 0.0 1.0  y 0.0 0.0 1.0\n')
     line.append('thermo 100\n')
     line.append('thermo_style custom step temp pe lx ly lz press pxx pyy pzz c_eatoms\n')
     line.append('thermo_modify lost ignore\n')
-    # line.append('dump 1 all custom ${Iter_heat} ' + str(output) + ' id type x y z c_csym c_eng\n')
+    line.append('dump 1 all custom 100 ./lammps_dump/heat_0 id type x y z c_csym c_eng\n')
     line.append('run ${Iter_heat}\n')
     # line.append('dump 1 all custom ${Iter_heat} ' + str(output) + ' id type x y z c_csym c_eng\n')
     # line.append('dump_modify 1 every ${Iter_heat} sort id first yes\n')
     line.append('unfix 1\n')
-    # line.append('undump 1\n')
+    line.append('undump 1\n')
     line.append('\n')
     for i in line:
         fiw.write(i)
@@ -293,24 +314,24 @@ def script_equil(fiw, output, Tm, non_p):
     line.append('# -----------------equilibrium step-----------------\n')
     line.append('\n')
     line.append('reset_timestep 0\n')
-    line.append('timestep 0.001\n')
+    line.append('timestep 0.0001\n')
     if non_p == 0:
-        line.append('fix 1 all npt temp ' + str(T) + ' ' + str(T) + ' .1 couple yz  y 0.0 0.0 1.0  z 0.0 0.0 1.0\n')
+        line.append('fix 1 all npt temp ' + str(T) + ' ' + str(T) + ' $(100.0*dt) couple yz  y 0.0 0.0 $(1000.0*dt)  z 0.0 0.0 $(1000.0*dt)\n')
     elif non_p == 1:
-        line.append('fix 1 all npt temp ' + str(T) + ' ' + str(T) + ' .1 couple xz  x 0.0 0.0 1.0  z 0.0 0.0 1.0\n')
+        line.append('fix 1 all npt temp ' + str(T) + ' ' + str(T) + ' $(100.0*dt) couple xz  x 0.0 0.0 $(1000.0*dt)  z 0.0 0.0 $(1000.0*dt)\n')
     else:
-        line.append('fix 1 all npt temp ' + str(T) + ' ' + str(T) + ' .1 couple xy  x 0.0 0.0 1.0  y 0.0 0.0 1.0\n')
+        line.append('fix 1 all npt temp ' + str(T) + ' ' + str(T) + ' $(100.0*dt) couple xy  x 0.0 0.0 $(1000.0*dt)  y 0.0 0.0 $(1000.0*dt)\n')
 
     # line.append('fix 1 all npt temp  ' + str(T) + ' ' + str(T) + ' 0.1 couple xy  x 0.0 0.0 1.0  y 0.0 0.0 1.0\n')
     line.append('thermo 100\n')
     line.append('thermo_style custom step temp pe lx ly lz press pxx pyy pzz c_eatoms\n')
     line.append('thermo_modify lost ignore\n')
-    # line.append('dump 1 all custom ${Iter_equil} ' + str(output) + ' id type x y z c_csym c_eng\n')
+    line.append('dump 1 all custom 10 ./lammps_dump/equil id type x y z c_csym c_eng\n')
     line.append('run ${Iter_equil}\n')
     # line.append('dump 1 all custom ${Iter_equil} ' + str(output) + ' id type x y z c_csym c_eng\n')
     # line.append('dump_modify 1 every ${Iter_equil} sort id first yes\n')
     line.append('unfix 1\n')
-    # line.append('undump 1\n')
+    line.append('undump 1\n')
     line.append('\n')
     for i in line:
         fiw.write(i)
@@ -326,23 +347,194 @@ def script_cooling(fiw, output, Tm, non_p):
     line.append('reset_timestep 0\n')
     line.append('timestep 0.001\n')
     if non_p == 0:
-        line.append('fix 1 all npt temp ' + str(T) + ' .1 .1 couple yz  y 0.0 0.0 1.0  z 0.0 0.0 1.0\n')
+        line.append('fix 1 all npt temp ' + str(T) + ' .01 $(100.0*dt) couple yz  y 0.0 0.0 $(1000.0*dt)  z 0.0 0.0 $(1000.0*dt)\n')
     elif non_p == 1:
-        line.append('fix 1 all npt temp ' + str(T) + ' .1 .1 couple xz  x 0.0 0.0 1.0  z 0.0 0.0 1.0\n')
+        line.append('fix 1 all npt temp ' + str(T) + ' .01 $(100.0*dt) couple xz  x 0.0 0.0 $(1000.0*dt)  z 0.0 0.0 $(1000.0*dt)\n')
     else:
-        line.append('fix 1 all npt temp ' + str(T) + ' .1 .1 couple xy  x 0.0 0.0 1.0  y 0.0 0.0 1.0\n')
+        line.append('fix 1 all npt temp ' + str(T) + ' .01 $(100.0*dt) couple xy  x 0.0 0.0 $(1000.0*dt)  y 0.0 0.0 $(1000.0*dt)\n')
     # line.append('fix 1 all npt temp ' + str(T) + ' .1 .1 couple xy  x 0.0 0.0 1.0  y 0.0 0.0 1.0\n')
     line.append('thermo 10\n')
     line.append('thermo_style custom step temp pe lx ly lz press pxx pyy pzz c_eatoms\n')
     line.append('thermo_modify lost ignore\n')
-    line.append('dump 1 all custom ${Iter_cool} ' + str(output) + ' id type x y z c_csym c_eng\n')
+    # line.append('dump 1 all custom 100 ' + str(output) + ' id type x y z c_csym c_eng\n')
     line.append('run ${Iter_cool}\n')
-    # line.append('dump 1 all custom ${Iter_cool} ' + str(output) + ' id type x y z c_csym c_eng\n')
-    # line.append('dump_modify 1 every ${Iter_cool} sort id first yes\n')
-    # line.append('run 0\n')
+    line.append('dump 1 all custom ${Iter_cool} ' + str(output) + ' id type x y z c_csym c_eng\n')
+    line.append('dump_modify 1 every ${Iter_cool} sort id first yes\n')
+    line.append('run 0\n')
     line.append('unfix 1\n')
     line.append('undump 1\n')
     line.append('\n')
+    for i in line:
+        fiw.write(i)
+
+    return True
+
+
+def script_nve(fiw, output, Tm, non_p, Iter_heat, Iter_equil, Iter_cool):
+    T = Tm / 2
+    line = []
+
+    line.append('# -----------------heating step-----------------\n')
+
+    line.append('fix 1 all nvt temp .01 ' + str(T) + ' 1\n')
+    line.append('thermo 100\n')
+    line.append('run ${Iter_heat}\n')
+    line.append('unfix 1\n')
+    line.append('# -----------------equilibrium step-----------------\n')
+
+    line.append('fix 1 all nvt temp ' + str(T) + ' ' + str(T) + ' 1\n')
+    line.append('thermo 100\n')
+    line.append('thermo_modify lost ignore\n')
+    line.append('run ${Iter_equil}\n')
+    line.append('unfix 1\n')
+
+    line.append('# -----------------cooling step-----------------\n')
+    line.append('fix 1 all nvt temp  ' + str(T) + ' .01 1\n')
+    line.append('thermo 100\n')
+    line.append('thermo_modify lost ignore\n')
+    line.append('run ${Iter_cool}\n')
+    line.append('unfix 1\n')
+
+    line.append('fix 1 all nvt temp .01 .01 1\n')
+    line.append('thermo 100\n')
+    line.append('thermo_modify lost ignore\n')
+    line.append('run ${Iter_equil}\n')
+    line.append('unfix 1\n')
+
+    line.append('\n')
+    line.append('reset_timestep 0\n')
+    line.append('timestep 0.001\n')
+    if non_p == 0:
+        line.append('fix 1 all npt temp .01 .01 .1 couple yz  y 0.0 0.0 1  z 0.0 0.0 1\n')
+    elif non_p == 1:
+        line.append('fix 1 all npt temp .01 .01 .1 couple xz  x 0.0 0.0 1  z 0.0 0.0 1\n')
+    else:
+        line.append('fix 1 all npt temp .01 .01 .1 couple xy  x 0.0 0.0 1  y 0.0 0.0 1\n')
+    # line.append('fix 1 all npt temp ' + str(T) + ' .1 .1 couple xy  x 0.0 0.0 1.0  y 0.0 0.0 1.0\n')
+    line.append('thermo 100\n')
+    line.append('thermo_style custom step temp pe lx ly lz press pxx pyy pzz c_eatoms\n')
+    line.append('thermo_modify lost ignore\n')
+    # line.append('dump 1 all custom 1000 ' + str(output) + ' id type x y z c_csym c_eng\n')
+    line.append('run ${Iter_equil}\n')
+    line.append('dump 1 all custom ${Iter_equil} ' + str(output) + ' id type x y z c_csym c_eng\n')
+    line.append('dump_modify 1 every ${Iter_equil} sort id first yes\n')
+    line.append('run 0\n')
+    line.append('unfix 1\n')
+    line.append('undump 1\n')
+    line.append('\n')
+
+    for i in line:
+        fiw.write(i)
+
+    return True
+
+def script_just_nvt(fiw, output, Tm, non_p, Iter_heat, Iter_equil, Iter_cool):
+
+    T = Tm / 2
+    line = []
+    line.append('velocity all create ' + str(T) + ' 235911\n')
+    line.append('fix 1 all nve \n')
+#thermalize at temperature
+    line.append('thermo 100\n')
+    line.append('thermo_modify flush yes\n')
+    line.append('run 1000\n')
+    line.append('unfix 1\n')
+
+    line.append('# -----------------heating step-----------------\n')
+    line.append('\n')
+
+    line.append('fix 1 all nvt temp .01 ' + str(T) + ' $(100.0*dt)\n')
+    line.append('thermo 100\n')
+    line.append('run ${Iter_heat}\n')
+    line.append('unfix 1\n')
+    line.append('# -----------------equilibrium step-----------------\n')
+    line.append('\n')
+
+    line.append('fix 1 all nvt temp ' + str(T) + ' ' + str(T) + ' $(100.0*dt)\n')
+    line.append('dump 1 all custom 100 equi id type x y z c_csym c_eng\n')
+    line.append('thermo 100\n')
+    line.append('thermo_modify lost ignore\n')
+    line.append('run ${Iter_equil}\n')
+    line.append('unfix 1\n')
+    line.append('undump 1\n')
+
+    line.append('# -----------------cooling step-----------------\n')
+    line.append('\n')
+
+    line.append('fix 1 all nvt temp  ' + str(T) + ' .01 $(100.0*dt)\n')
+    line.append('thermo 100\n')
+    line.append('thermo_modify lost ignore\n')
+    line.append('dump 1 all custom 100 cool id type x y z c_csym c_eng\n')
+    line.append('run ${Iter_cool}\n')
+    line.append('unfix 1\n')
+    line.append('undump 1\n')
+    line.append('fix 1 all nvt temp .01 .01 1\n')
+    line.append('thermo 100\n')
+    line.append('thermo_modify lost ignore\n')
+    line.append('run ${Iter_equil}\n')
+    line.append('unfix 1\n')
+
+    line.append('# -----------------heating step-----------------\n')
+    line.append('\n')
+
+    if non_p == 0:
+        line.append('fix 1 all npt temp .01 ' + str(T) + ' $(100.0*dt) couple yz  y 0.0 0.0 $(1000.0*dt)  z 0.0 0.0 $(1000.0*dt)\n')
+    elif non_p == 1:
+        line.append('fix 1 all npt temp .01 ' + str(T) + ' $(100.0*dt) couple xz  x 0.0 0.0 $(1000.0*dt)  z 0.0 0.0 $(1000.0*dt)\n')
+    else:
+        line.append('fix 1 all npt temp .01 ' + str(T) + ' $(100.0*dt) couple xy  x 0.0 0.0 $(1000.0*dt)  y 0.0 0.0 $(1000.0*dt)\n')
+    line.append('thermo 100\n')
+    line.append('thermo_modify lost ignore\n')
+
+
+    line.append('dump 1 all custom ${Iter_equil} ' + str(output) + ' id type x y z c_csym c_eng\n')
+    line.append('dump_modify 1 every ${Iter_equil} sort id first yes\n')
+    line.append('run 0\n')
+    line.append('undump 1\n')
+    line.append('\n')
+
+    for i in line:
+        fiw.write(i)
+
+    return True
+
+def script_nve_nvt(fiw, output, Tm, non_p, Iter_heat, Iter_equil, Iter_cool):
+
+    T = Tm / 2
+    line = []
+    line.append('velocity all create ' + str(T) + ' 235911\n')
+    line.append('fix 1 all nve \n')
+#thermalize at temperature
+    line.append('thermo 100\n')
+    line.append('thermo_modify flush yes\n')
+    line.append('thermo_modify lost ignore\n')
+    line.append('run 1000\n')
+    line.append('unfix 1\n')
+
+    line.append('# -----------------equilibrium step-----------------\n')
+    line.append('\n')
+
+    line.append('fix 1 all nvt temp ' + str(T) + ' ' + str(T) + ' $(100.0*dt)\n')
+    line.append('dump 1 all custom 100 equi id type x y z c_csym c_eng\n')
+    line.append('thermo 100\n')
+    line.append('thermo_modify lost ignore\n')
+    line.append('run ${Iter_equil}\n')
+    line.append('unfix 1\n')
+    line.append('undump 1\n')
+
+    line.append('# -----------------cooling step-----------------\n')
+    line.append('\n')
+
+    line.append('fix 1 all nvt temp  ' + str(T) + ' .01 .01\n')
+    line.append('thermo 100\n')
+    line.append('thermo_modify lost ignore\n')
+    line.append('run ${Iter_cool}\n')
+    line.append('dump 1 all custom ${Iter_cool} ' + str(output) + ' id type x y z c_csym c_eng\n')
+    line.append('dump_modify 1 every ${Iter_cool} sort id first yes\n')
+    line.append('run 0\n')
+    line.append('undump 1\n')
+    line.append('\n')
+
     for i in line:
         fiw.write(i)
 
@@ -360,7 +552,7 @@ def script_main_min(fil_name, lat_par, tol_fix_reg, dump_name, pot_path, non_p, 
     script_read_dump(fiw, dump_name)
     script_pot(fiw, pot_path)
     script_overlap(fiw, untilted, tol_fix_reg, non_p, step)
-    # define_fix_rigid(fiw, untilted, tilt, box_type, tol_fix_reg, non_p)
+    # define_fix_rigid(fiw, untilted, tilt, box_type, tol_fix_reg, non_p, step)
     script_compute(fiw)
     script_min_sec(fiw, output, non_p, box_type)
 
@@ -382,14 +574,18 @@ def script_main_anneal(fil_name, lat_par, tol_fix_reg, dump_name, pot_path, non_
     box_bound = uf.box_size_reader(dump_name)
     untilted, tilt, box_type = uf.define_bounds(box_bound)
     define_box(fiw, untilted, tilt, box_type)
+    
     script_read_dump(fiw, dump_name)
     script_pot(fiw, pot_path)
-    define_fix_rigid(fiw, untilted, tilt, box_type, tol_fix_reg, non_p)
     script_compute(fiw)
-    script_heating(fiw, output, Tm, non_p)
-    script_equil(fiw, output, Tm, non_p)
-    script_cooling(fiw, output, Tm, non_p)
-    script_min_sec(fiw, output, non_p, box_type)
+    # define_fix_rigid(fiw, untilted, tilt, box_type, tol_fix_reg, non_p, step)
+    # script_heating(fiw, output, Tm, non_p)
+    # script_equil(fiw, output, Tm, non_p)
+    # script_cooling(fiw, output, Tm, non_p)
+    
+    # script_min_sec(fiw, output, non_p, box_type)
+    script_nve_nvt(fiw, output, Tm, non_p, Iter_heat, Iter_equil, Iter_cool)
+
 
 
 def run_lammps_anneal(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path,\
@@ -404,13 +600,27 @@ def run_lammps_anneal(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammp
 # lammps_exe_path = '/home/leila/Downloads/mylammps/src/lmp_mpi'
 # lat_par = 4.05
 # tol_fix_reg = lat_par * 5
-# filename0 = './tests/data/dump.3'
-# fil_name = 'in.min'
+# filename0 = './tests/data/dump_1'
+# fil_name = 'in.min_1'
 # pot_path = './lammps_dump/'
 # Tm = 1000
-# run_lammps_min(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, './lammps_dump/dump.0',\
-#                step=1, Etol=1e-9, Ftol=1e-9, MaxIter=10000, MaxEval=10000)
+# out_min_1 = './lammps_dump/dump.0'
+# run_lammps_min(filename0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, out_min_1,\
+#                step=1, Etol=1e-25, Ftol=1e-25, MaxIter=10000, MaxEval=10000)
 
 # fil_name1 = 'in.anneal'
-# run_lammps_anneal('./lammps_dump/dump.0', fil_name1, pot_path, lat_par, tol_fix_reg, lammps_exe_path, './lammps_dump/dump_heat',\
-#                    Tm,  step=2, Etol=1e-25, Ftol=1e-25, MaxIter=5000, MaxEval=10000, Iter_heat=1000, Iter_equil=10000, Iter_cool=12000)
+# out_heat = './lammps_dump/heat'
+# run_lammps_anneal(out_min_1, fil_name1, pot_path, lat_par, tol_fix_reg, lammps_exe_path, out_heat,\
+#                    Tm,  step=2, Etol=1e-25, Ftol=1e-25, MaxIter=10000, MaxEval=10000, Iter_heat=1000, Iter_equil=20000, Iter_cool=10000)
+
+# lines = open(out_heat, 'r').readlines()
+# lines[1] = '0\n'
+# out = open(out_heat, 'w')
+# out.writelines(lines)
+# out.close()
+
+
+# fil_name2 = 'in.min_2'
+# out_min_2 = './lammps_dump/final'
+# run_lammps_min(out_heat, fil_name2, pot_path, lat_par, tol_fix_reg, lammps_exe_path, out_min_2,\
+#                step=2, Etol=1e-25, Ftol=1e-25, MaxIter=10000, MaxEval=10000)

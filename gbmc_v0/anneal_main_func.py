@@ -19,38 +19,67 @@ Tm = 933.5
 weight_1 = .5
 tol_fix_reg = 5 * lat_par  # the width of rigid traslation region
 SC_tol = 5 * lat_par
-str_alg = "ptm"
+# str_alg = "ptm"
+str_alg = "csc"
 csc_tol = .1
-method = "anneal"
-# method = "min"
+# method = "anneal"
+method = "min"
+Etol_val=1e-25
+Ftol_val=1e-25
+if method=="anneal":
+    Etol_val0=1e-5
+    Ftol_val0=1e-5
+else:
+    Etol_val0=1e-25
+    Ftol_val0=1e-25
+
+MaxIter_val=5000
+MaxEval_val=10000
+Iter_heat_val=1000
+Iter_equil_val=3000
+Iter_cool_val=1000
 #  --------------------------------------------------------------------------
 #  Define the path to dump files
 #  --------------------------------------------------------------------------
 lammps_exe_path = '/home/leila/Downloads/mylammps/src/lmp_mpi'
 pot_path = './lammps_dump/'  # the path for the potential
 dump_path = './lammps_dump/test/'
-pkl_file = './tests/data/gb_attr.pkl'
-initial_dump = 'tests/data/dump.3'  # the name of the dump file that
+pkl_file = './tests/data/gb_attr_Al_S3_1_N1_4_-1_-3_N2_-3_4_-1.pkl'
+initial_dump = 'tests/data/dump_1'  # the name of the dump file that
 output =  dump_path + 'dump_min'
 #  --------------------------------------------------------------------------
 #  Create lammps dump file for pkl file
 #  --------------------------------------------------------------------------
-# box_bound, dump_lamp, box_type = ldw.lammps_box(lat_par, pkl_file) # lammps creates from the pkl file
-# ldw.write_lammps_dump(initial_dump, box_bound, dump_lamp, box_type)  # writing the dump file
+box_bound, dump_lamp, box_type = ldw.lammps_box(lat_par, pkl_file) # lammps creates from the pkl file
+ldw.write_lammps_dump(initial_dump, box_bound, dump_lamp, box_type)  # writing the dump file
 
 #  --------------------------------------------------------------------------
 #  Define the path to dump files
 #  --------------------------------------------------------------------------
-filename_0 = dump_path + 'dump.0' # the output of previous step
-fil_name = 'in.min'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
-lsw.run_lammps_min(initial_dump, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path,filename_0,\
-                   step=1, Etol=1e-9, Ftol=1e-9, MaxIter=10000, MaxEval=10000)
+out_min_1 = dump_path + 'dump.0' # the output of previous step
+fil_name = 'in.min_1'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
+lsw.run_lammps_min(initial_dump, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, out_min_1,\
+               step=1, Etol=Etol_val0, Ftol=Ftol_val0, MaxIter=MaxIter_val, MaxEval=MaxEval_val)
 if method == "anneal":
-    lsw.run_lammps_anneal(filename_0, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, output,\
-                          Tm, step=2, Etol=1e-9, Ftol=1e-9, MaxIter=10000, MaxEval=10000, Iter_heat=1000, Iter_equil=10000, Iter_cool=12000)
-    filename_0 = output
+    fil_name1 = 'in.anneal'
+    out_heat = dump_path + 'heat.0'
+    lsw.run_lammps_anneal(out_min_1, fil_name1, pot_path, lat_par, tol_fix_reg, lammps_exe_path, out_heat,\
+                    Tm,  step=2, Etol=Etol_val, Ftol=Ftol_val, MaxIter=MaxIter_val, MaxEval=MaxEval_val, Iter_heat=Iter_heat_val, Iter_equil=Iter_equil_val, Iter_cool=Iter_cool_val)
 
-    # lsw.run_lammps_min(output, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path,filename_0, step=1, Etol=1e-9, Ftol=1e-9, MaxIter=5000, MaxEval=10000)
+    lines = open(out_heat, 'r').readlines()
+    lines[1] = '0\n'
+    out = open(out_heat, 'w')
+    out.writelines(lines)
+    out.close()
+
+    fil_name2 = 'in.min_2'
+    out_min_2 = dump_path + 'dump.1'
+    lsw.run_lammps_min(out_heat, fil_name2, pot_path, lat_par, tol_fix_reg, lammps_exe_path, out_min_2,\
+                step=2, Etol=Etol_val, Ftol=Ftol_val, MaxIter=MaxIter_val, MaxEval=MaxEval_val)
+
+    filename_0 = out_min_2
+else:
+    filename_0 = out_min_1
 
 #  --------------------------------------------------------------------------
 #  Start MC
@@ -84,19 +113,35 @@ for i in range(1, iter, 1):
         var2change = data_0.particles['Particle Identifier'][GbIndex[ID2change]]
         uf.atom_removal(filename_0, dump_path , GbIndex[ID2change], var2change)
         
-        fil_name = 'in.min'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
+        fil_name = 'in.min_1'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
         filename_rem = dump_path + 'rem_dump'
-        copyfile(filename_rem, dump_path + 'rem/rem_dump_' + str(i))
+        # copyfile(filename_rem, dump_path + 'rem/rem_dump_' + str(i))
         filename_1 = dump_path + 'dump.' + str(i)
         #  --------------------------------------------------------------------------------------------------
-        lsw.run_lammps_min(filename_rem, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, filename_1\
-                           , Etol=1e-9, Ftol=1e-9, MaxIter=10000, MaxEval=10000)
-        if method == "anneal":
-            lsw.run_lammps_anneal(filename_1, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path,\
-                        output, Tm, step=2, Etol=1e-9, Ftol=1e-9, MaxIter=10000, MaxEval=10000, Iter_heat=1000, Iter_equil=10000, Iter_cool=12000)
+        lsw.run_lammps_min(filename_rem, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, filename_1,\
+               step=2, Etol=Etol_val0, Ftol=Ftol_val0, MaxIter=MaxIter_val, MaxEval=MaxEval_val)
+        copyfile(filename_rem, dump_path + 'rem/min1_' + str(i))
 
-            # lsw.run_lammps_min(output, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path,\
-                            # filename_1, step=1, Etol=1e-9, Ftol=1e-9, MaxIter=5000, MaxEval=10000)
+        if method == "anneal":
+            fil_name1 = 'in.anneal'
+            out_heat = dump_path + 'heat.0'
+            lsw.run_lammps_anneal(filename_1, fil_name1, pot_path, lat_par, tol_fix_reg, lammps_exe_path, out_heat,\
+                                Tm,  step=2, Etol=Etol_val, Ftol=Ftol_val, MaxIter=MaxIter_val, MaxEval=MaxEval_val, Iter_heat=Iter_heat_val, Iter_equil=Iter_equil_val, Iter_cool=Iter_cool_val)
+
+            lines = open(out_heat, 'r').readlines()
+            lines[1] = '0\n'
+            out = open(out_heat, 'w')
+            out.writelines(lines)
+            out.close()
+            copyfile(out_heat, dump_path + 'rem/heat_' + str(i))
+
+
+            fil_name2 = 'in.min_2'
+            out_min_2 = dump_path + 'dump.' + str(i)
+            lsw.run_lammps_min(out_heat, fil_name2, pot_path, lat_par, tol_fix_reg, lammps_exe_path, out_min_2,\
+                            step=2, Etol=Etol_val, Ftol=Ftol_val, MaxIter=MaxIter_val, MaxEval=MaxEval_val)
+            filename_1 = out_min_2
+
         #  --------------------------------------------------------------------------------------------------
         
         data_1 = uf.compute_ovito_data(filename_1)
@@ -142,21 +187,38 @@ for i in range(1, iter, 1):
         ff.write(str(i) + ' ' + choice + ' ' + str(pos_add_atom) )
         ff.write('\n')
 
-        fil_name = 'in.min'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
+        filename_1 = dump_path + 'dump.' + str(i)
+        #  -------------------------------------------------------------------------------------------------
+
+        fil_name = 'in.min_1'  # the initila minimization lammps script write the in.min script and run it and create dump_minimized
         filename_ins = dump_path + 'ins_dump'
-        copyfile(filename_ins, dump_path + 'ins/ins_dump_' + str(i))
+        # copyfile(filename_rem, dump_path + 'rem/rem_dump_' + str(i))
         filename_1 = dump_path + 'dump.' + str(i)
         #  --------------------------------------------------------------------------------------------------
-        lsw.run_lammps_min(filename_ins, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, filename_1\
-                           , Etol=1e-9, Ftol=1e-9, MaxIter=10000, MaxEval=10000)
+        lsw.run_lammps_min(filename_ins, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path, filename_1,\
+               step=2, Etol=Etol_val0, Ftol=Ftol_val0, MaxIter=MaxIter_val, MaxEval=MaxEval_val)
+        copyfile(filename_1, dump_path + 'ins/min1_' + str(i))
         if method == "anneal":
-            lsw.run_lammps_anneal(filename_1, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path,\
-                        output, Tm, step=2, Etol=1e-9, Ftol=1e-9, MaxIter=10000, MaxEval=10000, Iter_heat=1000, Iter_equil=10000, Iter_cool=12000)
+            fil_name1 = 'in.anneal'
+            out_heat = dump_path + 'heat.0'
+            lsw.run_lammps_anneal(filename_1, fil_name1, pot_path, lat_par, tol_fix_reg, lammps_exe_path, out_heat,\
+                                Tm,  step=2, Etol=Etol_val, Ftol=Ftol_val, MaxIter=MaxIter_val, MaxEval=MaxEval_val, Iter_heat=Iter_heat_val, Iter_equil=Iter_equil_val, Iter_cool=Iter_cool_val)
 
-            # lsw.run_lammps_min(output, fil_name, pot_path, lat_par, tol_fix_reg, lammps_exe_path,\
-            #                 filename_1, step=1, Etol=1e-9, Ftol=1e-9, MaxIter=5000, MaxEval=10000)
-        #  --------------------------------------------------------------------------------------------------
-        
+            lines = open(out_heat, 'r').readlines()
+            lines[1] = '0\n'
+            out = open(out_heat, 'w')
+            out.writelines(lines)
+            out.close()
+            copyfile(out_heat, dump_path + 'ins/heat_' + str(i))
+
+
+            fil_name2 = 'in.min_2'
+            out_min_2 = './lammps_dump/final'
+            lsw.run_lammps_min(out_heat, fil_name2, pot_path, lat_par, tol_fix_reg, lammps_exe_path, out_min_2,\
+                            step=2, Etol=Etol_val, Ftol=Ftol_val, MaxIter=MaxIter_val, MaxEval=MaxEval_val)
+            filename_1 = out_min_2
+
+
         data_1 = uf.compute_ovito_data(filename_1)
         SC_boolean = uf.check_SC_reg(data_1, lat_par, rCut, non_p, tol_fix_reg, SC_tol, str_alg, csc_tol)
         assert SC_boolean == [True, True]

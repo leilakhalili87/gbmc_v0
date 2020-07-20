@@ -18,6 +18,8 @@ lat_par = 4.05
 non_p = 2
 weight_1= 0.5
 CohEng= -3.35999998818377  #  calculated from in.cohesive
+str_alg = "csc"
+csc_tol = .1
 
 rCut = 2*lat_par
 Tm = 1000
@@ -25,7 +27,7 @@ weight_1 = .5
 tol_fix_reg = 5 * lat_par  # the width of rigid traslation region
 SC_tol = 5 * lat_par
 directory_a = '/home/leila/Downloads/15_al_S5_0_N1_1_-2_1_N2_-1_1_-2/accepted_steps/'
-directory_m = '/home/leila/Leila_sndhard/codes/gbmc_python/gbmc_v0/gbmc_v0/gbmc_v0/lammps_dump/test_pkl/accepted/'
+directory_m = '/home/leila/Leila_sndhard/codes/gbmc_python/gbmc_v0/gbmc_v0/gbmc_v0/lammps_dump/test/accepted/'
 directory = [directory_m, directory_a]
 directory = [directory_m]
 # directory = ['/home/leila/Leila_sndhard/codes/gbmc_python/gbmc_v0/gbmc_v0/gbmc_v0/lammps_dump/test/accepted/']
@@ -41,7 +43,7 @@ for n_run in range(1,2):
             num = re.findall('.*[._]([0-9]+)', i)
             filename_0 = dir + i
             data = uf.compute_ovito_data(filename_0)
-            eng = uf.cal_GB_E(data, weight_1, non_p, lat_par, CohEng)
+            eng = uf.cal_GB_E(data, weight_1, non_p, lat_par, CohEng, str_alg, csc_tol)
             energy = energy + [eng]
             # print(eng)
             iteration = iteration + [int(num[0])]
