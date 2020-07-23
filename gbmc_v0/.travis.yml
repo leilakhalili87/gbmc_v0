@@ -1,0 +1,30 @@
+language: python
+python:
+  - 3.6
+cache:
+  directories:
+    - $HOME/.cache/pip
+    - $HOME/.ccache  
+
+
+env:
+  global:
+    # Doctr deploy key for leilakhalili87/gbmc_v0
+    - secure: "NzPlWMcoUmwpL4/BcyoA7JAtuwvCnl9z+Uu48p+YFO7p+h8nj+gkNYhG2gyK3ppedn6CdHwY8MzYFCnaXqJT/qr3unuZPc28z97xiTkgs8EDC7aN9XBSOgex+X3ou/NSRvItdZjclykjMhaApELtjONOLn8JbUxccGPeqQ0cN8uPDYrmIdvgsYFZLwNXjlBI2ggKbJMrgkXfeAd5PM7ekFH76Bfili3syEGQbElmbgWwA4pEkm+Fr52p5BsLCWuOh/ImyAyiOPnvLNfcZdNsRMUEcJeV+6E6ddlBO4AajNk7n2X9mK7Jfd2DJNB7oxnZ7FHyl2isuSftDGAaT6et1YA0uqNQ/EGacF6ozWwzHoYUjrBOHd6SmI0TMZD83TQH1Aw/tCDitoQnv4JknZl1RplXxq3CZhzOiGl8dmUW24UtpZv6NnmSDi4bUTB5dQZub4KXrabQ1rBeZO6toHgVV8zx/vs+NhJiJsH5sV+JlN1ID6R+AiND2qW8koYhUy+5SXezQ43gEE9xoyiBjAaSuvDk5hc9PzkYCL9LFRdrAst1e/R5hW1F3IlKPTSYVOHCYxD6mdMLliHoVK8ovjgesyfklwvND34EYWCFln+zxt6l0OKUalUXo7Qsquqe+KuUdHVlb0n8tsDVIE5oW0WDmLGdirhEcPDMUJOXYMkou18="
+install:
+  - sudo apt-get install -y
+    pandoc
+  # Install this package and the packages listed in requirements.txt.
+  - pip install .
+  # Install extra requirements for running tests and building docs.
+  - pip install -r requirements-dev.txt
+
+script:
+  - coverage run -m pytest  # Run the tests and check for test coverage.
+  - coverage report -m  # Generate test coverage report.
+  - codecov  # Upload the report to codecov.
+  - flake8  # Enforce code style ('relaxed' line length limit is set in .flake8 config file).
+  - set -e
+  - make -C docs html  # Build the documentation.
+  - pip install doctr
+  - doctr deploy --built-docs docs/build/html .
